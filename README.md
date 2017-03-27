@@ -15,7 +15,9 @@
 - Later on we need to count waiting on a spot as 1 (or more) time units. Current algorithm only counts steps.
 - Crazy idea: put out small fires with fire extinguishers?
 - We later need to solve the problem with two players trying to reach the same node at the same time unit. Random wait? Communication between the players? Rerouting?
+- Separate runtime and graphics print timme
 
 
 ## USED CODE AND LINKS
 [CODE] [A* pathfinding algorithm](http://code.activestate.com/recipes/578919-python-a-pathfinding-with-binary-heap/)
+
