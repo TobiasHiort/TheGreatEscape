@@ -12,27 +12,44 @@ func printMatrix(matrix [][]int, num int) {
 func fire(matrix [][]int, x int, y int) {
 
 	matrix[x][y] += 3 // [row, column], 3 = full fire from start
-	printMatrix(matrix, 0) // print first fire
+	printMatrix(matrix, 0)
 
-	for i := 0; i < 3; i++ {
-		fireAddAdjacent(matrix, x, y)
-		x += 1
-		y += 1
-		fireAddAdjacent(matrix, x, y)
-
-		printMatrix(matrix, i+1)
+	for n := 0; n < 8; n++ { // n = number of time units
+		matrix = fireChecker(matrix)
+		printMatrix(matrix, n+1)	
 	}
-
 }
 
-func fireAddAdjacent(matrix [][]int, x int, y int) {
-	
-	if (x+1) < len(matrix) && (y+1) < len(matrix[0]) {
-		matrix[x+1][y] += 1
-		matrix[x][y+1] += 1
-		matrix[x-1][y] += 1
-		matrix[x][y-1] += 1	
+// check adjacent tiles in matrix for fire status
+func fireChecker(matrix [][]int) [][]int {
+// return = (...) _[][]int_ {}
+	for row := 0; row < len(matrix); row++ {
+		for column:= 0 ; column < len(matrix[0]); column++ {
+			if matrix[row][column] == 3 {
+				if row+1 < len(matrix) && row+1 >= 0 {
+					if matrix[row+1][column] != 3 {
+						matrix[row+1][column] += 1
+					}
+				}
+				if column+1 < len(matrix[0]) && column+1 >= 0 {
+					if matrix[row][column+1] != 3 {
+						matrix[row][column+1] += 1
+					}
+				}
+				if row-1 < len(matrix) && row-1 >= 0 {
+					if matrix[row-1][column] != 3 {
+						matrix[row-1][column] += 1
+					}
+				}
+				if column-1 < len(matrix[0]) && column-1 >= 0 {
+					if matrix[row][column-1] != 3 {
+						matrix[row][column-1] += 1
+					}
+				}
+			}
+		}
 	}
+	return matrix
 }
 
 func main() {
@@ -46,7 +63,7 @@ func main() {
 		{0, 0, 0, 0, 0}}
 	
 	// run fire algorithm
-	fire(startMatrix, 2, 3) // [row, column]
+	fire(startMatrix, 2, 2) // [row, column] = start pos
 
 	//fmt.Print(len(startMatrix))
 	fmt.Print(len(startMatrix[0])) // column
