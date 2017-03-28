@@ -19,3 +19,4 @@
 
 ## USED CODE AND LINKS
 [CODE] [A* pathfinding algorithm](http://code.activestate.com/recipes/578919-python-a-pathfinding-with-binary-heap/)
+[WIKI] [Von Neumann neighborhood](https://en.wikipedia.org/wiki/Von_Neumann_neighborhood)
