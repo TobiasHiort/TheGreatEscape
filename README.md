@@ -11,9 +11,9 @@
 - Somewhat inconsistent with [] vs. () for arrays/tuples etc.
 - Walls should be thinner IMO, but then the pathfinding mechanism wont work as is.
 - Untried for MxN matrix, but should work.
-- Implement reading matrix from .PNGs via color coding. Not reasonable to manually facilitate a much larger matrix.
+- :white_check_mark: Implement reading matrix from .PNGs via color coding. Not reasonable to manually facilitate a much larger matrix.
 - Later on we need to count waiting on a spot as 1 (or more) time units. Current algorithm only counts steps.
-- Crazy idea: put out small fires with fire extinguishers?
+- Crazy idea: put out small fires with fire extinguishers/sprinklers?
 - We later need to solve the problem with two players trying to reach the same node at the same time unit. Random wait? Communication between the players? Rerouting?
 
 
