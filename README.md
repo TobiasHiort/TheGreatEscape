@@ -14,6 +14,7 @@
 	- checks adjacent tiles for heat. If heat > 9 then burn
 	- pushes up the heat on adjacent tiles
 - pipes wherabouts to people
+- 
 
 #### People
 - A\* movement algorithm
@@ -22,12 +23,14 @@
 	- can lock one tile for booking
 	-	can lock one tile for occupation
 - recalcs movement as soon as either FIRE or PEOPLE are in the way. 
+- HEALTH: implement A\* heuristics for people to maximize health
 
 #### Rooms
 - separate instances
+- int smoke
 
-
-
+####
+- Trick A\* to think that heat tiles are slower to pass. This can be an implementation of path priority /hhuehueristics
 
 ## USED CODE AND LINKS
 [CODE] [A* pathfinding algorithm](http://code.activestate.com/recipes/578919-python-a-pathfinding-with-binary-heap/)  
