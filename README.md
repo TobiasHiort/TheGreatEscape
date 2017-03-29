@@ -1,45 +1,21 @@
 # THE GREAT ESCAPE's REPO
-
-##### PROBLEMS
-- Can start on wall. (Kinda solved @ row 102 (draw player section). Should be solved while spawning).
-- Can finish with a door in a corner (or if an inner wall is adjacent to the outer wall), because diagnoal movement is allowed. Should be handled somehow.
-- Geometrically speaking, diagonal movement is longer than xy-movement.
-- Only one door is possible right now.
-- Fire could right now be represented as walls. We might however want to add degrees of fire hazard, then we need to look into the A* algorithm to handle more than 1/0. Plus people can't die or stand in walls...
-
-##### TODOS
-- Somewhat inconsistent with [] vs. () for arrays/tuples etc.
-- Walls should be thinner IMO, but then the pathfinding mechanism wont work as is.
-- Untried for MxN matrix, but should work.
-- :white_check_mark: Implement reading matrix from .PNGs via color coding. Not reasonable to manually facilitate a much larger matrix.
-- Later on we need to count waiting on a spot as 1 (or more) time units. Current algorithm only counts steps.
-- Crazy idea: put out small fires with fire extinguishers/sprinklers?
-- We later need to solve the problem with two players trying to reach the same node at the same time unit. Random wait? Communication between the players? Rerouting?
-
-
-## USED CODE AND LINKS
-[CODE] [A* pathfinding algorithm](http://code.activestate.com/recipes/578919-python-a-pathfinding-with-binary-heap/)  
-[WIKI] [Von Neumann neighborhood](https://en.wikipedia.org/wiki/Von_Neumann_neighborhood)
-
-
-#### ---------------- ####
-
-
-##### Tiles
+## TODO:
+#### Tiles
 - [ ] Every tile is an object. Every tile needs a few variables.
 	- int heat (1-10)
 	- bool wall
+		- thinner walls?
 	- [ ] Lock
 		- Reserved
 		- Occupied
 
-##### Fire
+#### Fire
 - [ ] spreading algorithm
 	- checks adjacent tiles for heat. If heat > 9 then burn
 	- pushes up the heat on adjacent tiles
 - pipes wherabouts to people
 
-##### People
+#### People
 - A\* movement algorithm
 	- Heuristics - how scary is the fire vs how nice is the door?
 - checks locks of adjacent tiles when moving
@@ -47,6 +23,12 @@
 	-	can lock one tile for occupation
 - recalcs movement as soon as either FIRE or PEOPLE are in the way. 
 
-
-##### Rooms
+#### Rooms
 - separate instances
+
+
+
+
+## USED CODE AND LINKS
+[CODE] [A* pathfinding algorithm](http://code.activestate.com/recipes/578919-python-a-pathfinding-with-binary-heap/)  
+[WIKI] [Von Neumann neighborhood](https://en.wikipedia.org/wiki/Von_Neumann_neighborhood)
