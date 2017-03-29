@@ -4,8 +4,8 @@ import os
 import numpy
 import math
 
-import tkinter as tk
-from tkinter import filedialog
+#import tkinter as tk
+##from tkinter import filedialog
 
 from PIL import Image
 from pygame import gfxdraw
@@ -24,7 +24,7 @@ COLOR_BACKGROUND = (245, 245, 245)
 PADDING_MAP = 10
 
 # read image to matrix
-mapImage = Image.open(os.path.join('maps\map1.png'))
+mapImage = Image.open(os.path.join('maps/map1.png'))
 mapRGBA = mapImage.load()
 mapMatrix = numpy.zeros((mapImage.size[1], mapImage.size[0])) # (rows, column)
 
@@ -68,14 +68,14 @@ def addSprite(path, x, y):
 # init game
 pygame.init()
 
-icon = pygame.image.load("gui\window_icon.png")
+icon = pygame.image.load("gui/window_icon.png")
 pygame.display.set_icon(icon)
 
 displaySurface = pygame.display.set_mode((GAME_RES)) # ,pygame.NOFRAME
 
 
-#pygame.image.load(os.path.join('gui\window_icon.png')).convert()
-#pygame.display.set_icon(pygame.image.load(os.path.join('gui\window_icon.png')).convert())
+#pygame.image.load(os.path.join('gui/window_icon.png')).convert()
+#pygame.display.set_icon(pygame.image.load(os.path.join('gui/window_icon.png')).convert())
 
 displaySurface.fill(COLOR_BACKGROUND)
 pygame.display.set_caption(GAME_NAME)
@@ -105,21 +105,21 @@ displaySurface.blit(MENU_RIGHT, (907, 45))
 
 # layers ???
 #layer1 = pygame.sprite.LayeredUpdates()
-#BUTTON_SETTINGS_ACTIVE = addSprite('gui\settings_active.png', 203, 0)
+#BUTTON_SETTINGS_ACTIVE = addSprite('gui/settings_active.png', 203, 0)
 #layer1.add(BUTTON_SETTINGS_ACTIVE)
 
 # add button sprites
-BUTTON_SIMULATION_ACTIVE = addSprite('gui\simulation_active.png', 0, 0)
-#BUTTON_SIMULATION_BLANK = addSprite('gui\simulation_blank.png', 0, 0)
-#BUTTON_SIMULATION_HOVER = addSprite('gui\simulation_hover.png', 0, 0)
+BUTTON_SIMULATION_ACTIVE = addSprite('gui/simulation_active.png', 0, 0)
+#BUTTON_SIMULATION_BLANK = addSprite('gui/simulation_blank.png', 0, 0)
+#BUTTON_SIMULATION_HOVER = addSprite('gui/simulation_hover.png', 0, 0)
 
-#BUTTON_SETTINGS_ACTIVE = addSprite('gui\settings_active.png', 202, 0)
-BUTTON_SETTINGS_BLANK = addSprite('gui\settings_blank.png', 202, 0)
-#BUTTON_SETTINGS_HOVER = addSprite('gui\settings_hover.png', 202, 0)
+#BUTTON_SETTINGS_ACTIVE = addSprite('gui/settings_active.png', 202, 0)
+BUTTON_SETTINGS_BLANK = addSprite('gui/settings_blank.png', 202, 0)
+#BUTTON_SETTINGS_HOVER = addSprite('gui/settings_hover.png', 202, 0)
 
-#BUTTON_STATISTICS_ACTIVE = addSprite('gui\statistics_active.png', 382, 0)
-BUTTON_STATISTICS_BLANK = addSprite('gui\statistics_blank.png', 382, 0)
-#BUTTON_STATISTICS_HOVER = addSprite('gui\statistics_hover.png', 382, 0)
+#BUTTON_STATISTICS_ACTIVE = addSprite('gui/statistics_active.png', 382, 0)
+BUTTON_STATISTICS_BLANK = addSprite('gui/statistics_blank.png', 382, 0)
+#BUTTON_STATISTICS_HOVER = addSprite('gui/statistics_hover.png', 382, 0)
 
 #displaySurface.blit(BUTTON_SETTINGS_ACTIVE, (0, 0))
 
@@ -127,7 +127,7 @@ BUTTON_STATISTICS_BLANK = addSprite('gui\statistics_blank.png', 382, 0)
 file_opt = options = {}
 options['defaultextension'] = '.png'
 options['filetypes'] = [('PNG Map Files', '.png')]
-options['initialdir'] = os.getcwd() + '\maps'
+options['initialdir'] = os.getcwd() + '/maps'
 options['initialfile'] = 'mapXX.png'
 #options['parent'] = root
 options['title'] = 'Select Map'
@@ -141,12 +141,12 @@ while True:
         elif event.type == KEYDOWN:
             if event.key == K_RIGHT:
                 playerPos[0] += 1
-            elif event.key == K_UP:
-                root = tk.Tk()
-                root.withdraw()
-                file_path = filedialog.askopenfilename(**file_opt)
-                filename_pos = file_path.rfind('/')+1 # position for filename
-                print(file_path[filename_pos:]) # expand from here, probably need to create funcions for rendering before?
+            ##elif event.key == K_UP:
+             ##   root = tk.Tk()
+              ##  root.withdraw()
+               ## file_path = filedialog.askopenfilename(**file_opt)
+                ##filename_pos = file_path.rfind('/')+1 # position for filename
+                ##print(file_path[filename_pos:]) # expand from here, probably need to create funcions for rendering before?
 
     #pygame.gfxdraw.aacircle(displaySurface, 500, 500, 30, COLOR_GREEN)
     #pygame.gfxdraw.filled_circle(displaySurface, 500, 500, 30, COLOR_GREEN)
