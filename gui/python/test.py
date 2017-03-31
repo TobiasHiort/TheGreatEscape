@@ -25,7 +25,7 @@ COLOR_BACKGROUND = (245, 245, 245)
 PADDING_MAP = 10
 
 # read image to matrix
-mapImage = Image.open(os.path.join('maps', 'map4.png'))
+mapImage = Image.open(os.path.join('maps', 'map3.png'))
 mapRGBA = mapImage.load()
 mapMatrix = numpy.zeros((mapImage.size[1], mapImage.size[0])) # (rows, column)
 
@@ -40,7 +40,7 @@ MAPWIDTH = mapImage.size[0] # number of columns in matrix
 MAPHEIGHT = mapImage.size[1] # number of rows in matrix
 
 # player start coords
-playerPos = [2, 2] # remove later
+playerPos = [0, 0] # remove later
 
 # dictionary
 colors = {
@@ -94,8 +94,9 @@ mapSurface.fill(COLOR_BACKGROUND)
 FONT_ROBOTOMEDIUM18 = pygame.font.Font('Roboto-Medium.ttf', 18)
 
 # import/display images
-PLAYER_TMP = pygame.image.load(os.path.join('gui', 'player.png')).convert_alpha()
-PLAYER = pygame.transform.scale(PLAYER_TMP, (TILESIZE, TILESIZE))
+#PLAYER_TMP = pygame.image.load(os.path.join('gui', 'player.png')).convert_alpha()
+#PLAYER = pygame.transform.scale(PLAYER_TMP, (TILESIZE, TILESIZE))
+#PLAYER = pygame.draw.circle(mapSurface, COLOR_GREEN, (0, 0), 5)
 
 MENU_FADE = pygame.image.load(os.path.join('gui', 'menu_fade.png')).convert()
 displaySurface.blit(MENU_FADE, (0, 45))
@@ -145,7 +146,13 @@ while True:
         elif event.type == KEYDOWN:
             if event.key == K_RIGHT:
                 playerPos[0] += 1 # change player pos which will be rendered in the next frame
-            elif event.key == K_UP:
+            if event.key == K_LEFT:
+                playerPos[0] -= 1 # change player pos which will be rendered in the next frame
+            if event.key == K_DOWN:
+                playerPos[1] += 1 # change player pos which will be rendered in the next frame
+            if event.key == K_UP:
+                playerPos[1] -= 1 # change player pos which will be rendered in the next frame
+            elif event.key == K_u:
                 root = tk.Tk()
                 root.withdraw()
                 file_path = filedialog.askopenfilename(**file_opt)
@@ -158,13 +165,19 @@ while True:
     #pygame.draw.rect(displaySurface, COLOR_GREEN, (0, 0, 20, 20))
     #pygame.draw.circle(mapSurface, COLOR_GREEN, (0, 0), 5)
 
-	# create the map with draw.rect and the player and then blit them
+    # create the map with draw.rect and the player and then blit them
     for row in range(MAPHEIGHT):
 	    for column in range(MAPWIDTH):
 	        pygame.draw.rect(mapSurface, colors[mapMatrix[row][column]], (column*TILESIZE+((907-2*PADDING_MAP)/(2))-((MAPWIDTH*TILESIZE)/2)+PADDING_MAP, (row*TILESIZE+((713-1*PADDING_MAP)/(2))-((MAPHEIGHT*TILESIZE)/2)), TILESIZE, TILESIZE)) 
-    mapSurface.blit(PLAYER, (playerPos[0]*TILESIZE+15, playerPos[1]*TILESIZE+15))
+    
+    #pygame.draw.circle(mapSurface, COLOR_GREEN, (0, 0), 5)
+    pygame.draw.circle(mapSurface, COLOR_GREEN, ((playerPos[0]*TILESIZE + math.floor(TILESIZE/2) + math.floor(((907-2*PADDING_MAP)/(2))-((MAPWIDTH*TILESIZE)/2)+PADDING_MAP)), playerPos[1]*TILESIZE+round(TILESIZE/2) + round(0*TILESIZE+((713-1*PADDING_MAP)/(2))-((MAPHEIGHT*TILESIZE)/2))), round(math.floor(TILESIZE/2)*1.0))
+    #mapSurface.blit(PLAYER, ((playerPos[0]*TILESIZE + math.floor(TILESIZE/2)), playerPos[1]*TILESIZE)) # add half horizontal distance
     displaySurface.blit(mapSurface, (0*PADDING_MAP, 55))
 
+    #print((0*TILESIZE+((907-2*PADDING_MAP)/(2))-((MAPWIDTH*TILESIZE)/2)+PADDING_MAP)) # width
+    #print((0*TILESIZE+((713-1*PADDING_MAP)/(2))-((MAPHEIGHT*TILESIZE)/2))) # height
+    
     #time.sleep(5)
 
     # update display if not quitting
