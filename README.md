@@ -29,6 +29,15 @@
 - separate instances
 - int smoke
 
+#### GUI
+- Up arrow is upload right now, replace with button later
+- Remove move player with right arrow, but keep the mechanics
+- Determine if PNG is to large or small
+- Represent player as a drawn circle instead of a png? Better scaling
+- Figure out how to make click/hover buttons and how to view different tabs
+- Create test matrix run file with a player moving, and figure out how to step through it graphically/run it in some speed
+- Think about layering (player movement, fire, smoke)
+
 ####
 - Trick A\* to think that heat tiles are slower to pass. This can be an implementation of path priority /hhuehueristics
 
