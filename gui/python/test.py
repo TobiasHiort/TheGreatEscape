@@ -3,9 +3,10 @@ import sys
 import os
 import numpy
 import math
+import time
 
-import tkinter as tk
-from tkinter import filedialog
+import tkinter as tk # replace
+from tkinter import filedialog # remove?
 
 from PIL import Image
 from pygame import gfxdraw
@@ -24,7 +25,7 @@ COLOR_BACKGROUND = (245, 245, 245)
 PADDING_MAP = 10
 
 # read image to matrix
-mapImage = Image.open(os.path.join('maps\map1.png'))
+mapImage = Image.open(os.path.join('maps', 'map4.png'))
 mapRGBA = mapImage.load()
 mapMatrix = numpy.zeros((mapImage.size[1], mapImage.size[0])) # (rows, column)
 
@@ -48,13 +49,15 @@ colors = {
                 2 : COLOR_GREEN
           }
 
+# create map matrix dependent on tile type
 for row in range(mapImage.size[1]):
     for column in range(mapImage.size[0]):
         if mapRGBA[column, row] == (255, 255, 255, 255): # warning: mapRGBA has [column, row]
             mapMatrix[row][column] = 0
         elif mapRGBA[column, row] == (0, 0, 0, 255): # warning: mapRGBA has [column, row]
-            mapMatrix[row][column] = 1
+            mapMatrix[row][column] = 1 # expand for more than floor and wall
 
+# function for adding sprites, not sure if this should be used
 def addSprite(path, x, y):
     tmpSprite = pygame.sprite.Sprite()
     tmpSprite.image = pygame.image.load(os.path.join(path)).convert() # .convert?
@@ -64,35 +67,35 @@ def addSprite(path, x, y):
     displaySurface.blit(tmpSprite.image, (x, y))
     return tmpSprite
 
-
 # init game
 pygame.init()
 
-icon = pygame.image.load("gui\window_icon.png")
+# set window icon
+icon = pygame.image.load(os.path.join('gui', 'window_icon.png'))
 pygame.display.set_icon(icon)
 
+# create the display surface, the overall screen size that will be rendered
 displaySurface = pygame.display.set_mode((GAME_RES)) # ,pygame.NOFRAME
-
+displaySurface.fill(COLOR_BACKGROUND)
+pygame.display.set_caption(GAME_NAME)
 
 #pygame.image.load(os.path.join('gui\window_icon.png')).convert()
 #pygame.display.set_icon(pygame.image.load(os.path.join('gui\window_icon.png')).convert())
 
-displaySurface.fill(COLOR_BACKGROUND)
-pygame.display.set_caption(GAME_NAME)
+# map surface
+mapSurface = pygame.Surface((907-0*PADDING_MAP, 713-PADDING_MAP))
+mapSurface = mapSurface.convert()
+mapSurface.fill(COLOR_BACKGROUND)
+#mapSurface.blit(icon, (0,0))
 
-
-myNewSurface = pygame.Surface((907-0*PADDING_MAP, 713-PADDING_MAP))
-myNewSurface = myNewSurface.convert()
-myNewSurface.fill(COLOR_BACKGROUND)
-#myNewSurface.blit(icon, (0,0))
-
-#displaySurface.blit(myNewSurface, (70, 70))
+#displaySurface.blit(mapSurface, (70, 70))
 
 # fonts
-FONT_ROBOTOMEDIUM = pygame.font.Font('Roboto-Medium.ttf', 18)
+FONT_ROBOTOMEDIUM18 = pygame.font.Font('Roboto-Medium.ttf', 18)
 
 # import/display images
-PLAYER = pygame.image.load(os.path.join('gui', 'player.png')).convert_alpha()
+PLAYER_TMP = pygame.image.load(os.path.join('gui', 'player.png')).convert_alpha()
+PLAYER = pygame.transform.scale(PLAYER_TMP, (TILESIZE, TILESIZE))
 
 MENU_FADE = pygame.image.load(os.path.join('gui', 'menu_fade.png')).convert()
 displaySurface.blit(MENU_FADE, (0, 45))
@@ -123,7 +126,7 @@ BUTTON_STATISTICS_BLANK = addSprite('gui\statistics_blank.png', 382, 0)
 
 #displaySurface.blit(BUTTON_SETTINGS_ACTIVE, (0, 0))
 
-# opening map file
+# for opening map file in tkinter
 file_opt = options = {}
 options['defaultextension'] = '.png'
 options['filetypes'] = [('PNG Map Files', '.png')]
@@ -138,9 +141,10 @@ while True:
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
+        # keyboard events
         elif event.type == KEYDOWN:
             if event.key == K_RIGHT:
-                playerPos[0] += 1
+                playerPos[0] += 1 # change player pos which will be rendered in the next frame
             elif event.key == K_UP:
                 root = tk.Tk()
                 root.withdraw()
@@ -148,26 +152,23 @@ while True:
                 filename_pos = file_path.rfind('/')+1 # position for filename
                 print(file_path[filename_pos:]) # expand from here, probably need to create funcions for rendering before?
 
+    # test (antialiased) shapes
     #pygame.gfxdraw.aacircle(displaySurface, 500, 500, 30, COLOR_GREEN)
     #pygame.gfxdraw.filled_circle(displaySurface, 500, 500, 30, COLOR_GREEN)
-
     #pygame.draw.rect(displaySurface, COLOR_GREEN, (0, 0, 20, 20))
-    #pygame.draw.circle(myNewSurface, COLOR_GREEN, (0, 0), 5)
+    #pygame.draw.circle(mapSurface, COLOR_GREEN, (0, 0), 5)
 
+	# create the map with draw.rect and the player and then blit them
     for row in range(MAPHEIGHT):
-        for column in range(MAPWIDTH):
-            pygame.draw.rect(myNewSurface, colors[mapMatrix[row][column]], (column*TILESIZE+((907-2*PADDING_MAP)/(2))-((MAPWIDTH*TILESIZE)/2)+PADDING_MAP, (row*TILESIZE+((713-1*PADDING_MAP)/(2))-((MAPHEIGHT*TILESIZE)/2)), TILESIZE, TILESIZE)) 
-            myNewSurface.blit(PLAYER, (playerPos[0]*TILESIZE+15, playerPos[1]*TILESIZE+15))
-            displaySurface.blit(myNewSurface, (0*PADDING_MAP, 55))
+	    for column in range(MAPWIDTH):
+	        pygame.draw.rect(mapSurface, colors[mapMatrix[row][column]], (column*TILESIZE+((907-2*PADDING_MAP)/(2))-((MAPWIDTH*TILESIZE)/2)+PADDING_MAP, (row*TILESIZE+((713-1*PADDING_MAP)/(2))-((MAPHEIGHT*TILESIZE)/2)), TILESIZE, TILESIZE)) 
+    mapSurface.blit(PLAYER, (playerPos[0]*TILESIZE+15, playerPos[1]*TILESIZE+15))
+    displaySurface.blit(mapSurface, (0*PADDING_MAP, 55))
+
+    #time.sleep(5)
 
     # update display if not quitting
-    pygame.display.flip() # .flip instead?
-
-
-
-
-    # rows = 1
-
+    pygame.display.update() # .flip instead?
 
     # NOTES
     # - Up arrow is upload right now. Remove later for button press.
