@@ -24,9 +24,7 @@ COLOR_BACKGROUND = (245, 245, 245)
 
 PADDING_MAP = 10
 
-PLAYER_SCALE = 0.5
-
-
+PLAYER_SCALE = 2.0 # automate this depending on image res. min 1, max 2?
 
 # read image to matrix
 mapImage = Image.open(os.path.join('maps', 'map6.png'))
@@ -196,19 +194,19 @@ while True:
             # left click
             if event.button == 1:
                 mouse_x, mouse_y = event.pos
-                if (mouse_x >= 0) and (mouse_x <= 202) and (mouse_y >= 0) and (mouse_y <= 45):
+                if (mouse_x >= 0) and (mouse_x <= 202) and (mouse_y >= 0) and (mouse_y <= 45) and not(active_tab[0]): # active_tab, probably a good idea?
                     print('simulation tab')
                     displaySurface.blit(BUTTON_SIMULATION_ACTIVE, (0, 0))
                     displaySurface.blit(BUTTON_SETTINGS_BLANK, (202, 0))
                     displaySurface.blit(BUTTON_STATISTICS_BLANK, (382, 0))
                     active_tab = [True, False, False]
-                if (mouse_x > 202) and (mouse_x <= 382) and (mouse_y >= 0) and (mouse_y <= 45):
+                if (mouse_x > 202) and (mouse_x <= 382) and (mouse_y >= 0) and (mouse_y <= 45) and not(active_tab[1]):
                     print('settings tab')
                     displaySurface.blit(BUTTON_SIMULATION_BLANK, (0, 0))
                     displaySurface.blit(BUTTON_SETTINGS_ACTIVE, (202, 0))
                     displaySurface.blit(BUTTON_STATISTICS_BLANK, (382, 0))
                     active_tab = [False, True, False]
-                if (mouse_x > 382) and (mouse_x <= 575) and (mouse_y >= 0) and (mouse_y <= 45):
+                if (mouse_x > 382) and (mouse_x <= 575) and (mouse_y >= 0) and (mouse_y <= 45) and not(active_tab[2]):
                     print('statistics tab')
                     displaySurface.blit(BUTTON_SIMULATION_BLANK, (0, 0))
                     displaySurface.blit(BUTTON_SETTINGS_BLANK, (202, 0))
