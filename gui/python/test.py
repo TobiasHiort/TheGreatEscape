@@ -29,7 +29,7 @@ PLAYER_SCALE = 0.5
 
 
 # read image to matrix
-mapImage = Image.open(os.path.join('maps', 'map1.png'))
+mapImage = Image.open(os.path.join('maps', 'map6.png'))
 mapRGBA = mapImage.load()
 mapMatrix = numpy.zeros((mapImage.size[1], mapImage.size[0])) # (rows, column)
 
@@ -87,11 +87,11 @@ mapSurface = mapSurface.convert()
 mapSurface.fill(COLOR_BACKGROUND)
 
 # statistics surface
-statisticsSurface = pygame.Surface((907-0*PADDING_MAP, 713-PADDING_MAP)) # x=1024?
+statisticsSurface = pygame.Surface((1024, 713)) # x=1024?
 statisticsSurface = statisticsSurface.convert()
 statisticsSurface.fill(COLOR_RED)
 
-settingsSurface = pygame.Surface((907-0*PADDING_MAP, 713-PADDING_MAP)) # x=1024?
+settingsSurface = pygame.Surface((1024, 713)) # x=1024?
 settingsSurface = statisticsSurface.convert()
 settingsSurface.fill(COLOR_GREEN)
 
@@ -103,7 +103,7 @@ MENU_BACKGROUND = pygame.image.load(os.path.join('gui', 'menu_background.png')).
 displaySurface.blit(MENU_BACKGROUND, (0, 0))
 
 MENU_RIGHT = pygame.image.load(os.path.join('gui', 'menu_right.png')).convert()
-displaySurface.blit(MENU_RIGHT, (907, 45))
+#displaySurface.blit(MENU_RIGHT, (907, 45)) # remove? blit game_loop
 
 # load buttons
 BUTTON_SIMULATION_BLANK = pygame.image.load(os.path.join('gui', 'simulation_blank.png')).convert_alpha()
@@ -126,6 +126,11 @@ options['initialdir'] = os.getcwd() + '\maps'
 options['initialfile'] = 'mapXX.png'
 #options['parent'] = root
 options['title'] = 'Select Map'
+
+# create the map with draw.rect on mapSurface
+for row in range(MAPHEIGHT):
+    for column in range(MAPWIDTH):
+        pygame.draw.rect(mapSurface, colors[mapMatrix[row][column]], (column*TILESIZE+((907-2*PADDING_MAP)/(2))-((MAPWIDTH*TILESIZE)/2)+PADDING_MAP, (row*TILESIZE+((713-1*PADDING_MAP)/(2))-((MAPHEIGHT*TILESIZE)/2)), TILESIZE, TILESIZE)) 
 
 # game loop
 while True:
@@ -210,11 +215,6 @@ while True:
                     displaySurface.blit(BUTTON_STATISTICS_ACTIVE, (382, 0))
                     active_tab = [False, False, True]
 
-    # create the map with draw.rect and the player and then blit them
-    for row in range(MAPHEIGHT):
-	    for column in range(MAPWIDTH):
-	        pygame.draw.rect(mapSurface, colors[mapMatrix[row][column]], (column*TILESIZE+((907-2*PADDING_MAP)/(2))-((MAPWIDTH*TILESIZE)/2)+PADDING_MAP, (row*TILESIZE+((713-1*PADDING_MAP)/(2))-((MAPHEIGHT*TILESIZE)/2)), TILESIZE, TILESIZE)) 
-
     # draw player on simulation tab/mapsurface
     pygame.draw.circle(mapSurface, COLOR_GREEN, ((playerPos[0]*TILESIZE + math.floor(TILESIZE/2) + math.floor(((907-2*PADDING_MAP)/(2))-((MAPWIDTH*TILESIZE)/2)+PADDING_MAP)), playerPos[1]*TILESIZE+round(TILESIZE/2) + round(0*TILESIZE+((713-1*PADDING_MAP)/(2))-((MAPHEIGHT*TILESIZE)/2))), round((TILESIZE/2)*PLAYER_SCALE))
 
@@ -228,10 +228,13 @@ while True:
 
     if active_tab[0]:
         displaySurface.blit(mapSurface, (0*PADDING_MAP, 55))
+        displaySurface.blit(MENU_RIGHT, (907, 45))
     elif active_tab[1]:
     	displaySurface.blit(settingsSurface, (0*PADDING_MAP, 55))
+    	displaySurface.blit(MENU_FADE, (0, 45))
     elif active_tab[2]:
     	displaySurface.blit(statisticsSurface, (0*PADDING_MAP, 55))
+    	displaySurface.blit(MENU_FADE, (0, 45))
     else:
     	print('Error: No active tab')
 
