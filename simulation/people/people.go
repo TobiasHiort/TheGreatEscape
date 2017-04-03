@@ -19,7 +19,7 @@ type person struct {
 }
 
 func sayHello() {
-	fmt.Println("Hello, I am a person.")
+	fmt.Println("Hello, I am ")
 }
 
 // Here I initiate an example person
@@ -28,18 +28,18 @@ func personInit(personID int) person {
 	return newPerson
 }
 
-func act() {
+func act(dude person) {
 	sayHello()
+	fmt.Println("a person\n")
 }
 
 func main() {
 	personAmount := 10
 	personID := 0
 	//slice is like an array, only a bit different
-	// ... can be used for the compiler to calculate the size of the slice instead of using personAmount
-	personSlice := [personAmount]person{}
+	personSlice := []person{}
 	for i := 0; i < personAmount; i++ {
-		[i]personSlice = personInit(personID)
+		personSlice = append (personSlice, personInit(personID))
 		personID++
 	}
 
