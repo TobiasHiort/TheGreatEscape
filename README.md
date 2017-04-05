@@ -15,7 +15,7 @@ The program is written in Python (3.x) and Go, see links below:
 ### 1.2 Installing
 
 #### 1.2.1  Linux
-Instructions for setting up a development/user environment.
+Instructions for settings up a development/user environment.
 
 ```
 $ sudo apt-get update
@@ -61,6 +61,7 @@ python3 test.py
 
 ## 4. Authors
 * **Tobias Hiort**
+
 
 ## 6. License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
