@@ -43,8 +43,8 @@ $ apt-get install python3-tk
 ### 2.1 Custom maps
 Add custom maps in `/gui/python/maps` and load them in the Python program. Maps must be in `.PNG` format and consist of the following pixels without transparency:
 - ![#ffffff](https://placehold.it/15/ffffff/000000?text=+) `rgb(255, 255, 255)` &nbsp;&nbsp;- Floor.
-- ![#000000](https://placehold.it/15/000000/000000?text=+) `rgb(0, 0, 0)` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Wall.
-- ![#00ff00](https://placehold.it/15/00ff00/000000?text=+) `rgb(0, 255, 0)` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Door.
+- ![#000000](https://placehold.it/15/000000/000000?text=+) `rgb(0, 0, 0)` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Wall.
+- ![#00ff00](https://placehold.it/15/00ff00/000000?text=+) `rgb(0, 255, 0)` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Door.
 - ![#7f7f7f](https://placehold.it/15/7f7f7f/000000?text=+) `rgb(127, 127, 127)` &nbsp;&nbsp;- Out of bounds (outdoors).
 
 ### 2.2 Run program
