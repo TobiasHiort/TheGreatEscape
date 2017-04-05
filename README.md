@@ -1,46 +1,59 @@
-# THE GREAT ESCAPE's REPO
-## TODO:
-#### Tiles
-- [ ] Every tile is an object. Every tile needs a few variables.
-	- int heat (1-10)
-	- bool wall
-		- thinner walls?
-	- [ ] Lock
-		- Reserved
-		- Occupied
+# ![run_left](http://i.imgur.com/qT9yxGX.png) The Great Escape ![run_left](http://i.imgur.com/ttqg197.png)
+The Great Escape is a building evacuation simulator written in Go (back-end) and Python (front end) with support for custom maps.
 
-#### Fire
-- [ ] spreading algorithm
-	- checks adjacent tiles for heat. If heat > 9 then burn
-	- pushes up the heat on adjacent tiles
-- pipes wherabouts to people
-- 
+## 1. Getting Started
+Clone the repository, and for now run the Python part and Go part separately.
 
-#### People
-- A\* movement algorithm
-	- Heuristics - how scary is the fire vs how nice is the door?
-- checks locks of adjacent tiles when moving
-	- can lock one tile for booking
-	-	can lock one tile for occupation
-- recalcs movement as soon as either FIRE or PEOPLE are in the way. 
-- HEALTH: implement A\* heuristics for people to maximize health
+### 1.1 Prerequisites
+The program is written in Python (3.x) and Go, see links below:
+* [Python 3.x](https://www.python.org/downloads/)
+    * [Pygame](https://www.pygame.org/wiki/GettingStarted#PygameInstallation)
+    * [Numpy](https://www.scipy.org/scipylib/building/index.html#building)
+    * [Tkinter](https://wiki.python.org/moin/TkInter)
+* [Go](https://golang.org/)
 
-#### Rooms
-- separate instances
-- int smoke
+### 1.2 Installing
 
-#### GUI
-- Up arrow is upload right now, replace with button later
-- Remove move player with right arrow, but keep the mechanics
-- Determine if PNG is to large or small
-- Represent player as a drawn circle instead of a png? Better scaling
-- Figure out how to make click/hover buttons and how to view different tabs
-- Create test matrix run file with a player moving, and figure out how to step through it graphically/run it in some speed
-- Think about layering (player movement, fire, smoke)
+#### 1.2.1  Linux
+Instructions for settings up a development/user environment.
 
-####
-- Trick A\* to think that heat tiles are slower to pass. This can be an implementation of path priority /hhuehueristics
+```
+$ sudo apt-get update
+```
+```
+$ sudo apt-get install python3
+```
+$ Install pip for managing software packages within Python:
+```
+$ sudo apt-get install -y python3-pip
+```
+$ Install Pygame:
+```
+$ pip3 install pygame
+```
+$ Install Numpy:
+```
+$ pip3 install numpy
+```
+Install Tkinter:
+```
+$ apt-get install python3-tk
+```
+## 2. Deployment
+Run Python front end from `/gui/python` with:
+```
+python3 test.py
+```
 
-## USED CODE AND LINKS
-[CODE] [A* pathfinding algorithm](http://code.activestate.com/recipes/578919-python-a-pathfinding-with-binary-heap/)  
-[WIKI] [Von Neumann neighborhood](https://en.wikipedia.org/wiki/Von_Neumann_neighborhood)
+## 3. Created With
+* [GitHub](https://github.com/) - Version control repository
+* [Slack](https://slack.com/) - Team collaboration
+* [Trello](https://trello.com/) - Scrum management
+* [Photoshop](http://www.adobe.com/products/photoshop.html) - GUI development
+
+## 4. Authors
+* **Tobias Hiort**
+
+
+## 6. License
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
