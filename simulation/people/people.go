@@ -9,13 +9,16 @@ import (
 // Implementing the stats like this might lead to some ugly code though. We'll se.
 type person struct {
 	ID int
-	escapeTime int
 
 	alive bool
-	timeOfDeath int
+	//will start at -1
+	finishTime int
 
 	//startLocation tile
 	//escapeDoor tile
+
+	//path so far
+	//
 }
 
 func sayHello() {
@@ -43,7 +46,9 @@ func main() {
 		personID++
 	}
 
+	/*
 	for _, person := range personSlice {
 		go act(person)
 	}
+	*/
 }
