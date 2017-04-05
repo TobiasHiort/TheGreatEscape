@@ -24,9 +24,9 @@
 - Recalcs movement as soon as either FIRE or PEOPLE are in the way. 
 - HEALTH: implement A\* heuristics for people to maximize health
 
-#### Rooms
+### Rooms
 - separate instances
 - int smoke
 
-#### Pathfinding
+### Pathfinding
 - Trick A\* to think that heat tiles are slower to pass. This can be an implementation of path priority
