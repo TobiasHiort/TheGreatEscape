@@ -23,15 +23,15 @@ $ sudo apt-get update
 ```
 $ sudo apt-get install python3
 ```
-$ Install pip for managing software packages within Python:
+Install pip for managing software packages within Python:
 ```
 $ sudo apt-get install -y python3-pip
 ```
-$ Install Pygame:
+Install Pygame:
 ```
 $ pip3 install pygame
 ```
-$ Install Numpy:
+Install Numpy:
 ```
 $ pip3 install numpy
 ```
@@ -57,3 +57,6 @@ python3 test.py
 
 ## 6. License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## 7. USED CODE AND LINKS (!update)
+[CODE] [A* pathfinding algorithm](http://code.activestate.com/recipes/578919-python-a-pathfinding-with-binary-heap/)
