@@ -15,9 +15,12 @@ type tile struct {
 	fireLevel int
 
 	wall bool
+	door bool
 
 	occupied bool
 	personID int
+
+	outOfBounds bool
 }
 
 /*
@@ -48,7 +51,7 @@ func makeNewTile(thisPoint int, x int, y int) tile{
 
 	//några gemensamma grejer
 
-	newTile := tile{x, y, 0, 0, false, false, 0}
+	newTile := tile{x, y, 0, 0, false, false, false, 0, false}
 		/*
 		xCoord := x,
 		YCoord := y,
@@ -57,6 +60,7 @@ func makeNewTile(thisPoint int, x int, y int) tile{
 		fireLevel := 0,
 
 		wall := false,
+		door := false
 
 		occupied := false
 		//make to a ponter l8ter
@@ -71,25 +75,28 @@ func makeNewTile(thisPoint int, x int, y int) tile{
 		//append to tilemap
 	} else if thisPoint == 1 {
 		//wall
+		newTile.wall = true
 	} else if thisPoint == 2 {
 		//door
+		newTile.door = true
 	} else if thisPoint == 3 {
 		//out of bounds
+		newTile.outOfBounds = true
 	}
 
 	return newTile
 }
 
 func tileConvert(inMap [][]int) [][]tile{
-	const mapXSize := len(inMap[0])
-	const mapYSize := len(inMap)
+	mapXSize := len(inMap[0])
+	mapYSize := len(inMap)
 
-	tileMap := [mapXSize][mapYSize]tile{}
+	tileMap := [][]tile{}
 
 	for x:= 0; x < mapXSize; x++{
 		for y:= 0; y < mapYSize; y++{
 			thisPoint := inMap[x][y]
-			tileMap[x][y] := makeNewTile(thisPoint, x, y)
+			tileMap[x][y] = makeNewTile(thisPoint, x, y)
 		}
 	}
 	return tileMap
