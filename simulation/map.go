@@ -1,15 +1,15 @@
 package tileConvert
 
 type tile struct {
+	xCoord int
+	yCoord int
+
+	/*
 	neighborNorth *tile
 	neighborEast  *tile
 	neighborSouth *tile
 	neighborWest  *tile
-
-	//north/south
-	longitude int
-	//east/west
-	latitude	int
+	*/
 
 	heat			int
 	fireLevel int
@@ -44,23 +44,52 @@ func FireSpread(thisTile tile){
 	tile.neighborSouth.heat += heat/10
 }
 */
+func makeNewTile(thisPoint int, x int, y int) tile{
+
+	//några gemensamma grejer
+
+	newTile := tile{x, y, 0, 0, false, false, 0}
+		/*
+		xCoord := x,
+		YCoord := y,
+
+		heat := 0,
+		fireLevel := 0,
+
+		wall := false,
+
+		occupied := false
+		//make to a ponter l8ter
+		personID := 0
+	}
+	*/
+
+	if thisPoint == 0 {
+		//make normal floor
+		//helt normalt flour
+
+		//append to tilemap
+	} else if thisPoint == 1 {
+		//wall
+	} else if thisPoint == 2 {
+		//door
+	} else if thisPoint == 3 {
+		//out of bounds
+	}
+
+	return newTile
+}
 
 func tileConvert(inMap [][]int) [][]tile{
-	tileMap := [][]tile{}
+	const mapXSize := len(inMap[0])
+	const mapYSize := len(inMap)
 
-	for i:= 0; i < len(inMap[0]); i++{
-		for a:= 0; a < len(inMap); a++{
-			//check element
+	tileMap := [mapXSize][mapYSize]tile{}
 
-			if inMap[i][a] == 0 {
-				//make normal floor
-			} else if inMap[i][a] == 1 {
-				//wall
-			} else if inMap[i][a] == 2 {
-				//door
-			} else if inMap[i][a] == 3 {
-				//out of bounds
-			}
+	for x:= 0; x < mapXSize; x++{
+		for y:= 0; y < mapYSize; y++{
+			thisPoint := inMap[x][y]
+			tileMap[x][y] := makeNewTile(thisPoint, x, y)
 		}
 	}
 	return tileMap
