@@ -1,4 +1,8 @@
-package tileConvert
+//package tileConvert
+package main
+
+import "fmt"
+
 
 type tile struct {
 	xCoord int
@@ -87,17 +91,65 @@ func makeNewTile(thisPoint int, x int, y int) tile{
 	return newTile
 }
 
-func tileConvert(inMap [][]int) [][]tile{
+func printTile(thisTile tile) {
+	if thisTile.wall {
+		fmt.Print("en platt och hög vägg")
+	} else if thisTile.door {
+		fmt.Print("dörr")
+	} else if thisTile.outOfBounds {
+		fmt.Print("ut av bond")
+	} else {
+		fmt.Print("golv")
+	}
+}
+
+func printTileMap(inMap [][]tile) {
 	mapXSize := len(inMap[0])
 	mapYSize := len(inMap)
 
-	tileMap := [][]tile{}
-
 	for x:= 0; x < mapXSize; x++{
 		for y:= 0; y < mapYSize; y++{
-			thisPoint := inMap[x][y]
-			tileMap[x][y] = makeNewTile(thisPoint, x, y)
+			printTile(inMap[x][y])
 		}
 	}
+}
+
+func tileConvert(inMap [][]int) [][]tile{
+	mapXSize := len(inMap[0])
+	fmt.Print(mapXSize)
+	mapYSize := len(inMap)
+	fmt.Print(mapYSize)
+
+	tileMap := [][]tile{}
+
+	//nånting knas
+	for x:= 0; x < mapXSize; x++{
+		//append arrays to array
+		for y:= 0; y < mapYSize; y++{
+			thisPoint := inMap[x][y]
+			//append stuff to array
+			//tileMap[x][y] = makeNewTile(thisPoint, x, y)
+			newTile := makeNewTile(thisPoint, x, y)
+
+			tileMap[x] = append (tileMap[x], newTile)
+
+		}
+		tileMap = append (tileMap, tileMap[x])
+	}
 	return tileMap
+}
+
+func main() {
+	testMatrix := [][]int{
+		{0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0},
+		{1, 1, 0, 1, 1},
+		{0, 0, 0, 3, 3},
+		{2, 0, 0, 3, 3}}
+
+	//printTileMap(tileConvert(testMatrix))
+	amap := tileConvert(testMatrix)
+
+	printTileMap(amap)
+
 }
