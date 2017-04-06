@@ -93,13 +93,13 @@ func makeNewTile(thisPoint int, x int, y int) tile{
 
 func printTile(thisTile tile) {
 	if thisTile.wall {
-		fmt.Print("en platt och hög vägg")
+		fmt.Print("[vägg] ")
 	} else if thisTile.door {
-		fmt.Print("dörr")
+		fmt.Print("[dörr] ")
 	} else if thisTile.outOfBounds {
-		fmt.Print("ut av bond")
+		fmt.Print("[ute] ")
 	} else {
-		fmt.Print("golv")
+		fmt.Print("[golv] ")
 	}
 }
 
@@ -111,19 +111,20 @@ func printTileMap(inMap [][]tile) {
 		for y:= 0; y < mapYSize; y++{
 			printTile(inMap[x][y])
 		}
+    fmt.Print("\n")
 	}
 }
 
+
 func tileConvert(inMap [][]int) [][]tile{
 	mapXSize := len(inMap[0])
-	fmt.Print(mapXSize)
 	mapYSize := len(inMap)
-	fmt.Print(mapYSize)
 
-	tileMap := [][]tile{}
+	tileMap := make([][]tile, mapXSize)
 
 	//nånting knas
 	for x:= 0; x < mapXSize; x++{
+    tileMap[x] = make([]tile, mapYSize)
 		//append arrays to array
 		for y:= 0; y < mapYSize; y++{
 			thisPoint := inMap[x][y]
@@ -139,6 +140,8 @@ func tileConvert(inMap [][]int) [][]tile{
 	return tileMap
 }
 
+
+
 func main() {
 	testMatrix := [][]int{
 		{0, 0, 0, 0, 0},
@@ -147,9 +150,10 @@ func main() {
 		{0, 0, 0, 3, 3},
 		{2, 0, 0, 3, 3}}
 
-	//printTileMap(tileConvert(testMatrix))
-	amap := tileConvert(testMatrix)
-
-	printTileMap(amap)
+	fmt.Print(testMatrix)
+  fmt.Print("\n\n\n")
+  amap := tileConvert(testMatrix)
+  tileConvert(testMatrix)
+  printTileMap(amap)
 
 }
