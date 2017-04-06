@@ -52,15 +52,14 @@ func tileConvert(inMap [][]int) [][]tile{
 		for a:= 0; a < len(inMap); a++{
 			//check element
 
-			if [i][a]inMap == 1 {
-				//placera vägg här
-				//appenda till tileMap ( som är en slice )
-			} else if [i][a]inMap == 2 {
-				//placera dörr här
-			} else if [i][a]inMap == 3 {
-				//placera ute
-			} else if [i][a]inMap == 0 {
-				//placera vanligt golv
+			if inMap[i][a] == 0 {
+				//make normal floor
+			} else if inMap[i][a] == 1 {
+				//wall
+			} else if inMap[i][a] == 2 {
+				//door
+			} else if inMap[i][a] == 3 {
+				//out of bounds
 			}
 		}
 	}
