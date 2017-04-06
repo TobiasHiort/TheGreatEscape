@@ -2,12 +2,28 @@
 ## TODO:
 ### Tiles
 - [ ] Every tile is an object. Every tile needs a few variables.
-	- Int heat (1-10)
+	- Int fire (1-10)
 	- Bool wall
-		- Thinner walls?
+  - Bool door
+  - Neighbouring tiles
+		- Thinner walls? (optimization)
 	- [ ] Lock
 		- Reserved
 		- Occupied
+    
+
+### Initialize map from 2D-array to 2D-array of tiles
+  - set * Tile Neighbours for each Tile
+  - set pointers to persons
+
+### Tile changing functions
+  - Create fire, Fire spreading
+  - Occupied
+  - Reserved
+  
+### Simulation
+  - Save info of persons whearabots 
+
 
 ### Fire
 - [ ] spreading algorithm
