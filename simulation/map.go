@@ -129,9 +129,10 @@ func tileConvert(inMap [][]int) [][]tile{
 		for y:= 0; y < mapYSize; y++{
 			thisPoint := inMap[x][y]
 			//append stuff to array
-			//tileMap[x][y] = makeNewTile(thisPoint, x, y)
+			
 			newTile := makeNewTile(thisPoint, x, y)
-
+			fmt.Print(newTile)
+			fmt.Print("\n\n\n")
 			tileMap[x] = append (tileMap[x], newTile)
 
 		}
