@@ -8,13 +8,6 @@ type tile struct {
 	xCoord int
 	yCoord int
 
-	/*
-	neighborNorth *tile
-	neighborEast  *tile
-	neighborSouth *tile
-	neighborWest  *tile
-	*/
-
 	heat			int
 	fireLevel int
 
@@ -25,6 +18,13 @@ type tile struct {
 	personID int
 
 	outOfBounds bool
+
+	/*
+	neighborNorth *tile
+	neighborEast  *tile
+	neighborSouth *tile
+	neighborWest  *tile
+	*/
 }
 
 /*
@@ -53,24 +53,8 @@ func FireSpread(thisTile tile){
 */
 func makeNewTile(thisPoint int, x int, y int) tile{
 
-	//några gemensamma grejer
-
+	//makes a basic floor tile with no nothin on it
 	newTile := tile{x, y, 0, 0, false, false, false, 0, false}
-		/*
-		xCoord := x,
-		YCoord := y,
-
-		heat := 0,
-		fireLevel := 0,
-
-		wall := false,
-		door := false
-
-		occupied := false
-		//make to a ponter l8ter
-		personID := 0
-	}
-	*/
 
 	if thisPoint == 0 {
 		//make normal floor
@@ -116,28 +100,25 @@ func printTileMap(inMap [][]tile) {
 }
 
 
-func tileConvert(inMap [][]int) [][]tile{
+func TileConvert(inMap [][]int) [][]tile{
 	mapXSize := len(inMap[0])
 	mapYSize := len(inMap)
 
+	//Initiates a slice of tile slices (2D tile slice)
 	tileMap := make([][]tile, mapXSize)
 
-
-	//nånting knas
 	for x:= 0; x < mapXSize; x++{
+		//initiates slice of tiles
 		tileMap[x] = make([]tile, mapYSize)
-		//append arrays to array
+
 		for y:= 0; y < mapYSize; y++{
-			thisPoint := inMap[x][y]
-			//append stuff to array
-			//tileMap[x][y] = makeNewTile(thisPoint, x, y)
-			newTile := makeNewTile(thisPoint, x, y)
-			fmt.Print(newTile)
-			fmt.Print("\n\n\n")
+			//constructs a new tile
+			newTile := makeNewTile(inMap[x][y], x, y)
+
+			//inserts tile into 2d slice
 			tileMap[x][y] = newTile
 
 		}
-		//tileMap[x] = tileMap[x]
 	}
 	return tileMap
 }
@@ -152,9 +133,7 @@ func main() {
 		{0, 0, 0, 3, 3},
 		{2, 0, 0, 3, 3}}
 
-		fmt.Print(testMatrix)
-		fmt.Print("\n\n\n")
-		amap := tileConvert(testMatrix)
+		amap := TileConvert(testMatrix)
 		//tileConvert(testMatrix)
 		printTileMap(amap)
 
