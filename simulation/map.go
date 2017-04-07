@@ -1,8 +1,6 @@
-//package tileConvert
 package main
 
 import "fmt"
-
 
 type tile struct {
 	xCoord int
@@ -19,12 +17,10 @@ type tile struct {
 
 	outOfBounds bool
 
-	/*
 	neighborNorth *tile
 	neighborEast  *tile
 	neighborSouth *tile
 	neighborWest  *tile
-	*/
 }
 
 /*
@@ -39,22 +35,41 @@ func FireSpread(thisTile tile){
 		thisTile.fireLevel = 3
 	}
 
-	tile.*neighborNorth.heat += fireLevel
-	tile.*neighborEast.heat	+= fireLevel
-	tile.*neighborWest.heat	+= fireLevel
-	tile.*neighborSouth.heat += fireLevel
+	tile.neighborNorth.heat += fireLevel
+	tile.neighborEast.heat	+= fireLevel
+	tile.neighborWest.heat	+= fireLevel
+	tile.neighborSouth.heat += fireLevel
 
 	/*
 	tile.neighborNorth.heat += heat/10
 	tile.neighborEast.heat += heat/10
 	tile.neighborWest.heat += heat/10
 	tile.neighborSouth.heat += heat/10
+	*/
+//}
+
+func assignNeighbor(thisTile tile, x int, y int, tileMap [][]tile) {
+	if x > 0 {
+		thisTile.neighborWest = &tileMap[x-1][y]
+	}
+
+	if y > 0 {
+		thisTile.neighborNorth = &tileMap[x][y-1]
+	}
+
+	if x < len(tileMap[x]) {
+		thisTile.neighborEast = &tileMap[x+1][y]
+	}
+
+	if x < len(tileMap) {
+		thisTile.neighborNorth = &tileMap[x][y+1]
+	}
 }
-*/
+
 func makeNewTile(thisPoint int, x int, y int) tile{
 
 	//makes a basic floor tile with no nothin on it
-	newTile := tile{x, y, 0, 0, false, false, false, 0, false}
+	newTile := tile{x, y, 0, 0, false, false, false, 0, false, nil, nil, nil, nil}
 
 	if thisPoint == 0 {
 		//make normal floor
@@ -73,6 +88,37 @@ func makeNewTile(thisPoint int, x int, y int) tile{
 	}
 
 	return newTile
+}
+
+func TileConvert(inMap [][]int) [][]tile{
+	mapXSize := len(inMap[0])
+	mapYSize := len(inMap)
+
+	//Initiates a slice of tile slices (2D tile slice)
+	tileMap := make([][]tile, mapXSize)
+
+	for x:= 0; x < mapXSize; x++{
+		//initiates slice of tiles
+		tileMap[x] = make([]tile, mapYSize)
+
+		for y:= 0; y < mapYSize; y++{
+			//constructs a new tile
+			newTile := makeNewTile(inMap[x][y], x, y)
+
+			//inserts tile into 2d slice
+			tileMap[x][y] = newTile
+
+		}
+	}
+
+	//Assigns 4 neighbors to each tile
+	for x:= 0; x < mapXSize; x++{
+		for y:= 0; y < mapYSize; y++{
+			assignNeighbor(tileMap[x][y], x, y, tileMap)
+		}
+	}
+
+	return tileMap
 }
 
 func printTile(thisTile tile) {
@@ -99,32 +145,6 @@ func printTileMap(inMap [][]tile) {
 	}
 }
 
-
-func TileConvert(inMap [][]int) [][]tile{
-	mapXSize := len(inMap[0])
-	mapYSize := len(inMap)
-
-	//Initiates a slice of tile slices (2D tile slice)
-	tileMap := make([][]tile, mapXSize)
-
-	for x:= 0; x < mapXSize; x++{
-		//initiates slice of tiles
-		tileMap[x] = make([]tile, mapYSize)
-
-		for y:= 0; y < mapYSize; y++{
-			//constructs a new tile
-			newTile := makeNewTile(inMap[x][y], x, y)
-
-			//inserts tile into 2d slice
-			tileMap[x][y] = newTile
-
-		}
-	}
-	return tileMap
-}
-
-
-
 func main() {
 	testMatrix := [][]int{
 		{0, 0, 0, 0, 0},
@@ -136,7 +156,4 @@ func main() {
 		amap := TileConvert(testMatrix)
 		//tileConvert(testMatrix)
 		printTileMap(amap)
-
 }
-
-
