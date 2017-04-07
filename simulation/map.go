@@ -122,10 +122,10 @@ func tileConvert(inMap [][]int) [][]tile{
 
 	tileMap := make([][]tile, mapXSize)
 
-	
+
 	//nånting knas
 	for x:= 0; x < mapXSize; x++{
-   	tileMap[x] = make([]tile, mapYSize)
+		tileMap[x] = make([]tile, mapYSize)
 		//append arrays to array
 		for y:= 0; y < mapYSize; y++{
 			thisPoint := inMap[x][y]
@@ -134,10 +134,10 @@ func tileConvert(inMap [][]int) [][]tile{
 			newTile := makeNewTile(thisPoint, x, y)
 			fmt.Print(newTile)
 			fmt.Print("\n\n\n")
-			tileMap[x] = append (tileMap[x], newTile)
+			tileMap[x][y] = newTile
 
 		}
-		tileMap = append (tileMap, tileMap[x])
+		//tileMap[x] = tileMap[x]
 	}
 	return tileMap
 }
@@ -152,10 +152,12 @@ func main() {
 		{0, 0, 0, 3, 3},
 		{2, 0, 0, 3, 3}}
 
-	fmt.Print(testMatrix)
-  fmt.Print("\n\n\n")
-  amap := tileConvert(testMatrix)
-  //tileConvert(testMatrix)
-  printTileMap(amap)
+		fmt.Print(testMatrix)
+		fmt.Print("\n\n\n")
+		amap := tileConvert(testMatrix)
+		//tileConvert(testMatrix)
+		printTileMap(amap)
 
 }
+
+
