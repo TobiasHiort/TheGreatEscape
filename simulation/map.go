@@ -91,8 +91,8 @@ func makeNewTile(thisPoint int, x int, y int) tile{
 }
 
 func TileConvert(inMap [][]int) [][]tile{
-	mapXSize := len(inMap[0])
-	mapYSize := len(inMap)
+	mapXSize := len(inMap)
+	mapYSize := len(inMap[0])
 
 	//Initiates a slice of tile slices (2D tile slice)
 	tileMap := make([][]tile, mapXSize)
