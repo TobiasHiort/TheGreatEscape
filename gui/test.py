@@ -260,10 +260,10 @@ while True:
                 elif event.key == K_m:
                     # read stdout through pipe
                     #popen = subprocess.call('hello.exe')
-                    popen = subprocess.Popen("hello.exe", stdout=subprocess.PIPE)
+                    popen = subprocess.Popen("./hello", stdout=subprocess.PIPE)
                     popen.wait()
                     output = popen.stdout.read()
-                    print("hej" + str(output))
+                    print(str(output))
 
         # mouse motion events
         elif event.type == MOUSEMOTION:
