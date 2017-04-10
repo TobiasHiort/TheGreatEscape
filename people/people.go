@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+//	"github.com/beefsack/go-astar"
+	
 )
+
 
 type Tile struct {
 	X int
@@ -31,11 +34,20 @@ func followPlan(p *Person) {
 	p.plan = p.plan[1:]
 }
 
+/*
+func setPlan(p *Person, m Map) { // implement A*
+	//You shall not pass!
+}
+*/
+
 func kill(p *Person) {
 	p.alive = false
 }
 
 func main() {
+//	pq := PriorityQueue{}
+
+	
 //	var p1 = Person{}
 	var p1 = makePerson()
 	
