@@ -23,7 +23,20 @@ type tile struct {
 	neighborWest  *tile
 }
 
-func FireSpread(thisTile tile){
+func SetFire(thisTile *tile) {
+	thisTile.fireLevel = 1
+}
+
+func FireSpread(tileMap *([][]tile)) {
+	for x:= 0; x < len(&tileMap); x++{
+		for y:= 0; y < len(&tileMap[0]); y++{
+			fireSpreadTile(&(tileMap[x][y]))
+		}
+	}
+
+}
+
+func fireSpreadTile(thisTile *tile){
 	if thisTile.heat > 9 {
 		thisTile.fireLevel = 1
 	}
@@ -34,10 +47,18 @@ func FireSpread(thisTile tile){
 		thisTile.fireLevel = 3
 	}
 
-	(thisTile.neighborNorth.heat) += thisTile.fireLevel
-	(thisTile.neighborEast.heat)	+= thisTile.fireLevel
-	(thisTile.neighborWest.heat)	+= thisTile.fireLevel
-	(thisTile.neighborSouth.heat) += thisTile.fireLevel
+	if thisTile.neighborNorth != nil {
+		(thisTile.neighborNorth.heat) += thisTile.fireLevel
+	}
+	if thisTile.neighborEast != nil {
+		(thisTile.neighborEast.heat)	+= thisTile.fireLevel
+	}
+	if thisTile.neighborWest != nil {
+		(thisTile.neighborWest.heat)	+= thisTile.fireLevel
+	}
+	if thisTile.neighborSouth != nil {
+		(thisTile.neighborSouth.heat) += thisTile.fireLevel
+	}
 }
 
 func assignNeighbor(thisTile *tile, x int, y int, maxX int, maxY int, tileMap [][]tile) {
@@ -128,9 +149,9 @@ func printTile(thisTile tile) {
 	} else {
 		fmt.Print("[golv(")
 	}
-		fmt.Print(thisTile.fireLevel)
+	fmt.Print(thisTile.fireLevel)
 
-		fmt.Print(")] ")
+	fmt.Print(")] ")
 }
 
 func printTileMap(inMap [][]tile) {
@@ -141,38 +162,38 @@ func printTileMap(inMap [][]tile) {
 		for y:= 0; y < mapYSize; y++{
 			printTile(inMap[x][y])
 		}
-    fmt.Print("\n")
+		fmt.Print("\n")
 	}
 }
 func printNeighbors(atile tile) {
-		if atile.neighborNorth != nil {
-			fmt.Print("North: ")
-			printTile(*(atile.neighborNorth))
-			fmt.Print("\n")
-		} else {
-			fmt.Print("North: nil\n")
-		}
-		if atile.neighborWest != nil {
-			fmt.Print("West: ")
-			printTile(*(atile.neighborWest))
-			fmt.Print("\n")
-		} else {
-			fmt.Print("West: nil\n")
-		}
-		if atile.neighborEast != nil {
-			fmt.Print("East: ")
-			printTile(*(atile.neighborEast))
-			fmt.Print("\n")
-		} else {
-			fmt.Print("East: nil\n")
-		}
-		if atile.neighborSouth != nil {
-			fmt.Print("South: ")
-			printTile(*(atile.neighborSouth))
-			fmt.Print("\n")
-		} else {
-			fmt.Print("South: nil\n")
-		}
+	if atile.neighborNorth != nil {
+		fmt.Print("North: ")
+		printTile(*(atile.neighborNorth))
+		fmt.Print("\n")
+	} else {
+		fmt.Print("North: nil\n")
+	}
+	if atile.neighborWest != nil {
+		fmt.Print("West: ")
+		printTile(*(atile.neighborWest))
+		fmt.Print("\n")
+	} else {
+		fmt.Print("West: nil\n")
+	}
+	if atile.neighborEast != nil {
+		fmt.Print("East: ")
+		printTile(*(atile.neighborEast))
+		fmt.Print("\n")
+	} else {
+		fmt.Print("East: nil\n")
+	}
+	if atile.neighborSouth != nil {
+		fmt.Print("South: ")
+		printTile(*(atile.neighborSouth))
+		fmt.Print("\n")
+	} else {
+		fmt.Print("South: nil\n")
+	}
 }
 
 func main() {
@@ -188,4 +209,13 @@ func main() {
 		printTileMap(amap)
 		fmt.Print("\n")
 		printNeighbors(amap[4][4])
-}
+
+		//fire testing
+		SetFire(&(amap[2][2]))
+		for i := 0; i < 100; i++{
+			FireSpread(&amap)
+			if i%10 == 0{
+				printTileMap(amap)
+			}
+		}
+	}
