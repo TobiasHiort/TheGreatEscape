@@ -48,7 +48,8 @@ func FireSpread(thisTile tile){
 	*/
 //}
 
-func assignNeighbor(thisTile tile, x int, y int, tileMap [][]tile) {
+func assignNeighbor(thisTile tile, x int, y int, maxX int, maxY int, tileMap [][]tile) {
+
 	if x > 0 {
 		thisTile.neighborWest = &tileMap[x-1][y]
 	}
@@ -57,12 +58,12 @@ func assignNeighbor(thisTile tile, x int, y int, tileMap [][]tile) {
 		thisTile.neighborNorth = &tileMap[x][y-1]
 	}
 
-	if x < len(tileMap[x]) {
+	if x < maxX-1 {
 		thisTile.neighborEast = &tileMap[x+1][y]
 	}
 
-	if x < len(tileMap) {
-		thisTile.neighborNorth = &tileMap[x][y+1]
+	if y < maxY-1 {
+		thisTile.neighborSouth = &tileMap[x][y+1]
 	}
 }
 
@@ -114,7 +115,7 @@ func TileConvert(inMap [][]int) [][]tile{
 	//Assigns 4 neighbors to each tile
 	for x:= 0; x < mapXSize; x++{
 		for y:= 0; y < mapYSize; y++{
-			assignNeighbor(tileMap[x][y], x, y, tileMap)
+			assignNeighbor(tileMap[x][y], x, y, mapXSize, mapYSize, tileMap)
 		}
 	}
 
@@ -144,6 +145,28 @@ func printTileMap(inMap [][]tile) {
     fmt.Print("\n")
 	}
 }
+func printNeighbors(atile tile) {
+		if atile.neighborNorth != nil {
+			printTile(*(atile.neighborNorth))
+		} else {
+			fmt.Print("\nnil")
+		}
+		if atile.neighborWest != nil {
+			printTile(*(atile.neighborNorth))
+		} else {
+			fmt.Print("\nnil")
+		}
+		if atile.neighborEast != nil {
+			printTile(*(atile.neighborNorth))
+		} else {
+			fmt.Print("nil\n")
+		}
+		if atile.neighborSouth != nil {
+			printTile(*(atile.neighborNorth))
+		} else {
+			fmt.Print("nil\n")
+		}
+}
 
 func main() {
 	testMatrix := [][]int{
@@ -156,4 +179,5 @@ func main() {
 		amap := TileConvert(testMatrix)
 		//tileConvert(testMatrix)
 		printTileMap(amap)
+		printNeighbors(amap[1][1])
 }
