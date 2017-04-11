@@ -139,8 +139,8 @@ func printTile(thisTile tile) {
 }
 
 func printTileMap(inMap [][]tile) {
-	mapXSize := len(inMap[0])
-	mapYSize := len(inMap)
+	mapXSize := len(inMap)
+	mapYSize := len(inMap[0])
 
 	for x:= 0; x < mapXSize; x++{
 		for y:= 0; y < mapYSize; y++{
@@ -192,6 +192,6 @@ func main() {
 		//tileConvert(testMatrix)
 		printTileMap(amap)
 		fmt.Print("\n")
-		printNeighbors(amap[2][3])
+		printNeighbors(amap[4][4])
 		
 }
