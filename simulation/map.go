@@ -23,7 +23,6 @@ type tile struct {
 	neighborWest  *tile
 }
 
-/*
 func FireSpread(thisTile tile){
 	if thisTile.heat > 9 {
 		thisTile.fireLevel = 1
@@ -35,18 +34,11 @@ func FireSpread(thisTile tile){
 		thisTile.fireLevel = 3
 	}
 
-	tile.neighborNorth.heat += fireLevel
-	tile.neighborEast.heat	+= fireLevel
-	tile.neighborWest.heat	+= fireLevel
-	tile.neighborSouth.heat += fireLevel
-
-	/*
-	tile.neighborNorth.heat += heat/10
-	tile.neighborEast.heat += heat/10
-	tile.neighborWest.heat += heat/10
-	tile.neighborSouth.heat += heat/10
-	*/
-//}
+	(thisTile.neighborNorth.heat) += thisTile.fireLevel
+	(thisTile.neighborEast.heat)	+= thisTile.fireLevel
+	(thisTile.neighborWest.heat)	+= thisTile.fireLevel
+	(thisTile.neighborSouth.heat) += thisTile.fireLevel
+}
 
 func assignNeighbor(thisTile *tile, x int, y int, maxX int, maxY int, tileMap [][]tile) {
 
@@ -128,14 +120,17 @@ func TileConvert(inMap [][]int) [][]tile{
 
 func printTile(thisTile tile) {
 	if thisTile.wall {
-		fmt.Print("[vägg] ")
+		fmt.Print("[vägg(")
 	} else if thisTile.door {
-		fmt.Print("[dörr] ")
+		fmt.Print("[dörr(")
 	} else if thisTile.outOfBounds {
-		fmt.Print("[ute] ")
+		fmt.Print("[ute(")
 	} else {
-		fmt.Print("[golv] ")
+		fmt.Print("[golv(")
 	}
+		fmt.Print(thisTile.fireLevel)
+
+		fmt.Print(")] ")
 }
 
 func printTileMap(inMap [][]tile) {
@@ -193,5 +188,4 @@ func main() {
 		printTileMap(amap)
 		fmt.Print("\n")
 		printNeighbors(amap[4][4])
-		
 }
