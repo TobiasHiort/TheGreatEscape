@@ -48,22 +48,26 @@ func FireSpread(thisTile tile){
 	*/
 //}
 
-func assignNeighbor(thisTile tile, x int, y int, maxX int, maxY int, tileMap [][]tile) {
+func assignNeighbor(thisTile *tile, x int, y int, maxX int, maxY int, tileMap [][]tile) {
 
 	if x > 0 {
-		thisTile.neighborWest = &tileMap[x-1][y]
+		//thisTile.neighborWest = &tileMap[x-1][y]
+		thisTile.neighborNorth = &tileMap[x-1][y]
 	}
 
 	if y > 0 {
-		thisTile.neighborNorth = &tileMap[x][y-1]
+		//thisTile.neighborNorth = &tileMap[x][y-1]
+		thisTile.neighborWest = &tileMap[x][y-1]
 	}
 
 	if x < maxX-1 {
-		thisTile.neighborEast = &tileMap[x+1][y]
+		//thisTile.neighborEast = &tileMap[x+1][y]
+		thisTile.neighborSouth = &tileMap[x+1][y]
 	}
 
 	if y < maxY-1 {
-		thisTile.neighborSouth = &tileMap[x][y+1]
+		//thisTile.neighborSouth = &tileMap[x][y+1]
+		thisTile.neighborEast = &tileMap[x][y+1]
 	}
 }
 
@@ -115,7 +119,7 @@ func TileConvert(inMap [][]int) [][]tile{
 	//Assigns 4 neighbors to each tile
 	for x:= 0; x < mapXSize; x++{
 		for y:= 0; y < mapYSize; y++{
-			assignNeighbor(tileMap[x][y], x, y, mapXSize, mapYSize, tileMap)
+			assignNeighbor(&(tileMap[x][y]), x, y, mapXSize, mapYSize, tileMap)
 		}
 	}
 
@@ -147,24 +151,32 @@ func printTileMap(inMap [][]tile) {
 }
 func printNeighbors(atile tile) {
 		if atile.neighborNorth != nil {
+			fmt.Print("North: ")
 			printTile(*(atile.neighborNorth))
+			fmt.Print("\n")
 		} else {
-			fmt.Print("\nnil")
+			fmt.Print("North: nil\n")
 		}
 		if atile.neighborWest != nil {
-			printTile(*(atile.neighborNorth))
+			fmt.Print("West: ")
+			printTile(*(atile.neighborWest))
+			fmt.Print("\n")
 		} else {
-			fmt.Print("\nnil")
+			fmt.Print("West: nil\n")
 		}
 		if atile.neighborEast != nil {
-			printTile(*(atile.neighborNorth))
+			fmt.Print("East: ")
+			printTile(*(atile.neighborEast))
+			fmt.Print("\n")
 		} else {
-			fmt.Print("nil\n")
+			fmt.Print("East: nil\n")
 		}
 		if atile.neighborSouth != nil {
-			printTile(*(atile.neighborNorth))
+			fmt.Print("South: ")
+			printTile(*(atile.neighborSouth))
+			fmt.Print("\n")
 		} else {
-			fmt.Print("nil\n")
+			fmt.Print("South: nil\n")
 		}
 }
 
@@ -179,5 +191,7 @@ func main() {
 		amap := TileConvert(testMatrix)
 		//tileConvert(testMatrix)
 		printTileMap(amap)
-		printNeighbors(amap[1][1])
+		fmt.Print("\n")
+		printNeighbors(amap[2][3])
+		
 }
