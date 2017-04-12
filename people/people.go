@@ -12,6 +12,7 @@ type Tile struct {
 	Y int
 }
 
+
 type Person struct {
 	alive bool
 	path []Tile
@@ -49,7 +50,7 @@ func main() {
 
 	
 //	var p1 = Person{}
-	var p1 = makePerson()
+/*	var p1 = makePerson()
 	
 	fmt.Println(p1)
 	t1 := Tile{1,1}
@@ -64,8 +65,30 @@ func main() {
 	fmt.Println(p1)
 
 	kill(&p1)
-	fmt.Println(p1)
+	fmt.Println(p1)*/
+
+	t1 := Tile{0, 0}
+	t2 := Tile{0, 1}
+	t3 := Tile{1, 0}
+	t4 := Tile{1, 1}
+
 	
+	m := []Tile{t1, t2, t3, t4}
+
+/*	s1 := Thing{t1,1}
+	var q = Queue{s1}
+
+	fmt.Println(q)
+	(&q).Add(t2, 2)
+	fmt.Println(q)
+
+	fmt.Println((&q).Pop()) */
+	
+	fmt.Println(getNeighbours(m, t1))
+	
+	path := getpath(m, t1, t4)
+	fmt.Println(path)
 	fmt.Println("\nThey shall all burn!");
+
 }
 
