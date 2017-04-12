@@ -2,12 +2,16 @@ package main
 
 import "fmt"
 
+const MINHEAT    = 10
+const MEDIUMHEAT = 20
+const MAXHEAT    = 30
+
 type tile struct {
 	xCoord int
 	yCoord int
 
-	heat			int
-	fireLevel int
+	heat			int //how hot a tile is before fire
+	fireLevel int //strength of the fire
 
 	wall bool
 	door bool
@@ -23,40 +27,46 @@ type tile struct {
 	neighborWest  *tile
 }
 
+
+//Initializes the fire
 func SetFire(thisTile *tile) {
-	thisTile.fireLevel = 1
+  thisTile.heat = MINHEAT
+  thisTile.fireLevel = 1
 }
 
-func FireSpread(tileMap *([][]tile)) {
-	for x:= 0; x < len(&tileMap); x++{
-		for y:= 0; y < len(&tileMap[0]); y++{
+
+func FireSpread(tileMap [][]tile) {
+	for x:= 0; x < len(tileMap); x++{
+		for y:= 0; y < len(tileMap[0]); y++{
 			fireSpreadTile(&(tileMap[x][y]))
 		}
 	}
 
 }
 
+
+
 func fireSpreadTile(thisTile *tile){
-	if thisTile.heat > 9 {
+	if thisTile.heat >= MINHEAT {
 		thisTile.fireLevel = 1
 	}
-	if thisTile.heat > 19 {
+	if thisTile.heat >= MEDIUMHEAT {
 		thisTile.fireLevel = 2
 	}
-	if thisTile.heat > 29 {
+	if thisTile.heat >= MAXHEAT {
 		thisTile.fireLevel = 3
 	}
 
-	if thisTile.neighborNorth != nil {
+	if thisTile.neighborNorth != nil && thisTile.fireLevel != 0 {
 		(thisTile.neighborNorth.heat) += thisTile.fireLevel
 	}
-	if thisTile.neighborEast != nil {
+	if thisTile.neighborEast != nil && thisTile.fireLevel != 0 {
 		(thisTile.neighborEast.heat)	+= thisTile.fireLevel
 	}
-	if thisTile.neighborWest != nil {
+	if thisTile.neighborWest != nil && thisTile.fireLevel != 0 { 
 		(thisTile.neighborWest.heat)	+= thisTile.fireLevel
 	}
-	if thisTile.neighborSouth != nil {
+	if thisTile.neighborSouth != nil && thisTile.fireLevel != 0 {
 		(thisTile.neighborSouth.heat) += thisTile.fireLevel
 	}
 }
@@ -149,8 +159,10 @@ func printTile(thisTile tile) {
 	} else {
 		fmt.Print("[golv(")
 	}
-	fmt.Print(thisTile.fireLevel)
+  fmt.Print(thisTile.fireLevel)
 
+  fmt.Print(" Heat: ")
+  fmt.Print(thisTile.heat)
 	fmt.Print(")] ")
 }
 
@@ -201,21 +213,24 @@ func main() {
 		{0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0},
 		{1, 1, 0, 1, 1},
-		{0, 0, 0, 3, 3},
-		{2, 0, 0, 3, 3}}
+		{0, 0, 0, 3, 3}}
 
 		amap := TileConvert(testMatrix)
 		//tileConvert(testMatrix)
 		printTileMap(amap)
 		fmt.Print("\n")
-		printNeighbors(amap[4][4])
+		printNeighbors(amap[0][0])
 
 		//fire testing
 		SetFire(&(amap[2][2]))
-		for i := 0; i < 100; i++{
-			FireSpread(&amap)
-			if i%10 == 0{
+		printTileMap(amap)
+		
+    
+    for i := 0; i < 100; i++{
+			FireSpread(amap)
+		//	if i%10 == 0{
+        fmt.Println("\n")
 				printTileMap(amap)
-			}
+			//}
 		}
 	}
