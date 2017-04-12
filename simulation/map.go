@@ -215,22 +215,25 @@ func main() {
 		{1, 1, 0, 1, 1},
 		{0, 0, 0, 3, 3}}
 
-		amap := TileConvert(testMatrix)
-		//tileConvert(testMatrix)
-		printTileMap(amap)
-		fmt.Print("\n")
-		printNeighbors(amap[0][0])
+	amap := TileConvert(testMatrix)
+	//tileConvert(testMatrix)
+//	printTileMap(amap)
+	fmt.Print("\n")
+	printNeighbors(amap[0][0])
 
-		//fire testing
-		SetFire(&(amap[2][2]))
-		printTileMap(amap)
-		
-    
+	//fire testing
+	SetFire(&(amap[2][2]))
+	printTileMap(amap)
+//	
+	/*
     for i := 0; i < 100; i++{
 			FireSpread(amap)
 		//	if i%10 == 0{
         fmt.Println("\n")
 				printTileMap(amap)
 			//}
-		}
-	}
+		}*/
+
+	path := getPath(&amap, amap[0][0], amap[2][2])
+	fmt.Println(path)
+}

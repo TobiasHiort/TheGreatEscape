@@ -52,7 +52,7 @@ func fireChecker(matrix [][]int) [][]int {
 	return matrix
 }
 
-func main() {
+func mainFire() {
 
 	// predefined size of matrix
 	startMatrix := [][] int{
