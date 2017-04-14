@@ -209,7 +209,7 @@ func printNeighbors(atile tile) {
 }
 
 func main() {
-	testMatrix := [][]int{
+/*	testMatrix := [][]int{
 		{0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0},
 		{1, 1, 0, 1, 1},
@@ -225,7 +225,7 @@ func main() {
 	SetFire(&(amap[2][2]))
 	printTileMap(amap)
 //	
-	/*
+	
     for i := 0; i < 100; i++{
 			FireSpread(amap)
 		//	if i%10 == 0{
@@ -234,6 +234,7 @@ func main() {
 			//}
 		}*/
 
-	path := getPath(&amap, amap[0][0], amap[2][2])
-	fmt.Println(path)
+	mainPath()
+
+
 }
