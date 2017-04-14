@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import pygame
 import sys
 import os
@@ -7,157 +9,88 @@ import time
 import tkinter as tk # replace
 import subprocess
 
+from utils import *
+from pygame.locals import *
 from tkinter import filedialog # remove?
 from PIL import Image
 #from pygame import gfxdraw # use later, AA
-from pygame.locals import *
 
-# constants
-GAME_RES = (1024, 768)
-GAME_NAME = 'The Great Escape'
+# horrible function, does not render correct without it, must be in main
+def blitMenuButtons(displaySurface, button):
+    if button == "simulation":
+        # simulation button
+        displaySurface.blit(BUTTON_SETTINGS_BLANK, (202, 0))
+        displaySurface.blit(BUTTON_STATISTICS_BLANK, (382, 0))
+        displaySurface.blit(BUTTON_SIMULATION_ACTIVE, (0, 0))
+        active_tab_bools = [True, False, False]
 
-COLOR_WHITE = (255, 255, 255)
-COLOR_BLACK = (0, 0, 0)
-COLOR_GREEN = (0, 255, 0)
-COLOR_RED = (255, 0, 0)
-COLOR_YELLOW = (255, 238, 67)
-COLOR_BACKGROUND = (245, 245, 245)
-COLOR_KEY = (127, 127, 127)
-
-PADDING_MAP = 10
-
-PLAYER_SCALE = 1.0 # beginning scale
-
-def constructMap(path, mapSurface):
-    # read image to matrix
-    mapImage = Image.open(os.path.join('maps', path))
-    mapRGBA = mapImage.load()
-    mapMatrix = numpy.zeros((mapImage.size[1], mapImage.size[0])) # (rows, column)
-
-    # game dimensions
-    if mapImage.size[0] < mapImage.size[1]:
-        TILESIZE = math.floor((713)/mapImage.size[1])
-    else:
-        TILESIZE = math.floor((907)/mapImage.size[0])
-
-    MAPWIDTH = mapImage.size[0] # number of columns in matrix
-    MAPHEIGHT = mapImage.size[1] # number of rows in matrix
-
-    # create map matrix dependent on tile type
-    for row in range(mapImage.size[1]):
-        for column in range(mapImage.size[0]):
-            if mapRGBA[column, row] == (255, 255, 255, 255): # warning: mapRGBA has [column, row]. Fourth rgb = opacity.
-                mapMatrix[row][column] = 0
-            elif mapRGBA[column, row] == (0, 0, 0, 255): # warning: mapRGBA has [column, row]. Fourth rgb = opacity.
-                mapMatrix[row][column] = 1 # expand for more than floor and wall...
-            elif mapRGBA[column, row] == (127, 127, 127, 255): # warning: mapRGBA has [column, row]. Fourth rgb = opacity.
-                mapMatrix[row][column] = 3
-                # expand for more than floor and wall...
-
-    # create the map with draw.rect on mapSurface
-    for row in range(MAPHEIGHT):
-        for column in range(MAPWIDTH):
-            pygame.draw.rect(mapSurface, colors[mapMatrix[row][column]], (math.floor(column*TILESIZE+((907-2*PADDING_MAP)/(2))-((MAPWIDTH*TILESIZE)/2)+PADDING_MAP), math.floor(row*TILESIZE+((713-1*PADDING_MAP)/(2))-((MAPHEIGHT*TILESIZE)/2)), TILESIZE, TILESIZE)) 
-
-    return {'mapSurface':mapSurface, 'TILESIZE':TILESIZE, 'MAPWIDTH':MAPWIDTH, 'MAPHEIGHT':MAPHEIGHT}
-
-def drawPlayer(playerSurface, COLOR_KEY, COLOR_GREEN, playerPos, TILESIZE, PADDING_MAP, MAPHEIGHT, MAPWIDTH, PLAYER_SCALE):
-    # remove last frame
-    playerSurface.fill(COLOR_KEY)
-    # draw player on simulation tab/mapsurface, remove second later, create funcion instead
-    pygame.draw.circle(playerSurface, COLOR_GREEN, ((playerPos[0]*TILESIZE + math.floor(TILESIZE/2) + math.floor(((907-2*PADDING_MAP)/(2))-((MAPWIDTH*TILESIZE)/2)+PADDING_MAP)), playerPos[1]*TILESIZE+round(TILESIZE/2) + round(0*TILESIZE+((713-1*PADDING_MAP)/(2))-((MAPHEIGHT*TILESIZE)/2))), round((TILESIZE/2)*PLAYER_SCALE))
-    pygame.draw.circle(playerSurface, COLOR_GREEN, ((playerPos2[0]*TILESIZE + math.floor(TILESIZE/2) + math.floor(((907-2*PADDING_MAP)/(2))-((MAPWIDTH*TILESIZE)/2)+PADDING_MAP)), playerPos2[1]*TILESIZE+round(TILESIZE/2) + round(0*TILESIZE+((713-1*PADDING_MAP)/(2))-((MAPHEIGHT*TILESIZE)/2))), round((TILESIZE/2)*PLAYER_SCALE))
-
-    return {'playerSurface':playerSurface}
-
-def placeText(surface, text, font, size, color, x, y):
-    font = pygame.font.Font(font, size)
-    surface.blit(font.render(text, True, color), (x, y))
-
-def placeClockText(minutes, seconds):
-    if len(minutes) and len(seconds) == 2:
-        placeText(rmenuSurface, minutes, 'digital-7-mono.ttf', 45, COLOR_YELLOW, 8, 164)
-        placeText(rmenuSurface, seconds, 'digital-7-mono.ttf', 45, COLOR_YELLOW, 71, 164)
-    else:
-        raise ValueError('Seconds and minutes must be of length 2')
-
-def timeToString(seconds_input):
-    mmss = divmod(seconds_input, 60)
-    if mmss[0] < 10:
-        minutes = "0" + str(mmss[0])
-    else:
-        minutes = str(mmss[0])
+    elif button == "settings":
+        # settings button
+        displaySurface.blit(BUTTON_SIMULATION_BLANK, (0, 0))
+        displaySurface.blit(BUTTON_STATISTICS_BLANK, (382, 0))
+        displaySurface.blit(BUTTON_SETTINGS_ACTIVE, (202, 0))
+        active_tab_bools = [False, True, False]
     
-    if mmss[1] < 10:
-        seconds = "0" + str(mmss[1])
+    elif button == "statistics":
+        # statistics button
+        displaySurface.blit(BUTTON_SIMULATION_BLANK, (0, 0))
+        displaySurface.blit(BUTTON_SETTINGS_BLANK, (202, 0))
+        displaySurface.blit(BUTTON_STATISTICS_ACTIVE, (382, 0))
+        active_tab_bools = [False, False, True]
     else:
-        seconds = str(mmss[1])
-
-    if mmss[0] > 99:
-        return ("99", "++")
-    else:
-        return (minutes, seconds)
-
-# start with simulation tab (sim, settings, stats)
-active_tab_bools = [True, False, False]
-# do not start with any map
-active_map_path = None
-
-# dictionary for map matrix to color
-colors = {
-                0 : COLOR_WHITE,        # floor
-                1 : COLOR_BLACK,        # wall
-                2 : COLOR_GREEN,        # door
-                3 : COLOR_BACKGROUND    # out of bounds
-          }
-
-# player start coords, remove later WARNING two places
-playerPos = [0, 0]
-playerPos2 = [1, 1] # test for second player, remove later
-
-# for simulation clock, not system
-current_time = 0
+        raise ValueError('No button named "' + button + '"')
+    return displaySurface, active_tab_bools
 
 # init game
 pygame.init()
 
+# set window icon and program name
+icon = pygame.image.load(os.path.join('gui', 'window_icon.png'))
+pygame.display.set_icon(icon)
+pygame.display.set_caption(GAME_NAME)
+
 # clock from init
 clock = pygame.time.Clock()
 
-# set window icon
-icon = pygame.image.load(os.path.join('gui', 'window_icon.png'))
-pygame.display.set_icon(icon)
+# game event timer, 1 and 0.1 seconds, and vars
+TIMER1000 = USEREVENT + 1
+TIMER100 = USEREVENT + 2
+pygame.time.set_timer(TIMER1000, 1000)
+pygame.time.set_timer(TIMER100, 100) # if 0.1s is the smallest time unit, only add 0.1 seconds then and floor to 1
+counter_seconds = 0 # counter for TIMER1000
+current_frame = 0 # which time frame for movement, int
+current_time_float = 0.0 # float time for accurate time frame measurement, right now 0.1s per time frame.
+paused = True
+player_scale = 1.0
+
+# debugger inits, not needed later
+active_map_path_tmp = None
+tilesize = None
+mapwidth = 0
+mapheight = 0
+pipe_input = None
+
+player_pos = [] # might use this as indicator to not populate instead of players_movement?
+
+# movement, warning: temp
+#players_movement = []
+                   # include start pos
+players_movement = [[(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7),  (0, 8),  (0, 9),  (0, 10), (0, 11), (0, 12)],
+                    [(1, 2), (1, 2), (1, 3), (1, 3), (1, 4), (1, 4), (1, 5),  (1, 5),  (1, 6),  (1,  6), (1,  7), (1,  7)],
+                    [(2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8), (2, 9),  (2, 10), (2, 11), (2, 12), (2, 13), (2, 14)],
+                    [(3, 4), (3, 5), (3, 6), (3, 7), (3, 8), (3, 9), (3, 10), (3, 11), (3, 12), (3, 13), (3, 14), (3, 15)]] 
 
 # create the display surface, the overall main screen size that will be rendered
 displaySurface = pygame.display.set_mode((GAME_RES)) # ,pygame.NOFRAME
-displaySurface.fill(COLOR_BACKGROUND)
-pygame.display.set_caption(GAME_NAME)
+displaySurface.fill(COLOR_BACKGROUND) # no color leaks in the beginning
+displaySurface.set_colorkey(COLOR_KEY, pygame.RLEACCEL)
 
-# map surface
-mapSurface = pygame.Surface((907-0*PADDING_MAP, 713-PADDING_MAP))
-mapSurface = mapSurface.convert()
-mapSurface.set_colorkey(COLOR_KEY)
-mapSurface.fill(COLOR_BACKGROUND)
-
-# player surface
-playerSurface = pygame.Surface((907-0*PADDING_MAP, 713-PADDING_MAP))
-playerSurface = playerSurface.convert()
-playerSurface.set_colorkey(COLOR_KEY)
-
-# right menu surface (in the simulation tab)
-rmenuSurface = pygame.Surface((115, 723))
-rmenuSurface = rmenuSurface.convert()
-rmenuSurface.fill(COLOR_RED)
-
-# statistics surface
-statisticsSurface = pygame.Surface((1024, 713))
-statisticsSurface = statisticsSurface.convert()
-statisticsSurface.fill(COLOR_BACKGROUND)
-
-# settings surface
-settingsSurface = pygame.Surface((1024, 713))
-settingsSurface = statisticsSurface.convert()
-settingsSurface.fill(COLOR_BACKGROUND)
+# create surfaces
+mapSurface = createSurface(907, 713-PADDING_MAP)
+playerSurface = createSurface(907, 713-PADDING_MAP)
+rmenuSurface = createSurface(115, 723)
+statisticsSurface = createSurface(1024, 713)
+settingsSurface = createSurface(1024, 713)
 
 # load and blit menu components to main surface (possibly remove blit, blit then in the game loop?). Warning for blits.
 MENU_FADE = pygame.image.load(os.path.join('gui', 'menu_fade.png')).convert()
@@ -169,204 +102,207 @@ displaySurface.blit(MENU_BACKGROUND, (0, 0))
 MENU_RIGHT = pygame.image.load(os.path.join('gui', 'menu_right.png')).convert()
 rmenuSurface.blit(MENU_RIGHT, (0, 0)) # remove? blit game_loop
 
-# load buttons, warning for blits
-BUTTON_SIMULATION_BLANK = pygame.image.load(os.path.join('gui', 'simulation_blank.png')).convert_alpha()
-BUTTON_SIMULATION_HOVER = pygame.image.load(os.path.join('gui', 'simulation_hover.png')).convert_alpha()
-BUTTON_SIMULATION_ACTIVE = pygame.image.load(os.path.join('gui', 'simulation_active.png')).convert_alpha() # maybe remove convert_alpha? No alphac. Or just convert()
+# load and blit buttons in init state
+BUTTON_SIMULATION_ACTIVE, BUTTON_SIMULATION_BLANK, BUTTON_SIMULATION_HOVER = buildButton("simulation")
+BUTTON_SETTINGS_ACTIVE, BUTTON_SETTINGS_BLANK, BUTTON_SETTINGS_HOVER = buildButton("settings")
+BUTTON_STATISTICS_ACTIVE, BUTTON_STATISTICS_BLANK, BUTTON_STATISTICS_HOVER = buildButton("statistics")
 
-BUTTON_SETTINGS_ACTIVE = pygame.image.load(os.path.join('gui', 'settings_active.png')).convert_alpha()
-BUTTON_SETTINGS_HOVER = pygame.image.load(os.path.join('gui', 'settings_hover.png')).convert_alpha()
-BUTTON_SETTINGS_BLANK = pygame.image.load(os.path.join('gui', 'settings_blank.png')).convert_alpha()
-
-BUTTON_STATISTICS_ACTIVE = pygame.image.load(os.path.join('gui', 'statistics_active.png')).convert_alpha()
-BUTTON_STATISTICS_HOVER = pygame.image.load(os.path.join('gui', 'statistics_hover.png')).convert_alpha()
-BUTTON_STATISTICS_BLANK = pygame.image.load(os.path.join('gui', 'statistics_blank.png')).convert_alpha()
-
-BUTTON_RUN = pygame.image.load(os.path.join('gui', 'run.png')).convert_alpha()
+# warning for blits, expand later with hover etc., do buildButton but for rmenu
+BUTTON_RUN = pygame.image.load(os.path.join('gui', 'run.png')).convert()
 rmenuSurface.blit(BUTTON_RUN, (2, 80)) # remove  later, blit in gameloop.
-
 BUTTON_UPLOAD = pygame.image.load(os.path.join('gui', 'upload_small.png')).convert_alpha()
 rmenuSurface.blit(BUTTON_UPLOAD, (28, 640)) # remove  later, blit in gameloop.
-
-TIMER_BACKGROUND = pygame.image.load(os.path.join('gui', 'timer.png')).convert_alpha()
+TIMER_BACKGROUND = pygame.image.load(os.path.join('gui', 'timer.png')).convert()
 rmenuSurface.blit(TIMER_BACKGROUND, (2, 160)) # remove  later, blit in gameloop.
 
-# for opening map file in tkinter
-file_opt = options = {}
-options['defaultextension'] = '.png'
-options['filetypes'] = [('PNG Map Files', '.png')]
-options['initialdir'] = os.getcwd() + '\maps'
-options['initialfile'] = 'mapXX.png'
-#options['parent'] = root
-options['title'] = 'Select Map'
-
-# game event timer, 1 second
-pygame.time.set_timer(pygame.USEREVENT, 1000)
-counter_seconds = 0
+# get file dialog options
+file_opt = fileDialogInit()
 
 # game loop
 while True:
+    # event logic
     for event in pygame.event.get():
-        # add 'if' for active tab so you cant click on another layer... or move player etc.
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
-        elif event.type == pygame.USEREVENT:
+        # user event (time)
+        elif event.type == TIMER1000: # just specific for clock animation, 10*100ms below instead?
             # clock animation when no map loaded
-            if active_map_path == None or "":
+            if active_map_path == None or active_map_path == "": # "" = cancel on choosing map
                 if counter_seconds % 2 == 0: # even
                     placeText(rmenuSurface, '--', 'digital-7-mono.ttf', 45, COLOR_YELLOW, 71, 164)
                     placeText(rmenuSurface, '--', 'digital-7-mono.ttf', 45, COLOR_YELLOW, 8, 164)
-                    counter_seconds += 1
                 else:
                     rmenuSurface.blit(TIMER_BACKGROUND, (2, 160))
-                    counter_seconds += 1
-        # keyboard events
+            counter_seconds += 1
+
+        elif event.type == TIMER100: # 100ms per movement (or frame), meaning top speed of ((0.5*(1000/100))/1)*3.6 = 18 km/h
+            # FETCH PIPE HERE TO VAR, check if same (should never be, then Go sends data to slow)
+            # ADD PIPE LOGIC HERE, FETCH EACH TIME FRAME
+                # time check/update, only if new timeframe. Save/update time as "?counter_seconds" (handle float but render int)
+                # people movement
+                # fire movement
+                # smoke movement
+                # update values if not same...
+                # save everything so that we can render backwards when paused. (see K_f and K_g)
+                # render below
+
+            # just demonstrate time movement, but read from pipe changes above
+            #if False: # deactivate
+            if players_movement != []: # warning, handling unpopulated map
+                if active_map_path != None or active_map_path != "": # "" = cancel on choosing map
+                    if current_frame < len(players_movement[0])-1 and not paused: # no more movement tuples and not paused
+                        current_frame += 1
+                        current_time_float += 0.1
+                        for player in range(len(player_pos)):
+                            player_pos[player] = players_movement[player][current_frame] # change this to pipe var later.
+                                                                                        # handle empty or let go fill it
+                                                                                        # with dummy (same pos) data?
+                                                                                        # like movement[player][dir at frame] == "up", go up
+
+        # keyboard events (import as function?)
         elif event.type == KEYDOWN:
-            # change player pos which will be rendered in the next frame. Remove later, but save mechanics.
-            # [0] = column, [1] = row
-            if active_tab_bools[0] and active_map_path != None: # do not add time/pos if no map, see below (not relevant later tho)
-                if event.key == K_d:
-                    playerPos[0] += 1
-                    current_time += 1
-                elif event.key == K_a:
-                    playerPos[0] -= 1
-                    current_time += 1
-                elif event.key == K_s:
-                    playerPos[1] += 1
-                    current_time += 1
-                elif event.key == K_w:
-                    playerPos[1] -= 1
-                    current_time += 1
+            if active_tab_bools[0] and active_map_path != None: # do not add time/pos if no map
+                if event.key == K_o: # increase player scale, remove later
+                    if player_scale < 3: # not to big?
+                        player_scale *= 1.25
+                elif event.key == K_l: # decrease player scale, remove later
+                    if player_scale > 0.5: # crashes if negative radius, keep it > zero
+                        player_scale *= 0.8
+
+                # these two need to read from _saved_ pipe movement, cant go back otherwise. and only possible when paused
+                # add 'not' for not populated, time runs anyhow for these
+                elif event.key == K_g and paused and player_pos != []: # forwards player movement from player_movement, move later to timed game event
+                        if current_frame < len(players_movement[0])-1: # no (more) movement tuples
+                            current_frame += 1
+                            current_time_float += 0.1
+                            for player in range(len(player_pos)):
+                                player_pos[player] = players_movement[player][current_frame]
+                elif event.key == K_f and paused and player_pos != []: # backwards player movement from player_movement, move later to timed game event
+                        if current_frame > 0: # no (more) movement tuples
+                            current_frame -= 1
+                            current_time_float -= 0.1
+                            for player in range(len(player_pos)):
+                                player_pos[player] = players_movement[player][current_frame]
                 
-                elif event.key == K_RIGHT: # player2 movement, remove later
-                    playerPos2[0] += 1
-                    current_time += 1
-                elif event.key == K_LEFT:
-                    playerPos2[0] -= 1
-                    current_time += 1
-                elif event.key == K_DOWN:
-                    playerPos2[1] += 1
-                    current_time += 1
-                elif event.key == K_UP:
-                    playerPos2[1] -= 1
-                    current_time += 1
-
-                elif event.key == K_o: # increase player scale
-                    PLAYER_SCALE *= 1.25
-                elif event.key == K_l: # decrease player scale
-                    PLAYER_SCALE *= 0.8
-
-                elif event.key == K_m:
-                    # read stdout through pipe
-                    #popen = subprocess.call('hello.exe')
+                elif event.key == K_m and paused:
+                    # read stdout through pipe TEST
+                    #popen = subprocess.call('./hello') # just a call
                     popen = subprocess.Popen("./hello", stdout=subprocess.PIPE)
                     popen.wait()
-                    output = popen.stdout.read()
-                    print(str(output))
+                    pipe_input = popen.stdout.read()
+                    print(str(pipe_input))
 
-        # mouse motion events
+                elif event.key == K_s and paused and player_pos != []:
+                    if players_movement != []:  # do not start time frame clock if not pupulated. problems if we have no people?
+                        paused = False
+                elif event.key == K_p: # for use with cursorHitBox
+                    paused = True # if paused == True -> False?
+                elif event.key == K_a: # populate, warning. use after randomizing init pos
+                    paused = True
+                    # function of this? maybe scrap for direction movement instead
+                    if players_movement != [] and current_frame == 0: # warning, cannot run sim without people due to this.
+                                                                      # shitty handling for no respawn (current_frame)?,
+                                                                      # if respawn is needed, remove current_time_frame
+                        player_pos = []
+                        for player in range(len(players_movement)): # change players_movement to randomized init positions (this is before Go)
+                            player_pos.append(players_movement[player][0]) # start pos for each player
+                    else:
+                        print("Handle no players, or already run")
+        # mouse motion events (hovers), (import as function?)
         elif event.type == MOUSEMOTION:
             mouse_x, mouse_y = event.pos
-            if (mouse_x >= 0) and (mouse_x <= 202) and (mouse_y >= 0) and (mouse_y <= 45) and not(active_tab_bools[0]):
+            # simulation button
+            if cursorBoxHit(mouse_x, mouse_y, 0, 202, 0, 45, not(active_tab_bools[0])):
                 displaySurface.blit(BUTTON_SIMULATION_HOVER, (0,0))
             elif active_tab_bools[0]:
                 displaySurface.blit(BUTTON_SIMULATION_ACTIVE, (0,0))
             else:
                 displaySurface.blit(BUTTON_SIMULATION_BLANK, (0, 0))
-            if (mouse_x > 202) and (mouse_x <= 382) and (mouse_y >= 0) and (mouse_y <= 45) and not(active_tab_bools[1]):
+            # settings button
+            if cursorBoxHit(mouse_x, mouse_y, 202, 382, 0, 45, not(active_tab_bools[1])):
                 displaySurface.blit(BUTTON_SETTINGS_HOVER, (202,0))
             elif active_tab_bools[1]:
                 displaySurface.blit(BUTTON_SETTINGS_ACTIVE, (202,0))
             else:
                 displaySurface.blit(BUTTON_SETTINGS_BLANK, (202, 0))
-            if (mouse_x > 382) and (mouse_x <= 575) and (mouse_y >= 0) and (mouse_y <= 45) and not(active_tab_bools[2]):
+            # statistics button
+            if cursorBoxHit(mouse_x, mouse_y, 383, 575, 0, 45, not(active_tab_bools[2])):
                 displaySurface.blit(BUTTON_STATISTICS_HOVER, (382,0))
             elif active_tab_bools[2]:
                 displaySurface.blit(BUTTON_STATISTICS_ACTIVE, (382,0))
             else:
                 displaySurface.blit(BUTTON_STATISTICS_BLANK, (382, 0))
-        
-        # mouse button events
-        elif event.type == MOUSEBUTTONDOWN:
+
+        # mouse button events (clicks)
+        elif event.type == MOUSEBUTTONDOWN: # import as function?
             # left click
             if event.button == 1:
                 mouse_x, mouse_y = event.pos
-                if (mouse_x >= 0) and (mouse_x <= 202) and (mouse_y >= 0) and (mouse_y <= 45) and not(active_tab_bools[0]): # active_tab, probably a good idea?
-                    print('simulation tab')
-                    displaySurface.blit(BUTTON_SIMULATION_ACTIVE, (0, 0))
-                    displaySurface.blit(BUTTON_SETTINGS_BLANK, (202, 0))
-                    displaySurface.blit(BUTTON_STATISTICS_BLANK, (382, 0))
-                    active_tab_bools = [True, False, False]
-                elif (mouse_x > 202) and (mouse_x <= 382) and (mouse_y >= 0) and (mouse_y <= 45) and not(active_tab_bools[1]):
-                    print('settings tab')
-                    displaySurface.blit(BUTTON_SIMULATION_BLANK, (0, 0))
-                    displaySurface.blit(BUTTON_SETTINGS_ACTIVE, (202, 0))
-                    displaySurface.blit(BUTTON_STATISTICS_BLANK, (382, 0))
-                    active_tab_bools = [False, True, False]
-                elif (mouse_x > 382) and (mouse_x <= 575) and (mouse_y >= 0) and (mouse_y <= 45) and not(active_tab_bools[2]):
-                    print('statistics tab')
-                    displaySurface.blit(BUTTON_SIMULATION_BLANK, (0, 0))
-                    displaySurface.blit(BUTTON_SETTINGS_BLANK, (202, 0))
-                    displaySurface.blit(BUTTON_STATISTICS_ACTIVE, (382, 0))
-                    active_tab_bools = [False, False, True]
-                elif (mouse_x >= 937) and (mouse_x <= 999) and (mouse_y >= 685) and (mouse_y <= 747) and active_tab_bools[0]: # 21,83
-                    print('upload button tab')
-                    root = tk.Tk()
-                    root.withdraw()
-                    file_path = filedialog.askopenfilename(**file_opt)
-                    filename_pos = file_path.rfind('/')+1 # position for filename
-                    active_map_path_tmp = file_path[filename_pos:] # expand from here, probably need to create functions for rendering before?
+                # simulation button
+                if cursorBoxHit(mouse_x, mouse_y, 0, 202, 0, 45, not(active_tab_bools[0])):
+                    displaySurface, active_tab_bools = blitMenuButtons(displaySurface, "simulation")
+                # settings button
+                elif cursorBoxHit(mouse_x, mouse_y, 202, 382, 0, 45, not(active_tab_bools[1])):
+                    displaySurface, active_tab_bools = blitMenuButtons(displaySurface, "settings")
+                # statistics button
+                elif cursorBoxHit(mouse_x, mouse_y, 383, 575, 0, 45, not(active_tab_bools[2])):
+                    displaySurface, active_tab_bools = blitMenuButtons(displaySurface, "statistics")
+                
+                # upload button routine
+                elif cursorBoxHit(mouse_x, mouse_y, 937, 999, 685, 747, active_tab_bools[0]):
+                    active_map_path_tmp = fileDialogPath()
                     if active_map_path_tmp != "":
-                        active_map_path = active_map_path_tmp # fixed bug for exiting folder window
-                        # reset player start coords, remove later, WARNING two places
-                        playerPos = [0, 0]
-                        playerPos2 = [1, 1] # test for second player, remove later
-                        PLAYER_SCALE = 1.0
-                        current_time = 0 # for simulation clock, not system
+                        active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
+                        # reset state.
+                        player_scale, current_frame, current_time_float, paused, player_pos = resetState()
+                        # clear old map
+                        mapSurface.fill(COLOR_BACKGROUND) 
+                        # build new map
+                        mapSurface, mapMatrix, tilesize, mapwidth, mapheight = buildMap(active_map_path, mapSurface)
+                        # compute/update square meters
+                        current_map_sqm = mapSqm(mapMatrix)
+                        current_map_exits = mapExits(mapMatrix)
 
-                        mapSurface.fill(COLOR_BACKGROUND)
-
-                        constructMap_tmp = constructMap(active_map_path, mapSurface)
-                        mapSurface = constructMap_tmp['mapSurface']
-                        TILESIZE = constructMap_tmp['TILESIZE']
-                        MAPWIDTH = constructMap_tmp['MAPWIDTH']
-                        MAPHEIGHT = constructMap_tmp['MAPHEIGHT']
-
+    # render logic
     if active_tab_bools[0]:
         # simulation tab
-        if active_map_path == None:
+        if active_map_path == None or active_map_path == "": # if no active map (init), "" = cancel on choosing map
             mapSurface.fill(COLOR_BACKGROUND)
 
             # important blit order
-            displaySurface.blit(mapSurface, (0*PADDING_MAP, 55)) # empty here
+            displaySurface.blit(mapSurface, (0, 55)) # empty here
             displaySurface.blit(rmenuSurface, (909, 45))
         else:
-            rmenuSurface.blit(MENU_RIGHT, (0, 0)) # blit background for right menu before anything else
+            # right menu (class?)
+            rmenuSurface.blit(MENU_RIGHT, (0, 0))
             
             placeText(rmenuSurface, active_map_path, 'Roboto-Regular.ttf', 20, COLOR_BLACK, 12, 5)
+            placeText(rmenuSurface, "sqm: " + str(round(current_map_sqm)), 'Roboto-Regular.ttf', 20, COLOR_BLACK, 12, 35)
+            placeText(rmenuSurface, "exits: " + str(current_map_exits), 'Roboto-Regular.ttf', 20, COLOR_BLACK, 12, 55)
+
+            # move these to event handler
             rmenuSurface.blit(BUTTON_RUN, (2, 80))
             rmenuSurface.blit(BUTTON_UPLOAD, (28, 640))
 
             rmenuSurface.blit(TIMER_BACKGROUND, (2, 160))
+            
+            setClock(rmenuSurface, math.floor(current_time_float))
 
-            time_text = timeToString(current_time)
-            placeClockText(time_text[0], time_text[1])
-
-            drawPlayer_tmp = drawPlayer(playerSurface, COLOR_KEY, COLOR_GREEN, playerPos, TILESIZE, PADDING_MAP, MAPHEIGHT, MAPWIDTH, PLAYER_SCALE)
-            playerSurface = drawPlayer_tmp['playerSurface']
-
+            # draw players
+            playerSurface = drawPlayer(playerSurface, player_pos, tilesize, mapheight, mapwidth, player_scale)
+            
             # important blit order
-            displaySurface.blit(mapSurface, (0*PADDING_MAP, 55))
-            displaySurface.blit(playerSurface, (0*PADDING_MAP, 55))
-
+            displaySurface.blit(mapSurface, (0, 55))
+            displaySurface.blit(playerSurface, (0, 55))
             displaySurface.blit(rmenuSurface, (909, 45))
     elif active_tab_bools[1]:
         # settings tab
-        displaySurface.blit(settingsSurface, (0*PADDING_MAP, 55))
+        displaySurface.blit(settingsSurface, (0, 55))
         displaySurface.blit(MENU_FADE, (0, 45))
 
-        if active_map_path == None:
+        # (no) chosen map handler
+        if active_map_path == None or active_map_path == "": # if no active map (init), "" = cancel on choosing map
             settingsSurface.fill(COLOR_BACKGROUND)
             placeText(settingsSurface, "Choose map first [Settings]", 'Roboto-Regular.ttf', 24, COLOR_BLACK, 200, 300)
         else:
@@ -374,18 +310,41 @@ while True:
             placeText(settingsSurface, "Placeholder settingsSurface", 'Roboto-Regular.ttf', 24, COLOR_BLACK, 200, 300)
     elif active_tab_bools[2]:
         # statistics tab
-        displaySurface.blit(statisticsSurface, (0*PADDING_MAP, 55))
+        displaySurface.blit(statisticsSurface, (0, 55))
         displaySurface.blit(MENU_FADE, (0, 45))
 
-        if active_map_path == None:
+        # (no) chosen map handler
+        if active_map_path == None or active_map_path == "": # if no active map (init), "" = cancel on choosing map
             statisticsSurface.fill(COLOR_BACKGROUND)
             placeText(statisticsSurface, "Choose map first [Stats]", 'Roboto-Regular.ttf', 24, COLOR_BLACK, 200, 300)
         else:
             statisticsSurface.fill(COLOR_BACKGROUND)
             placeText(statisticsSurface, "Placeholder statisticsSurface", 'Roboto-Regular.ttf', 24, COLOR_BLACK, 200, 300)
     else:
-        raise ValueError('No active tab')
-        
+        raise NameError('No active tab')
+    
+    # debugger. remove later, bad fps
+    displaySurface.blit(MENU_BACKGROUND, (570, 0)) # bs1
+    displaySurface.blit(MENU_FADE, (-120, 45)) # bs^2
+    
+    placeText(displaySurface, "DEBUGGER", 'Roboto-Regular.ttf', 11, COLOR_BLACK, 570, 0)
+    placeText(displaySurface, "+mapwidth: " + str(mapwidth) + "til" + " (" + str(mapwidth*0.5)+ "m)", 'Roboto-Regular.ttf', 11, COLOR_BLACK, 570, 10)
+    placeText(displaySurface, "+mapheight: " + str(mapheight) + "til" + " (" + str(mapheight*0.5)+ "m)", 'Roboto-Regular.ttf', 11, COLOR_BLACK, 570, 20)
+    placeText(displaySurface, "+tab: " + str(active_tab_bools), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 570, 30)
+
+    placeText(displaySurface, "+p_pos: " + str(player_pos), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 48)
+    placeText(displaySurface, "+paused: " + str(paused), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 1)
+    placeText(displaySurface, "+elapsed: " + str(counter_seconds), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 14)
+    placeText(displaySurface, "+frame_float: " + str(round(current_time_float, 2)), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 26)
+
+    placeText(displaySurface, "+p_scale: " + str(round(player_scale, 2)), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 810, 1)
+    placeText(displaySurface, "+populated: " + str(player_pos != []), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 810, 14)
+    placeText(displaySurface, "+file: " + str(active_map_path), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 810, 26)
+
+    placeText(displaySurface, "+tilesize: " + str(tilesize), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 910, 1)
+    placeText(displaySurface, "+mouse xy: " + str(mouse_x) + "," + str(mouse_y), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 910, 14)
+    placeText(displaySurface, "+pipe_in: " + str(pipe_input), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 910, 26)
+
     # update display if not quitting
     pygame.display.flip() # .update(<surface_args>) instead?
 
