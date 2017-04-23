@@ -234,7 +234,7 @@ func main() {
 			//}
 		}*/
 
-	mainPath()
-
+	//mainPath()
+	mainPeople()
 
 }

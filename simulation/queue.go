@@ -4,7 +4,7 @@ import "sort"
 //import "fmt"
 
 type tileCost struct {
-	tile tile
+	tile *tile
 	cost float32
 	//cost should always be positive! I think..
 	//also possibly change cost to double?-
@@ -30,11 +30,11 @@ func sortQueue(q *queue) {
 }
 
 
-func (q *queue) Add(t tile, c float32) {
+func (q *queue) Add(t *tile, c float32) {
 	s := tileCost{}
 	s.tile = t
 	s.cost = c
-	if q.inQueue(t) {	
+	if q.inQueue(t) {
 		q.Update(t, c)
 	} else {
 		*q = append(*q, s)  //how to write--?
@@ -46,13 +46,13 @@ func (q *queue) AddTC(tc tileCost) {
 	q.Add(tc.tile, tc.cost)
 }
 
-func (q *queue) Remove(t tile) {
+func (q *queue) Remove(t *tile) {
 //	fmt.Println("check")
 	if (len(*q) == 0) {return }
 	i := 0
 	k := true
 	for k && i < len(*q) {
-		if (*q)[i].tile == t {
+		if *(*q)[i].tile == *t {
  			k = false 
 		} else if i < (*q).Len()  {
 			i++			
@@ -67,7 +67,7 @@ func (q *queue) Remove(t tile) {
 	}	
 }
 
-func (q *queue) Update(t tile, c float32) {
+func (q *queue) Update(t *tile, c float32) {
 	if q.inQueue(t){
 		q.Remove(t)
 		q.Add(t, c)
@@ -81,16 +81,16 @@ func (q *queue) Pop() tileCost {
 	return t	
 }
 
-func (q queue) inQueue(t tile) bool {	
+func (q queue) inQueue(t *tile) bool {	
 	for i := 0; i < len(q); i++ {
-		if q[i].tile == t {
+		if *q[i].tile == *t {	
 			return true
 		}
 	}
 	return false
 }
 
-func (q queue) costOf(tile tile) float32 {
+func (q queue) costOf(tile *tile) float32 {
 	for _, t := range q {
 		if t.tile == tile {return t.cost}
 	}

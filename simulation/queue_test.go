@@ -6,7 +6,8 @@ func makeTestQueue(size int) *queue{
 	testQ := queue{}
 
 	for i:=0; i < size; i++ {
-		testQ.Add(makeNewTile(0, i, i), float32(i))
+		tile := makeNewTile(0, i, i)
+		testQ.Add(&tile, float32(i))  
 	}
 	return &testQ
 }
@@ -14,10 +15,10 @@ func makeTestQueue(size int) *queue{
 func TestAdd(t* testing.T) {
 	size := 10
 	testQ := queue{}
-	i := 0
-	
+	i := 0	
 	for ; i < size; i++ {
-		testQ.Add(makeNewTile(0, i, i), float32(i))
+		tile := makeNewTile(0, i, i)
+		testQ.Add(&tile, float32(i))
 	}
 	if testQ.Len() != i {
 		t.Errorf("Expected len: %d, but got len: %d", i, testQ.Len())
@@ -25,7 +26,8 @@ func TestAdd(t* testing.T) {
 
 	j := 0
 	for ; j < size*2; j++ {
-		testQ.Add(makeNewTile(0, j, j), float32(j))
+		tile := makeNewTile(0, j, j)
+		testQ.Add(&tile, float32(j))
 	}
 	if testQ.Len() != j {
 		t.Errorf("Expected len: %d, but got len: %d", j, testQ.Len())
