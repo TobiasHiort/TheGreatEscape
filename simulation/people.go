@@ -2,53 +2,92 @@ package main
 
 import (
 	"fmt"
-	//"math/random"
+	
 )
 
-// In this struct is all the data we might want to collect from a person.
-// Implementing the stats like this might lead to some ugly code though. We'll se.
-type person struct {
-	ID int
 
+type Tile struct {
+	X int
+	Y int
+}
+
+
+type Person struct {
 	alive bool
-	//will start at -1
-	finishTime int
-
-	//startLocation tile
-	//escapeDoor tile
-
-	//path so far
-	//
+	path []Tile
+	plan []Tile	
 }
 
-func sayHello() {
-	fmt.Println("Hello, I am ")
+func makePerson() Person{
+	var person = Person{}
+	person.alive = true
+	return person
 }
 
-// Here I initiate an example person
-func personInit(personID int) person {
-	newPerson := person{personID, -1, true, -1}
-	return newPerson
+func moveTo(p *Person, t Tile) bool{
+	p.path = append(p.path, t)
+	return true
 }
 
-func act(dude person) {
-	sayHello()
-	fmt.Println("a person\n")
+func followPlan(p *Person) {
+	moveTo(p, p.plan[0])
+	p.plan = p.plan[1:]
+}
+
+/*
+func setPlan(p *Person, m Map) { // implement A*
+	//You shall not pass!
+}
+*/
+
+func kill(p *Person) {
+	p.alive = false
 }
 
 func main() {
-	personAmount := 10
-	personID := 0
-	//slice is like an array, only a bit different
-	personSlice := []person{}
-	for i := 0; i < personAmount; i++ {
-		personSlice = append (personSlice, personInit(personID))
-		personID++
-	}
+//	pq := PriorityQueue{}
 
-	/*
-	for _, person := range personSlice {
-		go act(person)
-	}
-	*/
+	
+//	var p1 = Person{}
+/*	var p1 = makePerson()
+	
+	fmt.Println(p1)
+	t1 := Tile{1,1}
+	t2 := Tile{2,2}
+	
+	moveTo(&p1, t1)
+	fmt.Println(p1)
+	p1.plan = append(p1.plan, t2)
+	fmt.Println(p1)
+
+	followPlan(&p1)
+	fmt.Println(p1)
+
+	kill(&p1)
+	fmt.Println(p1)*/
+
+	t1 := Tile{0, 0}
+	t2 := Tile{0, 1}
+	t3 := Tile{1, 0}
+	t4 := Tile{1, 1}
+
+	
+	m := []Tile{t1, t2, t3, t4}
+
+/*	s1 := Thing{t1,1}
+	var q = Queue{s1}
+
+	fmt.Println(q)
+	(&q).Add(t2, 2)
+	fmt.Println(q)
+
+	fmt.Println((&q).Pop()) */
+	
+	fmt.Println(getNeighbours(m, t1))
+	
+	path := getpath(m, t1, t4)
+	fmt.Println(path)
+	fmt.Println("\nThey shall all burn!");
+
 }
+
