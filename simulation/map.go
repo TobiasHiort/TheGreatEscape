@@ -228,7 +228,7 @@ func main() {
 			//}
 		}*/
 
-	//mainPath()
-	mainPeople()
+	mainPath()
+	//mainPeople()
 
 }

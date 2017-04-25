@@ -44,16 +44,6 @@ func getPath(m *[][]tile, from *tile, to *tile) ([]*tile, bool){
 	//	costQueue.Remove(current.tile)
 
 	}
-	
-/*	fmt.Println("****")
-	for _, tc := range costQueue {
-		fmt.Println(tc)
-		
-	}
-	fmt.Println("****")
-
-	fmt.Println(parentOf[check]) */
-
 	return compactPath(parentOf, from, to)
 }
  
@@ -61,7 +51,6 @@ func stepCost(t tile) float32{
 	cost := float32(1)
 	cost += float32(t.heat)/5   //TODO how much cost for fire etc??
 	cost += float32(t.fireLevel)*100
-//	fmt.Println(cost)
 	return cost
 }
 
@@ -92,7 +81,6 @@ func compactPath(parentOf map[*tile]*tile, from *tile, to *tile) ([]*tile, bool)
 		path = append(path, parentOf[current])
 	//	current = parentOf[current]
 	
-	
 		ok := true
 		current, ok = parentOf[current]
 		if  !ok{
@@ -119,7 +107,8 @@ func mainPath() {
 	blockedPath()
 	fmt.Println("--------------")
 	firePath()
-
+	fmt.Println("--------------")
+	doorsPath()
 }
 
 func workingPath() {
@@ -174,5 +163,22 @@ func firePath() {
 
 	path, _ := getPath(&testmap, &testmap[0][3], &testmap[6][2])
 	fmt.Println("\nFire path:")
+	printPath(path)
+}
+
+func doorsPath() {
+	matrix := [][]int {
+		{0,0,0,1,0,0,0},
+		{0,0,0,2,0,0,0},
+		{1,1,1,1,0,0,0},
+		{0,0,0,1,0,0,0},
+		{0,0,0,1,0,0,0},
+		{0,0,0,2,0,0,0}, 
+		{0,0,0,1,0,0,0}}
+
+	testmap := TileConvert(matrix)
+	printTileMap(testmap)
+	path, _ := getPath(&testmap, &testmap[0][0], &testmap[6][0])
+	fmt.Println("\nDoors path:")
 	printPath(path)
 }
