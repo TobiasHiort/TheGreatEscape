@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+//	"fmt"
 	
 )
 
@@ -9,7 +9,7 @@ import (
 type Tile struct {
 	X int
 	Y int
-}
+} 
 
 
 type Person struct {
@@ -44,7 +44,7 @@ func kill(p *Person) {
 	p.alive = false
 }
 
-func main() {
+func mainPeople() {
 //	pq := PriorityQueue{}
 
 	
@@ -65,14 +65,14 @@ func main() {
 
 	kill(&p1)
 	fmt.Println(p1)*/
-
+/*
 	t1 := Tile{0, 0}
 	t2 := Tile{0, 1}
 	t3 := Tile{1, 0}
 	t4 := Tile{1, 1}
 
 	
-	m := []Tile{t1, t2, t3, t4}
+	m := []Tile{t1, t2, t3, t4}*/
 
 /*	s1 := Thing{t1,1}
 	var q = Queue{s1}
@@ -82,12 +82,13 @@ func main() {
 	fmt.Println(q)
 
 	fmt.Println((&q).Pop()) */
-	
+/*	
 	fmt.Println(getNeighbours(m, t1))
 	
 	path := getpath(m, t1, t4)
 	fmt.Println(path)
 	fmt.Println("\nThey shall all burn!");
+	*/
 
 }
 
