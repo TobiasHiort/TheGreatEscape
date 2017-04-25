@@ -44,8 +44,6 @@ func FireSpread(tileMap [][]tile) {
 
 }
 
-
-
 func fireSpreadTile(thisTile *tile){
 	if thisTile.heat >= MINHEAT {
 		thisTile.fireLevel = 1
@@ -63,7 +61,7 @@ func fireSpreadTile(thisTile *tile){
 	if thisTile.neighborEast != nil && thisTile.fireLevel != 0 {
 		(thisTile.neighborEast.heat)	+= thisTile.fireLevel
 	}
-	if thisTile.neighborWest != nil && thisTile.fireLevel != 0 { 
+	if thisTile.neighborWest != nil && thisTile.fireLevel != 0 {
 		(thisTile.neighborWest.heat)	+= thisTile.fireLevel
 	}
 	if thisTile.neighborSouth != nil && thisTile.fireLevel != 0 {
@@ -72,24 +70,19 @@ func fireSpreadTile(thisTile *tile){
 }
 
 func assignNeighbor(thisTile *tile, x int, y int, maxX int, maxY int, tileMap [][]tile) {
-
 	if x > 0 {
-		//thisTile.neighborWest = &tileMap[x-1][y]
 		thisTile.neighborNorth = &tileMap[x-1][y]
 	}
 
 	if y > 0 {
-		//thisTile.neighborNorth = &tileMap[x][y-1]
 		thisTile.neighborWest = &tileMap[x][y-1]
 	}
 
 	if x < maxX-1 {
-		//thisTile.neighborEast = &tileMap[x+1][y]
 		thisTile.neighborSouth = &tileMap[x+1][y]
 	}
 
 	if y < maxY-1 {
-		//thisTile.neighborSouth = &tileMap[x][y+1]
 		thisTile.neighborEast = &tileMap[x][y+1]
 	}
 }
@@ -97,6 +90,7 @@ func assignNeighbor(thisTile *tile, x int, y int, maxX int, maxY int, tileMap []
 func makeNewTile(thisPoint int, x int, y int) tile{
 
 	//makes a basic floor tile with no nothin on it
+	//and also no neighbors
 	newTile := tile{x, y, 0, 0, false, false, false, 0, false, nil, nil, nil, nil}
 
 	if thisPoint == 0 {
@@ -209,28 +203,32 @@ func printNeighbors(atile tile) {
 }
 
 func main() {
-	testMatrix := [][]int{
+/*	testMatrix := [][]int{
 		{0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0},
 		{1, 1, 0, 1, 1},
 		{0, 0, 0, 3, 3}}
 
-		amap := TileConvert(testMatrix)
-		//tileConvert(testMatrix)
-		printTileMap(amap)
-		fmt.Print("\n")
-		printNeighbors(amap[0][0])
+	amap := TileConvert(testMatrix)
+	//tileConvert(testMatrix)
+//	printTileMap(amap)
+	fmt.Print("\n")
+	printNeighbors(amap[0][0])
 
-		//fire testing
-		SetFire(&(amap[2][2]))
-		printTileMap(amap)
-		
-    
+	//fire testing
+	SetFire(&(amap[2][2]))
+	printTileMap(amap)
+//	
+	
     for i := 0; i < 100; i++{
 			FireSpread(amap)
 		//	if i%10 == 0{
         fmt.Println("\n")
 				printTileMap(amap)
 			//}
-		}
-	}
+		}*/
+
+	//mainPath()
+	mainPeople()
+
+}
