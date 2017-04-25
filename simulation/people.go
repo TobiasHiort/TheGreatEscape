@@ -75,7 +75,7 @@ func (p *Person) updatePath(m *[][]tile) {
 	}
 }
 
-func mainPeople() {
+func MainPeople() {
 
 	matrix := [][]int {
 		{0,0,0,1,0,0,0},

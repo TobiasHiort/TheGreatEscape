@@ -51,42 +51,36 @@ func TestSizeOfTileConvert(t* testing.T) {
 func TestTileConvert(t* testing.T) {
     //0 = floor, 1 = wall, 2 = door, 3 = outofbounds
     testMatrix := [][]int{
-    {0, 1},	
+    {0, 1},
     {2, 3}}
-    
 
-    amap := TileConvert(testMatrix) 
+    amap := TileConvert(testMatrix)
     actualtile := (amap[0][0]) //floor
     //x = row 0, y = column 0 
 
     if actualtile.wall != false {
       t.Errorf("Expected a floor, but this is a wall")
-    } 
-
+    }
     if actualtile.door != false {
       t.Errorf("Expected a floor, but this is a door")
-    } 
-
+    }
     if actualtile.outOfBounds != false {
-      t.Errorf("Expected a floor, but this is a outofbounds")    
+      t.Errorf("Expected a floor, but this is a outofbounds")
     }
 
     actualtile = amap[0][1] //wall
  
     if actualtile.wall != true {
       t.Errorf("Expected a wall, but this is not a wall")
-    } 
-
+    }
     if actualtile.door != false {
       t.Errorf("Expected a wall, but this is a door")
-    } 
-
-    if actualtile.outOfBounds != false {
-      t.Errorf("Expected a wall, but this is a outofbounds")  
     }
-
+    if actualtile.outOfBounds != false {
+      t.Errorf("Expected a wall, but this is a outofbounds")
+    }
     if actualtile.outOfBounds != false && actualtile.door != false && actualtile.wall == false {
-      t.Errorf("Expected a wall, but this is a floor")  
+      t.Errorf("Expected a wall, but this is a floor")
     }
 
     actualtile = amap[1][0] //door
@@ -118,8 +112,42 @@ func TestTileConvert(t* testing.T) {
     if actualtile.door != false && actualtile.wall != false && actualtile.outOfBounds == false {
       t.Errorf("Expected outofbounds, but this is a floor")  
     }
- 
   }
+
+
+func TestNeighbouringtiles(t* testing.T) {
+
+  //0 = floor, 1 = wall, 2 = door, 3 = outofbounds
+  testMatrix := [][]int{
+  {0, 1},
+  {2, 3}}
+
+  amap := TileConvert(testMatrix)
+  firsttile := amap[0][0]; //0
+  actualNorth := firsttile.neighborNorth
+  actualEast := firsttile.neighborEast
+  actualSouth := firsttile.neighborSouth
+  actualWest := firsttile.neighborWest
+
+  //expectedNorth := nil
+  expectedEast := &amap[0][1]
+  expectedSouth := &amap[1][0]
+  //expectedWest := nil
+
+  if(actualNorth != nil) {
+    t.Errorf("Neighbor to the north is wrong");
+  }
+  if(actualEast != expectedEast) {
+    t.Errorf("Neighbor to the east is wrong");
+  }
+  if(actualSouth != expectedSouth) {
+    t.Errorf("Neighbor to the south is wrong");
+  }
+  if(actualWest != nil) {
+    t.Errorf("Neighbor to the west is wrong");
+  }
+
+}
 
 func printTile(thisTile tile) {
 	if thisTile.wall {
@@ -150,6 +178,7 @@ func printTileMap(inMap [][]tile) {
 		fmt.Print("\n")
 	}
 }
+
 func printNeighbors(atile tile) {
 	if atile.neighborNorth != nil {
 		fmt.Print("North: ")

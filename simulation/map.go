@@ -1,6 +1,6 @@
 package main
 
-import "fmt"
+//import "fmt"
 
 const MINHEAT    = 10
 const MEDIUMHEAT = 20
@@ -142,7 +142,7 @@ func TileConvert(inMap [][]int) [][]tile{
 
 	return tileMap
 }
-
+/*
 func printTile(thisTile tile) {
 	if thisTile.wall {
 		fmt.Print("[vägg(")
@@ -159,7 +159,9 @@ func printTile(thisTile tile) {
   fmt.Print(thisTile.heat)
 	fmt.Print(")] ")
 }
+*/
 
+/*
 func printTileMap(inMap [][]tile) {
 	mapXSize := len(inMap)
 	mapYSize := len(inMap[0])
@@ -201,6 +203,7 @@ func printNeighbors(atile tile) {
 		fmt.Print("South: nil\n")
 	}
 }
+*/
 
 func main() {
 /*	testMatrix := [][]int{
@@ -223,12 +226,12 @@ func main() {
     for i := 0; i < 100; i++{
 			FireSpread(amap)
 		//	if i%10 == 0{
-        fmt.Println("\n")
+    fmt.Println("\n")
 				printTileMap(amap)
 			//}
 		}*/
 
 	//mainPath()
-	mainPeople()
+  //MainPeople()
 
 }

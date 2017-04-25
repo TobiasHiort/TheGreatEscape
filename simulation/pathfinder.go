@@ -112,7 +112,7 @@ func workingPath() {
 		{0,0,0,0}, 
 		{0,0,1,0}}
 	testmap := TileConvert(matrix)
-	printTileMap(testmap)
+	//printTileMap(testmap)
 	
 	path, _ := getPath(&testmap, &testmap[0][0], &testmap[0][2])
 
@@ -128,7 +128,7 @@ func blockedPath(){
 		{0,0,1,0}, 
 		{0,0,1,0}}
 	testmap := TileConvert(matrix)
-	printTileMap(testmap)
+	//printTileMap(testmap)
 	
 	path, _ := getPath(&testmap, &testmap[0][0], &testmap[3][3])
 
@@ -153,7 +153,7 @@ func firePath() {
 		FireSpread(testmap)
 	}
 
-	printTileMap(testmap)
+	//printTileMap(testmap)
 
 	path, _ := getPath(&testmap, &testmap[0][3], &testmap[6][2])
 	fmt.Println("\nFire path:")
@@ -171,7 +171,7 @@ func doorsPath() {
 		{0,0,0,1,0,0,0}}
 
 	testmap := TileConvert(matrix)
-	printTileMap(testmap)
+	//printTileMap(testmap)
 	path, _ := getPath(&testmap, &testmap[0][0], &testmap[6][0])
 	fmt.Println("\nDoors path:")
 	printPath(path)
