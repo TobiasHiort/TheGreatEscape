@@ -1,12 +1,12 @@
 package main
 
-
 import	"fmt"
 
 func getPath(m *[][]tile, from *tile, to *tile) ([]*tile, bool){
 	// TODO: should 'to' be a list of tiles? (all doors)
 	// or should there be no 'to', it just searches for any door?	
 	// map to keep track of the final path
+
 	var parentOf map[*tile]*tile
 	parentOf = make(map[*tile]*tile)
 	//initialise 'costqueue', start-0, other-infinite
@@ -14,27 +14,23 @@ func getPath(m *[][]tile, from *tile, to *tile) ([]*tile, bool){
 	
 	for i,list := range *m {
 		for j, _ := range list {		
-			costQueue.Add(&(*m)[i][j], 100)   // 100~infinite		
+			costQueue.Add(&(*m)[i][j], 1000)   // 1000~infinite		
 		}
 	}
 	
 	costQueue.Update(from, 0)
 
-
-	//slice of yet to check-tiles
-//	checkedQueue := costQueue         TODO: implement this later for a more efficient algorithm
+//	checkedQueue := costQueue   TODO: implement this later for a more efficient algorithm
 
 	current := tileCost{}
 	//essential loop
 	for len(costQueue) != 0 && current.tile != to{	
 	
-		current = (&costQueue).Pop()
-	
-		//fmt.Println("\nCurrent:",*current.tile)
-		//loop through neighbours of current tile
+		current = (&costQueue).Pop()	
 		neighbors := getNeighbors(current.tile)
 		for _, neighbor := range neighbors {		
-			cost := current.cost + stepCost(*neighbor) // TODO: 1 default cost improve!? depending on heat, smoke etc		
+			cost := current.cost + stepCost(*neighbor)
+			// TODO: 1 default cost improve!? depending on heat, smoke etc		
 			if cost < costQueue.costOf(neighbor) {			
 				parentOf[neighbor] = current.tile
 				costQueue.Update(neighbor, cost)			
@@ -50,7 +46,7 @@ func getPath(m *[][]tile, from *tile, to *tile) ([]*tile, bool){
 func stepCost(t tile) float32{
 	cost := float32(1)
 	cost += float32(t.heat)/5   //TODO how much cost for fire etc??
-	cost += float32(t.fireLevel)*100
+	cost += float32(t.fireLevel)*1000
 	return cost
 }
 
@@ -65,7 +61,7 @@ func getNeighbors(current *tile) []*tile{
 	return neighbors
 }
 
-func validTile(t *tile) bool {  // TODO implement avoiding fire etc
+func validTile(t *tile) bool {
 	if t == nil {
 		return false
 	}
@@ -78,8 +74,7 @@ func compactPath(parentOf map[*tile]*tile, from *tile, to *tile) ([]*tile, bool)
 	current := to
 
 	for current.xCoord != from.xCoord || current.yCoord != from.yCoord {		
-		path = append(path, parentOf[current])
-	//	current = parentOf[current]
+		path = append([]*tile{parentOf[current]}, path...)
 	
 		ok := true
 		current, ok = parentOf[current]
@@ -87,7 +82,6 @@ func compactPath(parentOf map[*tile]*tile, from *tile, to *tile) ([]*tile, bool)
 			return nil, false	
 		}
 	}
-
 	return path, true	
 }
 
