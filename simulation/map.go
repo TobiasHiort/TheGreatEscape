@@ -44,8 +44,6 @@ func FireSpread(tileMap [][]tile) {
 
 }
 
-
-
 func fireSpreadTile(thisTile *tile){
 	if thisTile.heat >= MINHEAT {
 		thisTile.fireLevel = 1
@@ -63,7 +61,7 @@ func fireSpreadTile(thisTile *tile){
 	if thisTile.neighborEast != nil && thisTile.fireLevel != 0 {
 		(thisTile.neighborEast.heat)	+= thisTile.fireLevel
 	}
-	if thisTile.neighborWest != nil && thisTile.fireLevel != 0 { 
+	if thisTile.neighborWest != nil && thisTile.fireLevel != 0 {
 		(thisTile.neighborWest.heat)	+= thisTile.fireLevel
 	}
 	if thisTile.neighborSouth != nil && thisTile.fireLevel != 0 {
@@ -72,24 +70,19 @@ func fireSpreadTile(thisTile *tile){
 }
 
 func assignNeighbor(thisTile *tile, x int, y int, maxX int, maxY int, tileMap [][]tile) {
-
 	if x > 0 {
-		//thisTile.neighborWest = &tileMap[x-1][y]
 		thisTile.neighborNorth = &tileMap[x-1][y]
 	}
 
 	if y > 0 {
-		//thisTile.neighborNorth = &tileMap[x][y-1]
 		thisTile.neighborWest = &tileMap[x][y-1]
 	}
 
 	if x < maxX-1 {
-		//thisTile.neighborEast = &tileMap[x+1][y]
 		thisTile.neighborSouth = &tileMap[x+1][y]
 	}
 
 	if y < maxY-1 {
-		//thisTile.neighborSouth = &tileMap[x][y+1]
 		thisTile.neighborEast = &tileMap[x][y+1]
 	}
 }
@@ -97,6 +90,7 @@ func assignNeighbor(thisTile *tile, x int, y int, maxX int, maxY int, tileMap []
 func makeNewTile(thisPoint int, x int, y int) tile{
 
 	//makes a basic floor tile with no nothin on it
+	//and also no neighbors
 	newTile := tile{x, y, 0, 0, false, false, false, 0, false, nil, nil, nil, nil}
 
 	if thisPoint == 0 {
@@ -148,89 +142,3 @@ func TileConvert(inMap [][]int) [][]tile{
 
 	return tileMap
 }
-
-func printTile(thisTile tile) {
-	if thisTile.wall {
-		fmt.Print("[vägg(")
-	} else if thisTile.door {
-		fmt.Print("[dörr(")
-	} else if thisTile.outOfBounds {
-		fmt.Print("[ute(")
-	} else {
-		fmt.Print("[golv(")
-	}
-  fmt.Print(thisTile.fireLevel)
-
-  fmt.Print(" Heat: ")
-  fmt.Print(thisTile.heat)
-	fmt.Print(")] ")
-}
-
-func printTileMap(inMap [][]tile) {
-	mapXSize := len(inMap)
-	mapYSize := len(inMap[0])
-
-	for x:= 0; x < mapXSize; x++{
-		for y:= 0; y < mapYSize; y++{
-			printTile(inMap[x][y])
-		}
-		fmt.Print("\n")
-	}
-}
-func printNeighbors(atile tile) {
-	if atile.neighborNorth != nil {
-		fmt.Print("North: ")
-		printTile(*(atile.neighborNorth))
-		fmt.Print("\n")
-	} else {
-		fmt.Print("North: nil\n")
-	}
-	if atile.neighborWest != nil {
-		fmt.Print("West: ")
-		printTile(*(atile.neighborWest))
-		fmt.Print("\n")
-	} else {
-		fmt.Print("West: nil\n")
-	}
-	if atile.neighborEast != nil {
-		fmt.Print("East: ")
-		printTile(*(atile.neighborEast))
-		fmt.Print("\n")
-	} else {
-		fmt.Print("East: nil\n")
-	}
-	if atile.neighborSouth != nil {
-		fmt.Print("South: ")
-		printTile(*(atile.neighborSouth))
-		fmt.Print("\n")
-	} else {
-		fmt.Print("South: nil\n")
-	}
-}
-
-func main() {
-	testMatrix := [][]int{
-		{0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0},
-		{1, 1, 0, 1, 1},
-		{0, 0, 0, 3, 3}}
-
-		amap := TileConvert(testMatrix)
-		//tileConvert(testMatrix)
-		printTileMap(amap)
-		fmt.Print("\n")
-		printNeighbors(amap[0][0])
-
-		//fire testing
-		SetFire(&(amap[2][2]))
-		printTileMap(amap)
-		
-    
-    for i := 0; i < 100; i++{
-			FireSpread(amap)
-		//	if i%10 == 0{
-        fmt.Println("\n")
-				printTileMap(amap)
-			//}
-		}
-	}
