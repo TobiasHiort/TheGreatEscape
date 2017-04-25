@@ -5,7 +5,7 @@ import "sort"
 
 type tileCost struct {
 	tile tile
-	cost int
+	cost float32
 	//cost should always be positive! I think..
 	//also possibly change cost to double?-
 	//depending on later implementation choices
@@ -30,7 +30,7 @@ func sortQueue(q *queue) {
 }
 
 
-func (q *queue) Add(t tile, c int) {
+func (q *queue) Add(t tile, c float32) {
 	s := tileCost{}
 	s.tile = t
 	s.cost = c
@@ -67,7 +67,7 @@ func (q *queue) Remove(t tile) {
 	}	
 }
 
-func (q *queue) Update(t tile, c int) {
+func (q *queue) Update(t tile, c float32) {
 	if q.inQueue(t){
 		q.Remove(t)
 		q.Add(t, c)
@@ -81,7 +81,7 @@ func (q *queue) Pop() tileCost {
 	return t	
 }
 
-func (q queue) inQueue(t tile) bool{	
+func (q queue) inQueue(t tile) bool {	
 	for i := 0; i < len(q); i++ {
 		if q[i].tile == t {
 			return true
@@ -90,7 +90,7 @@ func (q queue) inQueue(t tile) bool{
 	return false
 }
 
-func (q queue) costOf(tile tile) int {
+func (q queue) costOf(tile tile) float32 {
 	for _, t := range q {
 		if t.tile == tile {return t.cost}
 	}

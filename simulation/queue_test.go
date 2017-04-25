@@ -6,7 +6,7 @@ func makeTestQueue(size int) *queue{
 	testQ := queue{}
 
 	for i:=0; i < size; i++ {
-		testQ.Add(makeNewTile(0, i, i), i)
+		testQ.Add(makeNewTile(0, i, i), float32(i))
 	}
 	return &testQ
 }
@@ -17,7 +17,7 @@ func TestAdd(t* testing.T) {
 	i := 0
 	
 	for ; i < size; i++ {
-		testQ.Add(makeNewTile(0, i, i), i)
+		testQ.Add(makeNewTile(0, i, i), float32(i))
 	}
 	if testQ.Len() != i {
 		t.Errorf("Expected len: %d, but got len: %d", i, testQ.Len())
@@ -25,7 +25,7 @@ func TestAdd(t* testing.T) {
 
 	j := 0
 	for ; j < size*2; j++ {
-		testQ.Add(makeNewTile(0, j, j), j)
+		testQ.Add(makeNewTile(0, j, j), float32(j))
 	}
 	if testQ.Len() != j {
 		t.Errorf("Expected len: %d, but got len: %d", j, testQ.Len())
@@ -78,7 +78,7 @@ func TestInQueue(t* testing.T) {
 
 func TestUpdate(t* testing.T) {
 	size := 10
-	newVal := 1
+	newVal := float32(1)
 
 	testQ := *makeTestQueue(size)
 	checkQ := *makeTestQueue(size*2)
@@ -90,7 +90,7 @@ func TestUpdate(t* testing.T) {
 	
 	for _, tc := range testQ {
 		if tc.cost != newVal {
-			t.Errorf("Expected cost: %d, but got cost: %d", newVal, tc.cost)
+			t.Errorf("Expected cost: %f, but got cost: %f", newVal, tc.cost)
 		}
 		//jenny kan inte organisera paranteser korrekt.... time wasted	
 		
@@ -104,7 +104,7 @@ func TestUpdate(t* testing.T) {
 	}
 	for _, tc := range testQ {
 		if tc.cost != newVal {
-			t.Errorf("Expected cost: %d, but got cost: %d", newVal, tc.cost)
+			t.Errorf("Expected cost: %f, but got cost: %f", newVal, tc.cost)
 		}
 		//ghaaaa writing tests are boring....
 	}
@@ -118,7 +118,7 @@ func TestPop(t* testing.T) {
 	for i := 0; i < size*2; i++ {
 		current := testQ.Pop()
 		if i < size {
-			if current.cost != i { // checks that popped tile has correct value
+			if current.cost != float32(i) { // checks that popped tile has correct value
 				t.Errorf("Expected cost: %d but got cost: %d", i, current.cost)
 			}
 		} else if current.cost != 0{ // checks that popped tile is 'nil', zero cost

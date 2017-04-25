@@ -11,34 +11,64 @@ func getPath(m *[][]tile, from tile, to tile) ([]tile, bool){
 	//initialise 'costqueue', start-0, other-infinite
 	costQueue := queue{}
 
+
+	check := tile{}
+	
 	for _,list := range *m {
 		for _, t := range list {
-			costQueue.Add(t, 100)   // 10~infinite	
+			costQueue.Add(t, 100)   // 10~infinite
+			fmt.Println(t)
+			if t.xCoord == 2 && t.yCoord == 1 {
+				check = t
+			}
 		}
 	}
-	costQueue.Add(from, 0)
+	costQueue.Update(from, 0)
+	fmt.Println(costQueue.Len())
 
 
 	//slice of yet to check-tiles
-	checkedQueue := costQueue
+//	checkedQueue := costQueue         TODO: implement this later for a more efficient algorithm
 
 	current := tileCost{}
 	//essential loop
 	for len(costQueue) != 0 && current.tile != to{
+	
 		current = (&costQueue).Pop()
+	
+		fmt.Println("\nCurrent:",current)
 		//loop through neighbours of current tile
 		neighbors := getNeighbors(&(current.tile))
-		for _, neighbor := range neighbors {		
-			cost := current.cost + 1 // TODO: 1 default cost improve! depending on heat, smoke etc
+		for _, neighbor := range neighbors {	
+			cost := current.cost + stepCost(neighbor) // TODO: 1 default cost improve!? depending on heat, smoke etc
 			if cost < costQueue.costOf(neighbor) {
+				fmt.Println("update?", cost)
 				parentOf[neighbor] = current.tile
-				costQueue.Update(neighbor, cost)					
+				costQueue.Update(neighbor, cost)			
 			}
 		}
-		checkedQueue.AddTC(current)
-		costQueue.Remove(current.tile)	
+	//	checkedQueue.AddTC(current)
+	//	costQueue.Remove(current.tile)
+
 	}
+	fmt.Println("****")
+	for _, tc := range costQueue {
+		fmt.Println(tc)
+		
+	}
+	fmt.Println("****")
+
+	fmt.Println(parentOf[check])
+
 	return compactPath(parentOf, from, to)
+}
+ 
+func stepCost(t tile) float32{
+	cost := float32(1)
+	cost += float32(t.heat)/5   //TODO how much cost for fire etc??
+	cost += float32(t.fireLevel)*100
+	fmt.Println(cost)
+	return cost
 }
 
 func getNeighbors(current *tile) []tile{
@@ -72,7 +102,7 @@ func compactPath(parentOf map[tile]tile, from tile, to tile) ([]tile, bool) {
 		ok := true
 		current, ok = parentOf[current]
 		if  !ok{
-			return nil, false//[]tile{}	
+			return nil, false	
 		}
 	}
 
@@ -93,6 +123,8 @@ func mainPath() {
 	workingPath()
 	fmt.Println("--------------")
 	blockedPath()
+	fmt.Println("--------------")
+	firePath()
 
 }
 
@@ -126,4 +158,27 @@ func blockedPath(){
 	fmt.Println("\nBlocked path:")
 	printPath(path)
 
+}
+
+func firePath() {
+	matrix := [][]int {
+		{0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0},
+		{0,0,0,1,0,0,0},
+		{0,0,0,1,0,0,0},
+		{0,0,0,1,0,0,0},
+		{0,0,0,0,0,0,0}, 
+		{0,0,0,0,0,0,0}} 
+
+	testmap := TileConvert(matrix)
+	SetFire(&(testmap[3][2]))
+	for i:= 0; i < 10; i++ {
+		FireSpread(testmap)
+	}
+
+	printTileMap(testmap)
+
+	path, _ := getPath(&testmap, testmap[0][3], testmap[6][2])
+	fmt.Println("\nFire path:")
+	printPath(path)
 }
