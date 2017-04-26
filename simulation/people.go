@@ -15,8 +15,8 @@ type Person struct {
 func makePerson(t *tile) *Person {
 	var person = Person{}
 	person.alive = true
-	person.path = append(person.path, t)	
-	person.hp = 100   // TODO: default health??
+	person.path = append(person.path, t)
+	person.hp = 100 // TODO: default health??
 	t.occupied = &person
 	return &person
 }
@@ -53,12 +53,12 @@ func (p *Person) moveTo(t *tile) bool {
 
 func (p *Person) followPlan() {
 	if len(p.plan) > 0 {
-		if p.moveTo(p.plan[0]) {		
+		if p.moveTo(p.plan[0]) {
 			p.plan = p.plan[1:]
 		}
-	} else if p.path[len(p.path) - 1].door {
-		(p.path[len(p.path) - 1].occupied) = nil
-		p.path = append(p.path, nil)  // replace with safezone?
+	} else if p.path[len(p.path)-1].door {
+		(p.path[len(p.path)-1].occupied) = nil
+		p.path = append(p.path, nil) // replace with safezone?
 		p.save()
 	} else {
 		fmt.Println("you're screwed!")
@@ -77,28 +77,30 @@ func (p *Person) save() {
 }
 
 func (p *Person) updatePlan(m *[][]tile) {
-	plan, ok := getPath(m, p.path[len(p.path) - 1])
-	if ok {	
+	plan, ok := getPath(m, p.path[len(p.path)-1])
+	if ok {
 		p.plan = plan[1:]
 	}
 }
 
-func (p *Person)MovePerson(m *[][]tile){
-	if p.safe || !p.alive {return}
+func (p *Person) MovePerson(m *[][]tile) {
+	if p.safe || !p.alive {
+		return
+	}
 	p.updatePlan(m)
 	p.followPlan()
 }
 
 func MainPeople() {
 
-	matrix := [][]int {
-		{0,0,0,1,0,0,0},
-		{0,0,0,1,0,0,0},
-		{1,0,1,1,1,1,1},
-		{0,0,0,1,0,0,0},
-		{0,0,0,1,0,0,0},
-		{0,0,0,0,0,0,0}, 
-		{0,0,0,2,0,0,0}}
+	matrix := [][]int{
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{1, 0, 1, 1, 1, 1, 1},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 2, 0, 0, 0}}
 	testmap := TileConvert(matrix)
 
 	start1 := &testmap[1][0]
@@ -106,17 +108,17 @@ func MainPeople() {
 	var p1 = *makePerson(start1)
 	var p2 = *makePerson(start2)
 
-	for !p1.safe && p1.alive || !p2.safe && p2.alive{
+	for !p1.safe && p1.alive || !p2.safe && p2.alive {
 		if !p1.safe {
-			fmt.Println("p1:", p1.path[len(p1.path) - 1])
-			p1.MovePerson(&testmap)		
+			fmt.Println("p1:", p1.path[len(p1.path)-1])
+			p1.MovePerson(&testmap)
 		}
 		if !p2.safe {
-			fmt.Println("p2:", p2.path[len(p2.path) - 1])
-			p2.MovePerson(&testmap)		 
+			fmt.Println("p2:", p2.path[len(p2.path)-1])
+			p2.MovePerson(&testmap)
 		}
 		fmt.Println("- - - - - - -")
 	}
-	fmt.Println("p1:", p1.path[len(p1.path) - 1])
-	fmt.Println("p2:", p2.path[len(p2.path) - 1])
+	fmt.Println("p1:", p1.path[len(p1.path)-1])
+	fmt.Println("p2:", p2.path[len(p2.path)-1])
 }

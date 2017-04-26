@@ -1,9 +1,9 @@
 package main
 
 import (
-  "testing"
-  "fmt"
- // "github.com/stretchr/testify/assert"
+	"fmt"
+	"testing"
+	// "github.com/stretchr/testify/assert"
 )
 
 func TestSizeOfTileConvert(t *testing.T) {
@@ -145,69 +145,68 @@ func TestNeighbouringtiles(t *testing.T) {
 		t.Errorf("Neighbor to the west is wrong")
 	}
 
-  testMatrix2 := [][]int{
-  {0, 1},
-  {2, 3},
-  {0, 0}}
+	testMatrix2 := [][]int{
+		{0, 1},
+		{2, 3},
+		{0, 0}}
 
+	amap2 := TileConvert(testMatrix2)
+	lasttile := amap2[2][1] //0 last tile
+	actualNorth = lasttile.neighborNorth
+	actualEast = lasttile.neighborEast
+	actualSouth = lasttile.neighborSouth
+	actualWest = lasttile.neighborWest
 
-  amap2 := TileConvert(testMatrix2)
-  lasttile := amap2[2][1]; //0 last tile
-  actualNorth = lasttile.neighborNorth
-  actualEast = lasttile.neighborEast
-  actualSouth = lasttile.neighborSouth
-  actualWest = lasttile.neighborWest
+	expectedNorth2 := &amap2[1][1]
+	expectedWest2 := &amap2[2][0]
 
-  expectedNorth2 := &amap2[1][1]
-  expectedWest2 := &amap2[2][0]
+	if actualNorth != expectedNorth2 {
+		t.Errorf("Neighbor to the north is wrong")
+	}
+	if actualEast != nil {
+		t.Errorf("Neighbor to the east is wrong")
+	}
+	if actualSouth != nil {
+		t.Errorf("Neighbor to the south is wrong")
+	}
+	if actualWest != expectedWest2 {
+		t.Errorf("Neighbor to the west is wrong")
+	}
 
-  if(actualNorth != expectedNorth2) {
-    t.Errorf("Neighbor to the north is wrong");
-  }
-  if(actualEast != nil) {
-    t.Errorf("Neighbor to the east is wrong");
-  }
-  if(actualSouth != nil) {
-    t.Errorf("Neighbor to the south is wrong");
-  }
-  if(actualWest != expectedWest2) {
-    t.Errorf("Neighbor to the west is wrong");
-  }
+	testMatrix3 := [][]int{
+		{0, 1, 0},
+		{2, 3, 0},
+		{0, 0, 0}}
 
+	amap3 := TileConvert(testMatrix3)
+	lasttile = amap3[1][1] //3, middle tile
+	actualNorth = lasttile.neighborNorth
+	actualEast = lasttile.neighborEast
+	actualSouth = lasttile.neighborSouth
+	actualWest = lasttile.neighborWest
 
-  testMatrix3 := [][]int{
-  {0, 1, 0},
-  {2, 3, 0},
-  {0, 0, 0}}
+	expectedNorth3 := &amap3[0][1]
+	expectedEast3 := &amap3[1][2]
+	expectedSouth3 := &amap3[2][1]
+	expectedWest3 := &amap3[1][0]
 
-  amap3 := TileConvert(testMatrix3)
-  lasttile = amap3[1][1]; //3, middle tile
-  actualNorth = lasttile.neighborNorth
-  actualEast = lasttile.neighborEast
-  actualSouth = lasttile.neighborSouth
-  actualWest = lasttile.neighborWest
-
-  expectedNorth3 := &amap3[0][1]
-  expectedEast3 := &amap3[1][2]
-  expectedSouth3:= &amap3[2][1]
-  expectedWest3:= &amap3[1][0]
-
-  if(actualNorth != expectedNorth3) {
-    t.Errorf("Neighbor to the north is wrong");
-  }
-  if(actualEast != expectedEast3) {
-    t.Errorf("Neighbor to the east is wrong");
-  }
-  if(actualSouth != expectedSouth3) {
-    t.Errorf("Neighbor to the south is wrong");
-  }
-  if(actualWest != expectedWest3) {
-    t.Errorf("Neighbor to the west is wrong");
-  }
+	if actualNorth != expectedNorth3 {
+		t.Errorf("Neighbor to the north is wrong")
+	}
+	if actualEast != expectedEast3 {
+		t.Errorf("Neighbor to the east is wrong")
+	}
+	if actualSouth != expectedSouth3 {
+		t.Errorf("Neighbor to the south is wrong")
+	}
+	if actualWest != expectedWest3 {
+		t.Errorf("Neighbor to the west is wrong")
+	}
 
 }
+
 /*
-func TestFireSpread(t* testing.T) { 
+func TestFireSpread(t* testing.T) {
 
   testMatrix := [][]int{
     {0, 1, 0},

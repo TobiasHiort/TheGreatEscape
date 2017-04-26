@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"math"
 )
-	
-func getPath(m *[][]tile, from *tile) ([]*tile, bool){		
 
-	// map to keep track of the final path	
+func getPath(m *[][]tile, from *tile) ([]*tile, bool) {
+
+	// map to keep track of the final path
 	var parentOf map[*tile]*tile
 	parentOf = make(map[*tile]*tile)
 	//initialise 'costqueue', start-0, other-infinite
 	costQueue := queue{}
 
-	for i,list := range *m {
-		for j, _ := range list {		
+	for i, list := range *m {
+		for j, _ := range list {
 			costQueue.Add(&(*m)[i][j], float32(math.Inf(1)))
 		}
 	}
@@ -23,14 +23,14 @@ func getPath(m *[][]tile, from *tile) ([]*tile, bool){
 
 	//	checkedQueue := costQueue   TODO: implement this later for a more efficient algorithm
 
-	current := tileCost{&tile{},0}
+	current := tileCost{&tile{}, 0}
 
 	//essential loop
 	for len(costQueue) != 0 && !current.tile.door {
-	
-		current = (&costQueue).Pop()	        
-		neighbors := getNeighbors(current.tile)  
-		for _, neighbor := range neighbors {    	 	
+
+		current = (&costQueue).Pop()
+		neighbors := getNeighbors(current.tile)
+		for _, neighbor := range neighbors {
 			cost := current.cost + stepCost(*neighbor)
 			// TODO: 1 default cost improve!? depending on heat, smoke etc
 			if cost < costQueue.costOf(neighbor) {
@@ -55,8 +55,10 @@ func contains(tiles []*tile, t *tile) bool {
 
 func stepCost(t tile) float32 {
 	cost := float32(1)
-	cost += float32(t.heat)/5   //TODO how much cost for fire etc??
-	if t.fireLevel > 0 {cost = float32(math.Inf(1))}
+	cost += float32(t.heat) / 5 //TODO how much cost for fire etc??
+	if t.fireLevel > 0 {
+		cost = float32(math.Inf(1))
+	}
 	return cost
 }
 
@@ -124,27 +126,27 @@ func mainPath() {
 }
 
 func workingPath() {
-	matrix := [][]int {
-		{0,1,2,0},
-		{0,0,1,0},
-		{0,0,0,0}, 
-		{0,0,1,0}}
+	matrix := [][]int{
+		{0, 1, 2, 0},
+		{0, 0, 1, 0},
+		{0, 0, 0, 0},
+		{0, 0, 1, 0}}
 	testmap := TileConvert(matrix)
-	
+
 	path, _ := getPath(&testmap, &testmap[0][0])
 
 	fmt.Println("\nWorking path:")
 	printPath(path)
 }
 
-func blockedPath(){
-	matrix := [][]int {
-		{0,1,2,0},
-		{0,0,1,0},
-		{0,0,1,0}, 
-		{0,0,1,0}}
+func blockedPath() {
+	matrix := [][]int{
+		{0, 1, 2, 0},
+		{0, 0, 1, 0},
+		{0, 0, 1, 0},
+		{0, 0, 1, 0}}
 	testmap := TileConvert(matrix)
-	
+
 	path, _ := getPath(&testmap, &testmap[0][0])
 
 	fmt.Println("\nBlocked path:")
@@ -153,14 +155,14 @@ func blockedPath(){
 }
 
 func firePath() {
-	matrix := [][]int {
-		{0,0,0,0,0,0,0},
-		{0,0,0,0,0,0,0},
-		{0,0,0,1,0,0,0},
-		{0,0,0,1,0,0,0},
-		{0,0,0,1,0,0,0},
-		{0,0,0,0,0,0,0}, 
-		{0,0,0,2,0,0,0}} 
+	matrix := [][]int{
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 2, 0, 0, 0}}
 	testmap := TileConvert(matrix)
 	SetFire(&(testmap[3][2]))
 	for i := 0; i < 10; i++ {
@@ -173,14 +175,14 @@ func firePath() {
 }
 
 func doorsPath() {
-	matrix := [][]int {
-		{0,0,0,1,0,0,0},
-		{0,0,0,0,0,0,0},
-		{1,1,1,1,0,0,0},
-		{0,0,0,1,0,0,0},
-		{0,0,0,1,0,0,0},
-		{0,0,0,0,0,0,0}, 
-		{2,0,0,1,0,0,0}}
+	matrix := [][]int{
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{1, 1, 1, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{2, 0, 0, 1, 0, 0, 0}}
 
 	testmap := TileConvert(matrix)
 
