@@ -1,5 +1,6 @@
 package main
 
+
 //import "fmt"
 
 const MINHEAT    = 10
@@ -16,7 +17,7 @@ type tile struct {
 	wall bool
 	door bool
 
-	occupied bool
+	occupied *Person
 	personID int
 
 	outOfBounds bool
@@ -91,7 +92,7 @@ func makeNewTile(thisPoint int, x int, y int) tile{
 
 	//makes a basic floor tile with no nothin on it
 	//and also no neighbors
-	newTile := tile{x, y, 0, 0, false, false, false, 0, false, nil, nil, nil, nil}
+	newTile := tile{x, y, 0, 0, false, false, nil, 0, false, nil, nil, nil, nil}
 
 	if thisPoint == 0 {
 		//make normal floor
@@ -141,7 +142,41 @@ func TileConvert(inMap [][]int) [][]tile{
 	}
 
 	return tileMap
+
 }
+
+	func GetTile (inMap *[][]tile, x int, y int) *tile {
+		for _, list := range *inMap {
+		for _, tile := range list{
+			if tile.xCoord == x && tile.yCoord == y{
+				return &tile
+			}	
+		}
+	}
+	return nil
+	}
+	
+	func PeopleInit (inMap *[][]tile, peopleList [][]int) [] *Person {
+		size := 1
+		if len(peopleList) > 0 {	
+			//size = len(peopleList)
+
+		}
+		var peopleArray [size] *Person
+		for i, person := range peopleList {
+			tile := GetTile(inMap, person [0], person[1], )			
+			peopleArray[i] = makePerson(tile)
+		}
+		return peopleArray
+	}
+
+
+	func Run (inMap *[][]tile, peopleArray *[] *Person) {
+		// go run ruitnes for concurrency
+		for _, person := range peopleArray {
+			person.MovePerson(inMap)
+		}
+	}
 /*
 func printTile(thisTile tile) {
 	if thisTile.wall {
