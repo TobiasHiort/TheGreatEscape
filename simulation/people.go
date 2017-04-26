@@ -15,8 +15,9 @@ type Person struct {
 func makePerson(t *tile) *Person{
 	var person = Person{}
 	person.alive = true
-	person.plan = append(person.plan, t)
+	person.path = append(person.path, t)	
 	person.hp = 100   // TODO: default health??
+	t.occupied = &person
 	return &person
 }
 
@@ -49,13 +50,17 @@ func (p *Person)moveTo(t *tile) bool{
 
 func (p *Person)followPlan() {
 	if len(p.plan) > 0 {
-		if p.moveTo(p.plan[0]) {
+		if p.moveTo(p.plan[0]) {		
 			p.plan = p.plan[1:]
 		}
-	} else /*(if p.reachedGoal())*/{ // TODO: empty plan can mean deadend!
+	} else if p.path[len(p.path) - 1].door {
 		(p.path[len(p.path) - 1].occupied) = nil
 		p.path = append(p.path, nil)  // replace with safezone?
 		p.save()
+	} else {
+		fmt.Println("you're screwed!")
+		p.kill()
+		// TODO: no valid path! panic behavior? lay down and w8 for death?
 	}
 }
 
@@ -69,17 +74,18 @@ func (p *Person)save() {
 	// TODO: maybe p.movetosafezone?
 }
 
-func (p *Person) updatePath(m *[][]tile) {
-	path, ok := getPath(m, p.path[len(p.path) - 1], []*tile{p.plan[len(p.plan) - 1]})
-	if ok {
-		p.path = path
+func (p *Person) updatePlan(m *[][]tile) {
+	plan, ok := getPath(m, p.path[len(p.path) - 1])
+	if ok {	
+		p.plan = plan[1:]
 	}
+
 }
 
-func (p *Person)MovePerson(m *[][]tile, goal []*tile){	
-
+func (p *Person)MovePerson(m *[][]tile){
+	if p.safe || !p.alive {return}
+	p.updatePlan(m)
 	p.followPlan()
-	p.updatePath(m)
 }
 
 func MainPeople() {
@@ -87,49 +93,30 @@ func MainPeople() {
 	matrix := [][]int {
 		{0,0,0,1,0,0,0},
 		{0,0,0,1,0,0,0},
-		{1,0,1,1,0,0,0},
+		{1,0,1,1,1,1,1},
 		{0,0,0,1,0,0,0},
 		{0,0,0,1,0,0,0},
 		{0,0,0,0,0,0,0}, 
-		{0,0,0,0,0,0,0}}
+		{0,0,0,2,0,0,0}}
 	testmap := TileConvert(matrix)
 
-	start := &testmap[0][0]
-	goal := []*tile{&testmap[6][3]}
-	var p = *makePerson(start)
-	pl, _ := getPath(&testmap, start, goal)
-	p.plan = pl
-
-	for !p.safe {p.MovePerson(&testmap,goal)}
-	fmt.Println("done")
-	
-/*
 	start1 := &testmap[1][0]
 	start2 := &testmap[1][2]
 	var p1 = *makePerson(start1)
 	var p2 = *makePerson(start2)
 
-	goal := []*tile{&testmap[6][3]}
-
-	plan1, _ := getPath(&testmap, start1, goal)
-	plan2, _ := getPath(&testmap, start2, goal)
-
-	p1.plan = plan1
-	p2.plan = plan2
-
-	fmt.Println(plan1[0])
-	fmt.Println(len(plan1))
-	
-	for !p1.safe || !p2.safe{
+	for !p1.safe && p1.alive || !p2.safe && p2.alive{
 		if !p1.safe {
-			p1.followPlan() 
 			fmt.Println("p1:", p1.path[len(p1.path) - 1])
+			p1.MovePerson(&testmap)		
 		}
 		if !p2.safe {
-			p2.followPlan() 		 
 			fmt.Println("p2:", p2.path[len(p2.path) - 1])
+			p2.MovePerson(&testmap)		 
 		}
-		 fmt.Println("- - - - - - -")
-	 }*/
+		fmt.Println("- - - - - - -")
+	}
+	fmt.Println("p1:", p1.path[len(p1.path) - 1])
+	fmt.Println("p2:", p2.path[len(p2.path) - 1])
 }
 

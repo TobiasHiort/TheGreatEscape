@@ -144,7 +144,7 @@ func TileConvert(inMap [][]int) [][]tile{
 	return tileMap
 
 }
-
+/*
 	func GetTile (inMap *[][]tile, x int, y int) *tile {
 		for _, list := range *inMap {
 		for _, tile := range list{
@@ -176,7 +176,7 @@ func TileConvert(inMap [][]int) [][]tile{
 		for _, person := range peopleArray {
 			person.MovePerson(inMap)
 		}
-	}
+	}*/
 /*
 func printTile(thisTile tile) {
 	if thisTile.wall {
