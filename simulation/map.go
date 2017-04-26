@@ -202,7 +202,9 @@ func printNeighbors(atile tile) {
 	}
 }
 
-func main() {
+//func Populate(tileMap [][]tile)
+
+//func main() {
 /*	testMatrix := [][]int{
 		{0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0},
@@ -229,6 +231,7 @@ func main() {
 		}*/
 
 	//mainPath()
-	mainPeople()
+	//mainPeople()
 
-}
+
+//}

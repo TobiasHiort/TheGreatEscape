@@ -1,9 +1,19 @@
 package main
 
-//get a pipe from python containing map. send it to map to convert. and later do all the map stuff.
+/*
 
-//run people and map in go routines 
+-- Paste Python communication stuff here
 
-//assign time to each event that the ppl and map return
+*/
 
-//pipe a combo of timestamp and event to pythons output thingie
+func GameLoop() {
+	//newMap := MapInit(foo, bar)
+
+	//simulates 5000 steps
+	for i := 0; i < 5000; i++ {
+		go Tick()
+		go Discretize()
+	}
+}
+
+

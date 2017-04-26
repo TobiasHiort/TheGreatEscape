@@ -5,40 +5,48 @@ package main
 //time := int
 //time = 0
 
+var time *(int)
+//*time = 0
+
 type Event struct {
 	tileMap [][]tile
 	timeStamp int
 }
 
 func TimeInit(){
-	time := *int
-	*time = 0
 }
 
 //func get ppl movement from map
 
 func timeStamp(inMap [][]tile, currentTime int) Event{
-	ev := Event
-	ev -> tileMap = inMap
-	ev -> timeStamp = currentTime
+	var ev Event
+	ev.tileMap = inMap
+	ev.timeStamp = currentTime
 	return ev
 }
 
 //this function will in the future preferably grab just the changes on the map, rather than it as a whole
-	//outEvent := Event
-	//outEvent = timeStamp(tileMap, time)
-	//grabs data from map
-	//returns an Event
+//outEvent := Event
+//outEvent = timeStamp(tileMap, time)
+//grabs data from map
+//returns an Event
+
 func Tick(){
+	//should run as goroutine
 	*time++
 }
 
-func MapInit(peopleList [][]int, newMap [][]int){
+func MapInit(peopleList [][]int, newMap [][]int) [][]tile{
 	//gets map data from GM and inits the map
-	currentMap := *[][]tile
-	*currentMap = TileConvert(newMap)
-	Populate()
+	var currentMap ([][]tile)
+	currentMap = TileConvert(newMap)
+
+	//peopleArray := [len(peopleList)]Person{}
+
+	//PeopleInit(peopleArray)
+	//Populate()
 	//gets ppl data from GM and calls the initpppl function in map 
+	return currentMap
 }
 
 /*
@@ -47,7 +55,7 @@ func fetch(inMap [][]tile){
 */
 
 
-func ClockCycle() {
+func Discretize() {
 	// should be a goroutine
 
 	// save timeStamp((fetch(*tileMap)), *time) to mem
