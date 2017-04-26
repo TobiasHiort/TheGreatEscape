@@ -267,6 +267,6 @@ func main() {
 		}*/
 
 	//mainPath()
-  //MainPeople()
+	MainPeople()
 
 }

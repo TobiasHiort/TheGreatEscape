@@ -8,5 +8,5 @@ test: map.go map_test.go
 path: map.go queue.go pathfinder.go
 	go run map.go queue.go pathfinder.go
 
-qtest: queue.go queue_test.go
+tests: queue.go queue_test.go map.go map_test.go pathfinder.go pathfinder_test.go
 	go test -v ''
