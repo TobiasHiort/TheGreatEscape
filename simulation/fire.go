@@ -16,15 +16,15 @@ func fire(matrix [][]int, x int, y int) {
 
 	for n := 0; n < 8; n++ { // n = number of time units
 		matrix = fireChecker(matrix)
-		printMatrix(matrix, n+1)	
+		printMatrix(matrix, n+1)
 	}
 }
 
 // check adjacent tiles in matrix for fire status
 func fireChecker(matrix [][]int) [][]int {
-// return = (...) _[][]int_ {}
+	// return = (...) _[][]int_ {}
 	for row := 0; row < len(matrix); row++ {
-		for column:= 0 ; column < len(matrix[0]); column++ {
+		for column := 0; column < len(matrix[0]); column++ {
 			if matrix[row][column] == 3 {
 				if row+1 < len(matrix) && row+1 >= 0 {
 					if matrix[row+1][column] != 3 {
@@ -55,18 +55,18 @@ func fireChecker(matrix [][]int) [][]int {
 func mainFire() {
 
 	// predefined size of matrix
-	startMatrix := [][] int{
+	startMatrix := [][]int{
 		{0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0}}
-	
+
 	// run fire algorithm
 	fire(startMatrix, 2, 2) // [row, column] = start pos
 
 	//fmt.Print(len(startMatrix))
 	fmt.Print(len(startMatrix[0])) // column
-	fmt.Print(len(startMatrix)) // rows
-    
+	fmt.Print(len(startMatrix))    // rows
+
 }
