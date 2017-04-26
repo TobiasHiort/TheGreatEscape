@@ -1,18 +1,18 @@
 package main
 
 import (
-	"fmt"	
+	"fmt"
 )
 
 type Person struct {
 	alive bool
-	safe bool     
-	hp float32
-	path []*tile  
-	plan []*tile 
+	safe  bool
+	hp    float32
+	path  []*tile
+	plan  []*tile
 }
 
-func makePerson(t *tile) *Person{
+func makePerson(t *tile) *Person {
 	var person = Person{}
 	person.alive = true
 	person.path = append(person.path, t)	
@@ -21,34 +21,37 @@ func makePerson(t *tile) *Person{
 	return &person
 }
 
-
-func (p *Person)updateStats() {
-	currentTile := p.path[len((p.path)) - 1]
-	(p.path[len(p.path) - 1]).occupied = p
-	if len(p.path) > 1 {p.path[len(p.path) - 2].occupied = nil}
+func (p *Person) updateStats() {
+	currentTile := p.path[len((p.path))-1]
+	(p.path[len(p.path)-1]).occupied = p
+	if len(p.path) > 1 {
+		p.path[len(p.path)-2].occupied = nil
+	}
 	p.hp = p.hp - currentTile.getDamage()
 	if p.hp <= 0 {
-		p.kill()		
+		p.kill()
 	}
 }
 
-func (t *tile)getDamage() float32{
+func (t *tile) getDamage() float32 {
 	damage := float32(0)
-	damage = 100*float32(t.fireLevel)  // man dör om man kliver i elden, right...
-	damage = damage + float32(t.heat)  // TODO: how much does the fire hurt??
+	damage = 100 * float32(t.fireLevel) // man dör om man kliver i elden, right...
+	damage = damage + float32(t.heat)   // TODO: how much does the fire hurt??
 	// damage = damage + effect from smoke'n stuff
 	return damage
 }
 
-func (p *Person)moveTo(t *tile) bool{
-	if validTile(t) && t.occupied == nil {		
+func (p *Person) moveTo(t *tile) bool {
+	if validTile(t) && t.occupied == nil {
 		p.path = append(p.path, t)
-		p.updateStats()	
+		p.updateStats()
 		return true
-	} else {return false}
+	} else {
+		return false
+	}
 }
 
-func (p *Person)followPlan() {
+func (p *Person) followPlan() {
 	if len(p.plan) > 0 {
 		if p.moveTo(p.plan[0]) {		
 			p.plan = p.plan[1:]
@@ -64,12 +67,11 @@ func (p *Person)followPlan() {
 	}
 }
 
-
-func (p *Person)kill() {
+func (p *Person) kill() {
 	p.alive = false
 }
 
-func (p *Person)save() {
+func (p *Person) save() {
 	p.safe = true
 	// TODO: maybe p.movetosafezone?
 }
@@ -79,7 +81,6 @@ func (p *Person) updatePlan(m *[][]tile) {
 	if ok {	
 		p.plan = plan[1:]
 	}
-
 }
 
 func (p *Person)MovePerson(m *[][]tile){
@@ -119,4 +120,3 @@ func MainPeople() {
 	fmt.Println("p1:", p1.path[len(p1.path) - 1])
 	fmt.Println("p2:", p2.path[len(p2.path) - 1])
 }
-

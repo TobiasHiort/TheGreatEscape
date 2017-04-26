@@ -1,6 +1,6 @@
 package main
 
-import	(
+import (
 	"fmt"
 	"math"
 )
@@ -12,16 +12,16 @@ func getPath(m *[][]tile, from *tile) ([]*tile, bool){
 	parentOf = make(map[*tile]*tile)
 	//initialise 'costqueue', start-0, other-infinite
 	costQueue := queue{}
-	
+
 	for i,list := range *m {
 		for j, _ := range list {		
 			costQueue.Add(&(*m)[i][j], float32(math.Inf(1)))
 		}
 	}
-	
+
 	costQueue.Update(from, 0)
 
-//	checkedQueue := costQueue   TODO: implement this later for a more efficient algorithm
+	//	checkedQueue := costQueue   TODO: implement this later for a more efficient algorithm
 
 	current := tileCost{&tile{},0}
 
@@ -32,40 +32,49 @@ func getPath(m *[][]tile, from *tile) ([]*tile, bool){
 		neighbors := getNeighbors(current.tile)  
 		for _, neighbor := range neighbors {    	 	
 			cost := current.cost + stepCost(*neighbor)
-			// TODO: 1 default cost improve!? depending on heat, smoke etc		
-			if cost < costQueue.costOf(neighbor) {			
+			// TODO: 1 default cost improve!? depending on heat, smoke etc
+			if cost < costQueue.costOf(neighbor) {
 				parentOf[neighbor] = current.tile
-				costQueue.Update(neighbor, cost)			
+				costQueue.Update(neighbor, cost)
 			}
 		}
-	//	checkedQueue.AddTC(current)
-	//	costQueue.Remove(current.tile)
-
+		//	checkedQueue.AddTC(current)
+		//	costQueue.Remove(current.tile)
 	}
 	return compactPath(parentOf, from, current.tile)
 }
 
-func contains(tiles []*tile, t *tile) bool{
+func contains(tiles []*tile, t *tile) bool {
 	for _, ti := range tiles {
-		if ti == t {return true}
+		if ti == t {
+			return true
+		}
 	}
 	return false
 }
- 
-func stepCost(t tile) float32{
+
+func stepCost(t tile) float32 {
 	cost := float32(1)
 	cost += float32(t.heat)/5   //TODO how much cost for fire etc??
 	if t.fireLevel > 0 {cost = float32(math.Inf(1))}
 	return cost
 }
 
-func getNeighbors(current *tile) []*tile{
+func getNeighbors(current *tile) []*tile {
 	neighbors := []*tile{}
 
-	if validTile(current.neighborNorth) {neighbors = append(neighbors, current.neighborNorth)}
-	if validTile(current.neighborEast) {neighbors = append(neighbors, current.neighborEast)}
-	if validTile(current.neighborWest) {neighbors = append(neighbors, current.neighborWest)}
-	if validTile(current.neighborSouth) {neighbors = append(neighbors, current.neighborSouth)}
+	if validTile(current.neighborNorth) {
+		neighbors = append(neighbors, current.neighborNorth)
+	}
+	if validTile(current.neighborEast) {
+		neighbors = append(neighbors, current.neighborEast)
+	}
+	if validTile(current.neighborWest) {
+		neighbors = append(neighbors, current.neighborWest)
+	}
+	if validTile(current.neighborSouth) {
+		neighbors = append(neighbors, current.neighborSouth)
+	}
 
 	return neighbors
 }
@@ -82,16 +91,16 @@ func compactPath(parentOf map[*tile]*tile, from *tile, to *tile) ([]*tile, bool)
 
 	current := to
 
-	for current.xCoord != from.xCoord || current.yCoord != from.yCoord {		
+	for current.xCoord != from.xCoord || current.yCoord != from.yCoord {
 		path = append([]*tile{parentOf[current]}, path...)
-	
+
 		ok := true
 		current, ok = parentOf[current]
-		if  !ok{
-			return nil, false	
+		if !ok {
+			return nil, false
 		}
 	}
-	return path, true	
+	return path, true
 }
 
 func printPath(path []*tile) {
@@ -99,7 +108,7 @@ func printPath(path []*tile) {
 		fmt.Println("No valid path exists")
 	}
 	for i, t := range path {
-		fmt.Println(i , ":", t.xCoord ,"," ,t.yCoord)
+		fmt.Println(i, ":", t.xCoord, ",", t.yCoord)
 	}
 }
 
@@ -121,14 +130,12 @@ func workingPath() {
 		{0,0,0,0}, 
 		{0,0,1,0}}
 	testmap := TileConvert(matrix)
-	//printTileMap(testmap)
 	
 	path, _ := getPath(&testmap, &testmap[0][0])
 
 	fmt.Println("\nWorking path:")
 	printPath(path)
 }
-
 
 func blockedPath(){
 	matrix := [][]int {
@@ -137,7 +144,6 @@ func blockedPath(){
 		{0,0,1,0}, 
 		{0,0,1,0}}
 	testmap := TileConvert(matrix)
-	//printTileMap(testmap)
 	
 	path, _ := getPath(&testmap, &testmap[0][0])
 
@@ -155,14 +161,11 @@ func firePath() {
 		{0,0,0,1,0,0,0},
 		{0,0,0,0,0,0,0}, 
 		{0,0,0,2,0,0,0}} 
-
 	testmap := TileConvert(matrix)
 	SetFire(&(testmap[3][2]))
-	for i:= 0; i < 10; i++ {
+	for i := 0; i < 10; i++ {
 		FireSpread(testmap)
 	}
-
-	//printTileMap(testmap)
 
 	path, _ := getPath(&testmap, &testmap[0][3])
 	fmt.Println("\nFire path:")
@@ -180,7 +183,7 @@ func doorsPath() {
 		{2,0,0,1,0,0,0}}
 
 	testmap := TileConvert(matrix)
-	//printTileMap(testmap)
+
 	path, _ := getPath(&testmap, &testmap[0][0])
 	fmt.Println("\nDoors path:")
 	printPath(path)
