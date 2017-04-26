@@ -16,7 +16,7 @@ type tile struct {
 	wall bool
 	door bool
 
-	occupied bool
+	occupied *Person
 	personID int
 
 	outOfBounds bool
@@ -91,7 +91,7 @@ func makeNewTile(thisPoint int, x int, y int) tile{
 
 	//makes a basic floor tile with no nothin on it
 	//and also no neighbors
-	newTile := tile{x, y, 0, 0, false, false, false, 0, false, nil, nil, nil, nil}
+	newTile := tile{x, y, 0, 0, false, false, nil, 0, false, nil, nil, nil, nil}
 
 	if thisPoint == 0 {
 		//make normal floor
@@ -232,6 +232,6 @@ func main() {
 		}*/
 
 	//mainPath()
-  //MainPeople()
+	MainPeople()
 
 }

@@ -12,18 +12,19 @@ type Person struct {
 	plan []*tile 
 }
 
-func makePerson(t *tile) Person{
+func makePerson(t *tile) *Person{
 	var person = Person{}
 	person.alive = true
-	person.path = append(person.path, t)
+	person.plan = append(person.plan, t)
 	person.hp = 100   // TODO: default health??
-	return person
+	return &person
 }
+
 
 func (p *Person)updateStats() {
 	currentTile := p.path[len((p.path)) - 1]
-	(p.path[len(p.path) - 2]).occupied = false
-	currentTile.occupied = true
+	(p.path[len(p.path) - 1]).occupied = p
+	if len(p.path) > 1 {p.path[len(p.path) - 2].occupied = nil}
 	p.hp = p.hp - currentTile.getDamage()
 	if p.hp <= 0 {
 		p.kill()		
@@ -39,7 +40,7 @@ func (t *tile)getDamage() float32{
 }
 
 func (p *Person)moveTo(t *tile) bool{
-	if validTile(t) && !t.occupied {
+	if validTile(t) && t.occupied == nil {		
 		p.path = append(p.path, t)
 		p.updateStats()	
 		return true
@@ -52,7 +53,7 @@ func (p *Person)followPlan() {
 			p.plan = p.plan[1:]
 		}
 	} else /*(if p.reachedGoal())*/{ // TODO: empty plan can mean deadend!
-		p.path[len(p.path) - 1].occupied = false
+		(p.path[len(p.path) - 1].occupied) = nil
 		p.path = append(p.path, nil)  // replace with safezone?
 		p.save()
 	}
@@ -69,10 +70,16 @@ func (p *Person)save() {
 }
 
 func (p *Person) updatePath(m *[][]tile) {
-	path, ok := getPath(m, p.path[len(p.path) - 1], p.plan[len(p.plan) - 1])
+	path, ok := getPath(m, p.path[len(p.path) - 1], []*tile{p.plan[len(p.plan) - 1]})
 	if ok {
 		p.path = path
 	}
+}
+
+func (p *Person)MovePerson(m *[][]tile, goal []*tile){	
+
+	p.followPlan()
+	p.updatePath(m)
 }
 
 func MainPeople() {
@@ -87,12 +94,22 @@ func MainPeople() {
 		{0,0,0,0,0,0,0}}
 	testmap := TileConvert(matrix)
 
+	start := &testmap[0][0]
+	goal := []*tile{&testmap[6][3]}
+	var p = *makePerson(start)
+	pl, _ := getPath(&testmap, start, goal)
+	p.plan = pl
+
+	for !p.safe {p.MovePerson(&testmap,goal)}
+	fmt.Println("done")
+	
+/*
 	start1 := &testmap[1][0]
 	start2 := &testmap[1][2]
-	var p1 = makePerson(start1)
-	var p2 = makePerson(start2)
+	var p1 = *makePerson(start1)
+	var p2 = *makePerson(start2)
 
-	goal := &testmap[6][3]
+	goal := []*tile{&testmap[6][3]}
 
 	plan1, _ := getPath(&testmap, start1, goal)
 	plan2, _ := getPath(&testmap, start2, goal)
@@ -113,6 +130,6 @@ func MainPeople() {
 			fmt.Println("p2:", p2.path[len(p2.path) - 1])
 		}
 		 fmt.Println("- - - - - - -")
-	 }
+	 }*/
 }
 
