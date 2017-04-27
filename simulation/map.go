@@ -243,7 +243,7 @@ func printNeighbors(atile tile) {
 
 func main() {
 
-	matrix := [][]int{
+/*	matrix := [][]int{
 		{0, 0, 0, 1, 0, 0, 0},
 		{0, 0, 0, 1, 0, 0, 0},
 		{1, 0, 1, 1, 1, 1, 1},
@@ -251,7 +251,7 @@ func main() {
 		{0, 0, 0, 1, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 2, 0, 0, 0}}
-	testmap := TileConvert(matrix)
+	testmap := TileConvert(matrix)*/
 	/*
 		var tile = GetTile (testmap, 2, 0)
 		printTile(*tile)
@@ -276,7 +276,7 @@ func main() {
 		list.append([1][2])
 		list.append([0][2])
 		list.append([2][3])*/
-		list := [][]int{
+/*		list := [][]int{
 			{1, 2},
 			{0, 2},
 			{3, 0}}
@@ -298,11 +298,11 @@ func main() {
 		fmt.Print("false")
 		fmt.Print("\n")
 	}
-
+*/
 
 
 	//mainPath()
-	//MainPeople()
+	MainPeople()
 
 }
 
