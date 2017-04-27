@@ -1,0 +1,212 @@
+package main
+
+
+import	"fmt"
+
+func getPath(m *[][]tile, from tile, to tile) []tile{
+	fmt.Println("I'm here!")
+	// map to keep track of the final path
+	var parentOf map[tile]tile
+	parentOf = make(map[tile]tile)
+	//initialise 'costqueue', start-0, other-infinite
+	costQueue := queue{}
+
+/*	for i := 1; i < len(m); i++ {
+		costQueue.Add(*m[i], 10)   // 10~infinite
+	}*/
+	for _,list := range *m {
+		for _, t := range list {
+			costQueue.Add(t, 100)   // 10~infinite	
+		}
+	}
+	costQueue.Add(from, 0)
+
+	fmt.Println("----")
+	fmt.Println(costQueue)
+	fmt.Println("----")
+
+	//slice of yet to check-tiles
+	checkedQueue := costQueue
+
+	fmt.Println("Everything's setup")
+	//essential loop
+	for len(costQueue) != 0 {
+		current := (&costQueue).Pop()
+		fmt.Println(current)
+		//loop through neighbours of current tile
+		neighbors := getNeighbors(&(current.tile))
+		for _, neighbor := range neighbors {
+			fmt.Println(neighbor)
+			cost := current.cost + 1 // TODO: 1 default cost improve!
+			if cost < costQueue.costOf(neighbor) {
+				parentOf[neighbor] = current.tile
+				costQueue.Update(neighbor, cost)					
+			}
+		}
+		fmt.Println("Time to fix the queues!")
+		checkedQueue.AddTC(current)
+		costQueue.Remove(current.tile)	
+		fmt.Println("Queues fixed!")
+	}
+	fmt.Println("compacting time?")
+	return compactPath(parentOf, from, to)
+}
+
+func getNeighbors(current *tile) []tile{
+	neighbors := []tile{}
+	fmt.Println("Checkin' on tha neighbors")
+	if validTile(current.neighborNorth) {neighbors = append(neighbors, *current.neighborNorth)}
+	if validTile(current.neighborEast) {neighbors = append(neighbors, *current.neighborEast)}
+	if validTile(current.neighborWest) {neighbors = append(neighbors, *current.neighborWest)}
+	if validTile(current.neighborSouth) {neighbors = append(neighbors, *current.neighborSouth)}
+	fmt.Println("Done checkin' on tha neighbors")
+	fmt.Println(len(neighbors))
+	return neighbors
+
+	/*
+
+	fmt.Println("north")
+	if current.neig!(*current.neighborEast).wall {neighbors = append(neighbors, *current.neighborEast)}
+	if !(*current.neighborWest).wall {neighbors = append(neighbors, *current.neighborWest)}
+	if !(*current.neighborSouth).wall {neighbors = append(neighbors, *current.neighborSouth)}
+	fmt.Println("Done checkin' on tha neighbors")
+	return []tile{*current.neighborNorth}*/
+}
+
+func validTile(t *tile) bool {
+	if t == nil {
+		return false
+	}
+	return !t.wall 
+}
+
+
+// old pathfinder!!
+/*
+func getpath(m []tile, from tile, to tile) []tile{
+
+//	checked := []Tile{}
+	//	checked = append(checked, from)
+	checked := []Tile{}  // m[:0]
+//	unchecked := []Tile{}
+	unchecked := m[1:]
+	cQueue := Queue{}
+
+
+	//initialize the costqueue 
+	cQueue.Add(from, 0)
+	for i := 1; i < len(m); i++ {
+		cQueue.Add(m[i], 10)   // 10~infinite		
+	}
+
+	// initiate parentof map
+	var parentOf map[Tile]Tile
+	parentOf = make(map[Tile]Tile)
+
+	// essential loop
+	for len(unchecked) != 0 {
+		fmt.Println("hit")
+		current := (&cQueue).Pop()
+		fmt.Println(current)
+		neighbours := getNeighbours(m, current.tile)
+		for _, neighbor := range neighbours {
+			if neighbor == to {
+				return compactPath(parentOf, from, to)
+			}
+
+			
+			if contains(checked, neighbor) {
+				//nothing
+			} else {
+				cost := current.cost + 1  // 1 cost per step? define
+				if cost < cQueue.costOf(neighbor) {
+					fmt.Println("parentmap?")
+					parentOf[neighbor] = current.tile
+					fmt.Println("parentmap??")
+					cQueue.Update(neighbor, cost)					
+				} 
+			}
+			
+		}
+		checked = append(checked, current.tile) //checked.Append(current)
+		remove(unchecked, current.tile)
+	}
+
+	return compactPath(parentOf, from, to)
+}
+*/
+func compactPath(parentOf map[tile]tile, from tile, to tile) []tile {
+	path := []tile{to}
+
+	current := to
+
+	for current.xCoord != from.xCoord || current.yCoord != from.yCoord{//current != from {
+		fmt.Println("from:", from.xCoord, from.yCoord)
+		fmt.Println("current:", current.xCoord, current.yCoord)
+		path = append(path, parentOf[current])//path.Append(parentOf[current])
+		current = parentOf[current]
+		fmt.Println("current:", current.xCoord, current.yCoord)
+	}
+
+	return path //append(path, from)	
+}
+/*
+func contains(slice []Tile, tile Tile) bool {
+	for _, t := range slice {
+		if t == tile {
+			return true
+		}
+	}
+	return false
+}
+
+func remove(slice []Tile, tile Tile) {
+	for i, t := range slice {
+		if t == tile {
+			slice = append(slice[:i], slice[i+1:]...)
+		}
+	}
+}
+
+
+//}
+
+
+func getNeighbours(m []Tile, t Tile) []Tile {
+	neighbours := []Tile{}
+
+	for i := 0; i < len(m); i++ {//m.Len(); i++ {
+		current := m[i]
+		if current.X == t.X {
+			if current.Y == t.Y + 1 || current.Y == t.Y - 1 {
+				neighbours = append(neighbours, current)
+			}		
+		} else if current.Y == t.Y {
+			if current.X == t.X + 1 || current.X == t.X - 1 {
+				neighbours = append(neighbours, current)
+			}
+		}
+	}
+
+	return neighbours
+}
+
+*/
+
+func printPath(path []tile) {
+	for i, t := range path {
+		fmt.Println(i , ": " , t.xCoord , ", " , t.yCoord)
+	}
+}
+
+func mainPath() {
+	matrix := [][]int {
+		{0,0,0,0},
+		{0,0,0,0},
+		{0,0,0,0}} //,
+	//	{0,0,0,0}}
+	testmap := TileConvert(matrix)
+	
+	path := getPath(&testmap, testmap[0][0], testmap[1][1])
+	printPath(path)
+}
