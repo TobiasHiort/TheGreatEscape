@@ -166,7 +166,7 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 func Run(inMap [][]tile, peopleArray []*Person) {
 	// go run ruitnes for concurrency
 	for _, person := range peopleArray {
-		person.MovePerson(inMap)
+		person.MovePerson(&inMap)
 	}
 }
 /*

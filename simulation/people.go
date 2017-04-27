@@ -55,7 +55,7 @@ func (p *Person) followPlan() {
 	if len(p.plan) > 0 {
 		if p.moveTo(p.plan[0]) {		
 			p.plan = p.plan[1:]
-		}
+		} else {p.wait()}
 	} else if p.path[len(p.path) - 1].door {
 		(p.path[len(p.path) - 1].occupied) = nil
 		p.path = append(p.path, nil)  // replace with safezone?
@@ -65,6 +65,11 @@ func (p *Person) followPlan() {
 		p.kill()
 		// TODO: no valid path! panic behavior? lay down and w8 for death?
 	}
+}
+
+func (p *Person)wait() {
+	p.path = append(p.path, p.path[len(p.path) - 1])
+	p.updateStats()	
 }
 
 func (p *Person) kill() {
@@ -119,4 +124,13 @@ func MainPeople() {
 	}
 	fmt.Println("p1:", p1.path[len(p1.path) - 1])
 	fmt.Println("p2:", p2.path[len(p2.path) - 1])
+
+	fmt.Println("- - - - - - -")
+	fmt.Println("- - - - - - -")
+
+	fmt.Println("p1")
+	printPath(p1.path)
+	fmt.Println("p2")
+	printPath(p2.path)
+	
 }

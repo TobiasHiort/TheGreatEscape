@@ -108,7 +108,9 @@ func printPath(path []*tile) {
 		fmt.Println("No valid path exists")
 	}
 	for i, t := range path {
-		fmt.Println(i, ":", t.xCoord, ",", t.yCoord)
+		if (t == nil) {
+			fmt.Println("End")
+		} else {fmt.Println(i, ":", t.xCoord, ",", t.yCoord)}
 	}
 }
 
