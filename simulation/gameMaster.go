@@ -55,7 +55,7 @@ func fetch(inMap [][]tile){
 */
 
 
-func Discretize() {
+func Discretize() { //Vemvare?
 	// should be a goroutine
 
 	// save timeStamp((fetch(*tileMap)), *time) to mem
