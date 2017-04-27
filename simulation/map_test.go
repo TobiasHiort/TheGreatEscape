@@ -242,7 +242,7 @@ func TestAMovement(t *testing.T) {
    fmt.Println("\n")
 }
 
-/*
+
 func TestFireSpread(t* testing.T) {
 
   testMatrix := [][]int{
@@ -254,17 +254,18 @@ func TestFireSpread(t* testing.T) {
 
     SetFire(&amap[1][1]);
 
-    for i := 0; i < 100; i++{
+    for i := 1; i < 100; i++{
       FireSpread(amap)
-      fmt.Println(amap[1][1].heat)
-      //assert.Equal(t, i, amap[1][1].fireLevel-1, "They should be equal")
-      //fmt.Println("\n")
-      //printTileMap(amap)
     }
-  }
-*/
+    assert.Equal(t, 3, amap[0][1].fireLevel, "The fire has not spread properly")
+    assert.Equal(t, 3, amap[1][2].fireLevel, "The fire has not spread properly")
+    assert.Equal(t, 3, amap[2][1].fireLevel, "The fire has not spread properly")
+    assert.Equal(t, 3, amap[1][0].fireLevel, "The fire has not spread properly")
 
-func printTile(thisTile tile) {
+  }
+
+
+  func printTile(thisTile tile) {
 	if thisTile.wall {
 		fmt.Print("[Wall(")
 	} else if thisTile.door {
