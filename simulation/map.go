@@ -1,8 +1,7 @@
 package main
 
-import (
-	"fmt"
-	)
+import "fmt"
+	
 
 const MINHEAT = 10
 const MEDIUMHEAT = 20
@@ -200,6 +199,15 @@ func printTileMap(inMap [][]tile) {
 		fmt.Print("\n")
 	}
 }
+
+ func CheckFinish (peopleArray []*Person) bool {
+ 	for i := 0; i < len(peopleArray); i++ {
+ 		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {
+ 			return false
+ 		}  
+ 	}
+ 	return true
+ }
 /*
 func printNeighbors(atile tile) {
 	if atile.neighborNorth != nil {
@@ -285,7 +293,11 @@ func main() {
 	Run(testmap, peopleArray)
 	fmt.Print("\n")
 	printTileMap(testmap)
-
+	
+	if CheckFinish (peopleArray) == false {
+		fmt.Print("false")
+		fmt.Print("\n")
+	}
 
 
 
