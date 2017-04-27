@@ -2,21 +2,22 @@ package main
 
 import "fmt"
 
-const MINHEAT    = 10
+
+const MINHEAT = 10
 const MEDIUMHEAT = 20
-const MAXHEAT    = 30
+const MAXHEAT = 30
 
 type tile struct {
 	xCoord int
 	yCoord int
 
-	heat			int //how hot a tile is before fire
+	heat      int //how hot a tile is before fire
 	fireLevel int //strength of the fire
 
 	wall bool
 	door bool
 
-	occupied bool
+	occupied *Person
 	personID int
 
 	outOfBounds bool
@@ -27,24 +28,22 @@ type tile struct {
 	neighborWest  *tile
 }
 
-
 //Initializes the fire
 func SetFire(thisTile *tile) {
-  thisTile.heat = MINHEAT
-  thisTile.fireLevel = 1
+	thisTile.heat = MINHEAT
+	thisTile.fireLevel = 1
 }
 
-
 func FireSpread(tileMap [][]tile) {
-	for x:= 0; x < len(tileMap); x++{
-		for y:= 0; y < len(tileMap[0]); y++{
+	for x := 0; x < len(tileMap); x++ {
+		for y := 0; y < len(tileMap[0]); y++ {
 			fireSpreadTile(&(tileMap[x][y]))
 		}
 	}
 
 }
 
-func fireSpreadTile(thisTile *tile){
+func fireSpreadTile(thisTile *tile) {
 	if thisTile.heat >= MINHEAT {
 		thisTile.fireLevel = 1
 	}
@@ -59,10 +58,10 @@ func fireSpreadTile(thisTile *tile){
 		(thisTile.neighborNorth.heat) += thisTile.fireLevel
 	}
 	if thisTile.neighborEast != nil && thisTile.fireLevel != 0 {
-		(thisTile.neighborEast.heat)	+= thisTile.fireLevel
+		(thisTile.neighborEast.heat) += thisTile.fireLevel
 	}
 	if thisTile.neighborWest != nil && thisTile.fireLevel != 0 {
-		(thisTile.neighborWest.heat)	+= thisTile.fireLevel
+		(thisTile.neighborWest.heat) += thisTile.fireLevel
 	}
 	if thisTile.neighborSouth != nil && thisTile.fireLevel != 0 {
 		(thisTile.neighborSouth.heat) += thisTile.fireLevel
@@ -87,11 +86,11 @@ func assignNeighbor(thisTile *tile, x int, y int, maxX int, maxY int, tileMap []
 	}
 }
 
-func makeNewTile(thisPoint int, x int, y int) tile{
+func makeNewTile(thisPoint int, x int, y int) tile {
 
 	//makes a basic floor tile with no nothin on it
 	//and also no neighbors
-	newTile := tile{x, y, 0, 0, false, false, false, 0, false, nil, nil, nil, nil}
+	newTile := tile{x, y, 0, 0, false, false, nil, 0, false, nil, nil, nil, nil}
 
 	if thisPoint == 0 {
 		//make normal floor
@@ -112,18 +111,18 @@ func makeNewTile(thisPoint int, x int, y int) tile{
 	return newTile
 }
 
-func TileConvert(inMap [][]int) [][]tile{
+func TileConvert(inMap [][]int) [][]tile {
 	mapXSize := len(inMap)
 	mapYSize := len(inMap[0])
 
 	//Initiates a slice of tile slices (2D tile slice)
 	tileMap := make([][]tile, mapXSize)
 
-	for x:= 0; x < mapXSize; x++{
+	for x := 0; x < mapXSize; x++ {
 		//initiates slice of tiles
 		tileMap[x] = make([]tile, mapYSize)
 
-		for y:= 0; y < mapYSize; y++{
+		for y := 0; y < mapYSize; y++ {
 			//constructs a new tile
 			newTile := makeNewTile(inMap[x][y], x, y)
 
@@ -134,104 +133,78 @@ func TileConvert(inMap [][]int) [][]tile{
 	}
 
 	//Assigns 4 neighbors to each tile
-	for x:= 0; x < mapXSize; x++{
-		for y:= 0; y < mapYSize; y++{
+	for x := 0; x < mapXSize; x++ {
+		for y := 0; y < mapYSize; y++ {
 			assignNeighbor(&(tileMap[x][y]), x, y, mapXSize, mapYSize, tileMap)
 		}
 	}
 
 	return tileMap
+
 }
 
-func printTile(thisTile tile) {
-	if thisTile.wall {
-		fmt.Print("[vägg(")
-	} else if thisTile.door {
-		fmt.Print("[dörr(")
-	} else if thisTile.outOfBounds {
-		fmt.Print("[ute(")
-	} else {
-		fmt.Print("[golv(")
+func GetTile(inMap [][]tile, x int, y int) *tile {
+	for i := range inMap {
+		for j := range inMap[i] {
+			if inMap[i][j].xCoord == x && inMap[i][j].yCoord == y {
+				return &inMap[i][j]
+			}
+		}
 	}
-  fmt.Print(thisTile.fireLevel)
-
-  fmt.Print(" Heat: ")
-  fmt.Print(thisTile.heat)
-	fmt.Print(")] ")
+	return nil
 }
 
-func printTileMap(inMap [][]tile) {
+func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
+	size := len(peopleList)
+	peopleArray := make([]*Person, size)
+	for i, person := range peopleList {
+		tile := GetTile(inMap, person[0], person[1])
+		peopleArray[i] = makePerson(tile)
+	}
+	return peopleArray
+}
+
+
+func Run(inMap [][]tile, peopleArray []*Person) {
+	// go run ruitnes for concurrency
+	for _, person := range peopleArray {
+		person.MovePerson(&inMap)
+	}
+}
+
+func printTileP(thisTile tile) {
+	if thisTile.occupied != nil{
+		fmt.Print("X")
+	} else if thisTile.wall {
+		fmt.Print("1")
+	} else if thisTile.door {
+		fmt.Print("2")
+	} else if thisTile.outOfBounds {
+		fmt.Print("3")
+	} else {
+		fmt.Print("0")
+	}
+
+}
+
+
+func printTileMapP(inMap [][]tile) {
 	mapXSize := len(inMap)
 	mapYSize := len(inMap[0])
 
-	for x:= 0; x < mapXSize; x++{
+	for x:= 0; x < mapXSize; x++ {
 		for y:= 0; y < mapYSize; y++{
-			printTile(inMap[x][y])
+			printTileP(inMap[x][y])
 		}
 		fmt.Print("\n")
 	}
 }
-func printNeighbors(atile tile) {
-	if atile.neighborNorth != nil {
-		fmt.Print("North: ")
-		printTile(*(atile.neighborNorth))
-		fmt.Print("\n")
-	} else {
-		fmt.Print("North: nil\n")
+
+ func CheckFinish (peopleArray []*Person) bool {
+	for i := 0; i < len(peopleArray); i++ {
+		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {
+			return false
+		}
 	}
-	if atile.neighborWest != nil {
-		fmt.Print("West: ")
-		printTile(*(atile.neighborWest))
-		fmt.Print("\n")
-	} else {
-		fmt.Print("West: nil\n")
-	}
-	if atile.neighborEast != nil {
-		fmt.Print("East: ")
-		printTile(*(atile.neighborEast))
-		fmt.Print("\n")
-	} else {
-		fmt.Print("East: nil\n")
-	}
-	if atile.neighborSouth != nil {
-		fmt.Print("South: ")
-		printTile(*(atile.neighborSouth))
-		fmt.Print("\n")
-	} else {
-		fmt.Print("South: nil\n")
-	}
-}
-
-//func Populate(tileMap [][]tile)
-
-//func main() {
-/*	testMatrix := [][]int{
-		{0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0},
-		{1, 1, 0, 1, 1},
-		{0, 0, 0, 3, 3}}
-
-	amap := TileConvert(testMatrix)
-	//tileConvert(testMatrix)
-//	printTileMap(amap)
-	fmt.Print("\n")
-	printNeighbors(amap[0][0])
-
-	//fire testing
-	SetFire(&(amap[2][2]))
-	printTileMap(amap)
-//	
-	
-    for i := 0; i < 100; i++{
-			FireSpread(amap)
-		//	if i%10 == 0{
-        fmt.Println("\n")
-				printTileMap(amap)
-			//}
-		}*/
-
-	//mainPath()
-	//mainPeople()
-
-
-//}
+	return true
+ }

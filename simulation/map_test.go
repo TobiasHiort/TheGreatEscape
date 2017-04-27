@@ -1,8 +1,12 @@
 package main
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+  "github.com/stretchr/testify/assert"
+)
 
-func TestSizeOfTileConvert(t* testing.T) {
+func TestSizeOfTileConvert(t *testing.T) {
 
 	testMatrix := [][]int{
 		{0, 0, 0, 0, 0},
@@ -11,82 +15,199 @@ func TestSizeOfTileConvert(t* testing.T) {
 		{0, 0, 0, 3, 3},
 		{2, 0, 0, 3, 3}}
 
+	expectedsize := 5
+	expectedsize2 := 5
+	amap := TileConvert(testMatrix)
+	actualsizeamap := len(amap[0])
+	actualsizeamap2 := len(amap)
 
-    expectedsize := 5
-    expectedsize2 := 5
+	if expectedsize != actualsizeamap {
+		t.Errorf("Expected %d, but got %d", expectedsize, actualsizeamap)
+	}
 
-    amap := TileConvert(testMatrix)
-
-    actualsizeamap := len(amap[0])
-    actualsizeamap2 := len(amap)
-
-   if expectedsize != actualsizeamap {
-    t.Errorf("Expected %d, but got %d", expectedsize, actualsizeamap)
-   }
-
-   if expectedsize != actualsizeamap2 {
-    t.Errorf("Expected %d, but got %d", expectedsize2, actualsizeamap)
-   }
-
+	if expectedsize != actualsizeamap2 {
+		t.Errorf("Expected %d, but got %d", expectedsize2, actualsizeamap)
+	}
 
 	testMatrix2 := [][]int{
-    {0, 0},
-    {0, 0},
-    {1, 1}}
+		{0, 0},
+		{0, 0},
+		{1, 1}}
 
-    expectedinnersize := 2
-    expectedoutersize := 3
+	expectedinnersize := 2
+	expectedoutersize := 3
+	amap2 := TileConvert(testMatrix2)
+	actualinnersize := len(amap2[0])
+	actualoutersize := len(amap2)
 
-    amap2 := TileConvert(testMatrix2)
+	if expectedinnersize != actualinnersize {
+		t.Errorf("Expected %d, but got %d", expectedinnersize, actualinnersize)
+	}
 
-    actualinnersize := len(amap2[0])
-    actualoutersize := len(amap2)
+	if expectedoutersize != actualoutersize {
+		t.Errorf("Expected %d, but got %d", expectedoutersize, actualoutersize)
+	}
+}
 
+func TestTileConvert(t *testing.T) {
+	//0 = floor, 1 = wall, 2 = door, 3 = outofbounds
+	testMatrix := [][]int{
+		{0, 1},
+		{2, 3}}
 
-    if expectedinnersize != actualinnersize {
-      t.Errorf("Expected %d, but got %d", expectedinnersize, actualinnersize)
+	amap := TileConvert(testMatrix)
+	actualtile := (amap[0][0]) //floor
+	//x = row 0, y = column 0
+
+  //test, expected, actual, errormessage
+  assert.Equal(t, false, actualtile.wall, "Expected a floor but this is a wall")
+  assert.Equal(t, false, actualtile.door, "Expected a floor but this is a door")
+  assert.Equal(t, false, actualtile.outOfBounds, "Expected a floor, but this is a outofbounds")  
+  
+  actualtile = amap[0][1] //wall
+
+  assert.Equal(t, true, actualtile.wall, "Expected a wall, but this is not a wall" )
+  assert.Equal(t, false, actualtile.door, "Expected a wall, but this is a door")
+  assert.Equal(t, false, actualtile.outOfBounds, "Expected a wall, but this is a outofbounds")  
+  if actualtile.outOfBounds != false && actualtile.door != false && actualtile.wall == false {
+		t.Errorf("Expected a wall, but this is a floor")
+	}
+
+	actualtile = amap[1][0] //door
+  assert.Equal(t, true, actualtile.door, "Expected a door, but this is not a door" )
+  assert.Equal(t, false, actualtile.wall, "Expected a door, but this is a wall")
+  assert.Equal(t, false, actualtile.outOfBounds, "Expected a door, but this is a outofbounds")  
+	if actualtile.outOfBounds != false && actualtile.wall != false && actualtile.door == false {
+		t.Errorf("Expected a door, but this is a floor")
+	}
+
+	actualtile = amap[1][1] //out of bounds
+  assert.Equal(t, true, actualtile.outOfBounds, "Expected a outofbounds, but this is not a outofbounds" )
+  assert.Equal(t, false, actualtile.wall, "Expected a outofbounds, but this is a wall")
+  assert.Equal(t, false, actualtile.door, "Expected a outofbounds, but this is a door")  	
+  if actualtile.door != false && actualtile.wall != false && actualtile.outOfBounds == false {
+		t.Errorf("Expected outofbounds, but this is a floor")
+	}
+}
+
+func TestNeighbouringtiles(t *testing.T) {
+
+	//0 = floor, 1 = wall, 2 = door, 3 = outofbounds
+	testMatrix := [][]int{
+		{0, 1},
+		{2, 3}}
+
+	amap := TileConvert(testMatrix)
+	firsttile := amap[0][0] //0
+	actualNorth := firsttile.neighborNorth
+	actualEast := firsttile.neighborEast
+	actualSouth := firsttile.neighborSouth
+	actualWest := firsttile.neighborWest
+
+	expectedEast := &amap[0][1]
+	expectedSouth := &amap[1][0]
+  
+  //test, expected, actual, errormessage
+  assert.Equal(t, ((*tile)(nil)), actualNorth, "Neighbor to the north is wrong")
+  assert.Equal(t, expectedEast, actualEast, "Neigbor to the east is wrong")
+  assert.Equal(t, expectedSouth, actualSouth, "Neigbor to the south is wrong")
+  assert.Equal(t, ((*tile)(nil)), actualWest, "Neighbor to the west is wrong")
+
+  testMatrix2 := [][]int{
+		{0, 1},
+		{2, 3},
+		{0, 0}}
+
+	amap2 := TileConvert(testMatrix2)
+	lasttile := amap2[2][1] //0 last tile
+	actualNorth = lasttile.neighborNorth
+	actualEast = lasttile.neighborEast
+	actualSouth = lasttile.neighborSouth
+	actualWest = lasttile.neighborWest
+
+	expectedNorth2 := &amap2[1][1]
+	expectedWest2 := &amap2[2][0]
+
+  assert.Equal(t, expectedNorth2, actualNorth, "Neighbor to the north is wrong")
+  assert.Equal(t, ((*tile)(nil)), actualEast, "Neigbor to the east is wrong")
+  assert.Equal(t, ((*tile)(nil)), actualSouth, "Neigbor to the south is wrong")
+  assert.Equal(t, expectedWest2, actualWest, "Neighbor to the west is wrong")
+
+	testMatrix3 := [][]int{
+		{0, 1, 0},
+		{2, 3, 0},
+		{0, 0, 0}}
+
+	amap3 := TileConvert(testMatrix3)
+	lasttile = amap3[1][1] //3, middle tile
+	actualNorth = lasttile.neighborNorth
+	actualEast = lasttile.neighborEast
+	actualSouth = lasttile.neighborSouth
+	actualWest = lasttile.neighborWest
+
+	expectedNorth3 := &amap3[0][1]
+	expectedEast3 := &amap3[1][2]
+	expectedSouth3 := &amap3[2][1]
+	expectedWest3 := &amap3[1][0]
+
+  //test, expected, actual, errormessage
+  assert.Equal(t, expectedNorth3, actualNorth, "Neighbor to the north is wrong")
+  assert.Equal(t, expectedEast3, actualEast, "Neigbor to the east is wrong")
+  assert.Equal(t, expectedSouth3, actualSouth, "Neigbor to the south is wrong")
+  assert.Equal(t, expectedWest3, actualWest, "Neighbor to the west is wrong")
+}
+
+/*
+func TestFireSpread(t* testing.T) {
+
+  testMatrix := [][]int{
+    {0, 1, 0},
+    {2, 3, 0},
+    {0, 0, 0}}
+
+    amap := TileConvert(testMatrix);
+
+    SetFire(&amap[1][1]);
+
+    for i := 0; i < 100; i++{
+      FireSpread(amap)
+      fmt.Println(amap[1][1].heat)
+      //assert.Equal(t, i, amap[1][1].fireLevel-1, "They should be equal")
+      //fmt.Println("\n")
+      //printTileMap(amap)
     }
-
-    if expectedoutersize != actualoutersize {
-      t.Errorf("Expected %d, but got %d", expectedoutersize, actualoutersize)
-    }
-
-
-
-
   }
-
-
+*/
 
 func printTile(thisTile tile) {
 	if thisTile.wall {
-		fmt.Print("[vägg(")
+		fmt.Print("[Wall(")
 	} else if thisTile.door {
-		fmt.Print("[dörr(")
+		fmt.Print("[Door(")
 	} else if thisTile.outOfBounds {
-		fmt.Print("[ute(")
+		fmt.Print("[Out(")
 	} else {
-		fmt.Print("[golv(")
+		fmt.Print("[Floor(")
 	}
-  fmt.Print(thisTile.fireLevel)
+	fmt.Print(thisTile.fireLevel)
 
-  fmt.Print(" Heat: ")
-  fmt.Print(thisTile.heat)
+	fmt.Print(" Heat: ")
+	fmt.Print(thisTile.heat)
 	fmt.Print(")] ")
 }
-
 
 func printTileMap(inMap [][]tile) {
 	mapXSize := len(inMap)
 	mapYSize := len(inMap[0])
 
-	for x:= 0; x < mapXSize; x++{
-		for y:= 0; y < mapYSize; y++{
+	for x := 0; x < mapXSize; x++ {
+		for y := 0; y < mapYSize; y++ {
 			printTile(inMap[x][y])
 		}
 		fmt.Print("\n")
 	}
 }
+
 func printNeighbors(atile tile) {
 	if atile.neighborNorth != nil {
 		fmt.Print("North: ")
@@ -141,4 +262,4 @@ func main() {
 			printTileMap(amap)
 		}
 	}
-	*/
+*/

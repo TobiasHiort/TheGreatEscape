@@ -1,12 +1,11 @@
 package main
 
 import "sort"
-
 //import "fmt"
 
 type tileCost struct {
-	tile *tile
-	cost float32
+	tile tile
+	cost int
 	//cost should always be positive! I think..
 	//also possibly change cost to double?-
 	//depending on later implementation choices
@@ -30,14 +29,15 @@ func sortQueue(q *queue) {
 	sort.Sort(q)
 }
 
-func (q *queue) Add(t *tile, c float32) {
+
+func (q *queue) Add(t tile, c int) {
 	s := tileCost{}
 	s.tile = t
 	s.cost = c
 	if q.inQueue(t) {
 		q.Update(t, c)
 	} else {
-		*q = append(*q, s) //how to write--?
+		*q = append(*q, s)  //how to write--?
 	}
 	sortQueue(q)
 }
@@ -46,59 +46,54 @@ func (q *queue) AddTC(tc tileCost) {
 	q.Add(tc.tile, tc.cost)
 }
 
-func (q *queue) Remove(t *tile) {
-	//	fmt.Println("check")
-	if len(*q) == 0 {
-		return
-	}
+func (q *queue) Remove(t tile) {
+//	fmt.Println("check")
+	if (len(*q) == 0) {return }
 	i := 0
 	k := true
 	for k && i < len(*q) {
-		if *(*q)[i].tile == *t {
-			k = false
-		} else if i < (*q).Len() {
-			i++
+		if (*q)[i].tile == t {
+ 			k = false 
+		} else if i < (*q).Len()  {
+			i++			
 		}
-
+		
 	}
 	if i < (*q).Len() {
 		*q = append((*q)[:i], (*q)[i+1:]...)
-		/*	fmt.Println("here?")
-			fmt.Println(i)
-			*q = append((*q)[:i-1], (*q)[i:]...)*/
-	}
+	/*	fmt.Println("here?")
+		fmt.Println(i)
+		*q = append((*q)[:i-1], (*q)[i:]...)*/
+	}	
 }
 
-func (q *queue) Update(t *tile, c float32) {
-	if q.inQueue(t) {
-		q.Remove(t)
-		q.Add(t, c)
-	}
+func (q queue) Update(t tile, c int) {
+	q.Remove(t)
+	q.Add(t, c)
 }
 
 func (q *queue) Pop() tileCost {
-	if q.Len() == 0 {
-		return tileCost{}
-	} //tileCost{nil, nil}}
-	t := (*q)[0] //q[q.Len()-1]
+	t := (*q)[0]//q[q.Len()-1]
 	q.Remove(t.tile)
-	return t
+	return t	
 }
 
-func (q queue) inQueue(t *tile) bool {
+func (q queue) inQueue(t tile) bool{
 	for i := 0; i < len(q); i++ {
-		if *q[i].tile == *t {
+		if q[i].tile == t {
 			return true
 		}
 	}
 	return false
 }
 
-func (q queue) costOf(tile *tile) float32 {
+
+func (q queue) costOf(tile tile) int {
 	for _, t := range q {
-		if t.tile == tile {
-			return t.cost
-		}
+		if t.tile == tile {return t.cost}
 	}
-	return -1 // negative cost! null value wont work..
+	return -1   // negative cost! null value wont work..
 }
+
+
+// todo: if-statemnt to check for invalid input
