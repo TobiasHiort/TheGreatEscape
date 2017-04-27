@@ -5,9 +5,84 @@ import (
 	"testing"
 )
 
-func TestGetPath(t *testing.T) {
+func TestWorkingPath(t *testing.T) {
+	matrix := [][]int{
+		{0, 1, 2, 0},
+		{0, 0, 1, 0},
+		{0, 0, 0, 0},
+		{0, 0, 1, 0}}
+	testmap := TileConvert(matrix)
 
+	path, ok := getPath(&testmap, &testmap[0][0])
+
+	if !ok {t.Errorf("Expected a valid path")}
+	if len(path) != 9 {t.Errorf("Expected pathlength: 9, but got pathlength: %d", len(path))}
+	if *path[0] != testmap[0][0] {t.Errorf("Expected starttile: %d, but got starttile: %d", testmap[0][0], path[0])}
+	if *path[8] != testmap[0][2] {t.Errorf("Expected lasttile: %d, but got lasttile: %d", testmap[0][2], path[8])}
 }
+
+func TestBlockedPath(t *testing.T) {
+	matrix := [][]int{
+		{0, 1, 2, 0},
+		{0, 0, 1, 0},
+		{0, 0, 1, 0},
+		{0, 0, 1, 0}}
+	testmap := TileConvert(matrix)
+
+	path, ok := getPath(&testmap, &testmap[0][0])
+	if len(path) > 0 {t.Errorf("Expected a empty path, but got a path of length: %d", len(path))}
+	if ok {t.Errorf("Expected an invalid path")}
+}
+
+func TestFirePath(t *testing.T) {
+	matrix := [][]int{
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 2, 0, 0, 0}}
+	testmap := TileConvert(matrix)
+	SetFire(&(testmap[3][2]))
+	for i := 0; i < 10; i++ {
+		FireSpread(testmap)
+	}
+
+	path, ok := getPath(&testmap, &testmap[0][3])
+	if !ok {t.Errorf("Expected a valid path")}
+	if len(path) != 9 {t.Errorf("Expected pathlength: 9, but got pathlength: %d", len(path))}
+	if *path[0] != testmap[0][3] {t.Errorf("Expected starttile: %d, but got starttile: %d", testmap[0][3], path[0])}
+	if *path[8] != testmap[6][3] {t.Errorf("Expected lasttile: %d, but got lasttile: %d", testmap[6][3], path[8])}
+}
+
+func TestDoorsPath(t *testing.T) {
+	matrix := [][]int{
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{1, 1, 1, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{2, 0, 0, 1, 0, 0, 0}}
+
+	testmap := TileConvert(matrix)
+
+	path, ok := getPath(&testmap, &testmap[0][0])
+	if !ok {t.Errorf("Expected a valid path")}
+	if len(path) != 15 {t.Errorf("Expected pathlength: 15, but got pathlength: %d", len(path))}
+	if *path[0] != testmap[0][0] {t.Errorf("Expected starttile: %d, but got starttile: %d", testmap[0][0], path[0])}
+	if *path[14] != testmap[6][0] {t.Errorf("Expected lasttile: %d, but got lasttile: %d", testmap[6][0], path[8])}	
+}
+
+
+
+/*
+func TestGetPath(t *testing.T) {
+     tests above... 
+}*/
+
+
 
 func TestStepCost(t *testing.T) {
 
@@ -35,8 +110,8 @@ func TestStepCost(t *testing.T) {
 
 func TestGetNeighbors(t *testing.T) {
 	matrix := [][]int{
-		{0, 1, 0, 1, 0, 1, 0}, // no neighbors
-		{1, 1, 1, 1, 1, 1, 1}, //
+		{0, 1, 0, 1, 0, 1, 0}, 
+		{1, 1, 1, 1, 1, 1, 1}, 
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 3, 3, 3, 3, 3, 0},
 		{0, 0, 0, 0, 0, 0, 0},
@@ -91,12 +166,37 @@ func TestValidTile(t *testing.T) {
 	}
 }
 
-/*
-func TestCompactPath(t* testing.T) {
-	size := 10
-	maprentOf
-
-	for i := 0; i < size; i++ {
-
+func TestCompactPath(t *testing.T) {
+	matrix := [][]int{
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{0,0,0,0,2}}
+	testmap := TileConvert(matrix)
+	
+	parentOf := make(map[*tile]*tile)
+	
+	previous := &testmap[0][0]
+	
+	for i := 0; i <= 5; i++ {
+		for j := 0; j <= 4; j++ {
+			parentOf[previous] = &testmap[i][j]
+			previous = &testmap[i][j]
+		}
 	}
-}*/
+	
+	path, ok := compactPath(parentOf, &testmap[5][4], &testmap[0][0])
+	
+	if ok {
+		if len(path) != 30 {t.Errorf("Expected pathlength: %d, but got pathlangth: %d", 30, len(path))}
+		ind := 29
+		for i := 0; i <= 5; i++ {
+			for j := 0; j <= 4; j++ {
+				if *path[ind] != testmap[i][j] {t.Errorf("Expected pathtile: %d, but got pathtile: %d", testmap[i][j], path[ind])}
+				ind--
+			}
+		}		
+	}
+}
