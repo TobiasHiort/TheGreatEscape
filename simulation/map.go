@@ -305,34 +305,16 @@ func main() {
 
 		 peopleArray := PeopleInit (testmap, list)
 	for _, people := range peopleArray {
-		if people != nil {
-			fmt.Print("True")
-			fmt.Print("\n")
+		if people != nil {				
 		}
 	}
-/*
-	printTileMapP(testmap)
-	Run(testmap, peopleArray)
-	fmt.Print("\n")
-	printTileMapP(testmap)
-	Run(testmap, peopleArray)
-	fmt.Print("\n")
-	printTileMapP(testmap) */
-
 	for !CheckFinish(peopleArray) {
 		printTileMapP(testmap)
-		movement := RunGo(testmap, peopleArray)
+		/*movement := */RunGo(testmap, peopleArray)
 		fmt.Print("\n")
-		fmt.Println(movement)
-		fmt.Print("\n")
+	//	fmt.Println(movement)
+		//	fmt.Print("\n")
 	}
-	
-	if CheckFinish (peopleArray) == false {
-		fmt.Print("false")
-		fmt.Print("\n")
-	}
-
-
 
 	//mainPath()
 //	MainPeople()
