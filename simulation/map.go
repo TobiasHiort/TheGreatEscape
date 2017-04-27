@@ -172,7 +172,7 @@ func Run(inMap [][]tile, peopleArray []*Person) {
 	}
 }
 
-func printTile(thisTile tile) {
+func printTileP(thisTile tile) {
 	if thisTile.occupied != nil{
 		fmt.Print("X")
 	} else if thisTile.wall {
@@ -188,13 +188,13 @@ func printTile(thisTile tile) {
 }
 
 
-func printTileMap(inMap [][]tile) {
+func printTileMapP(inMap [][]tile) {
 	mapXSize := len(inMap)
 	mapYSize := len(inMap[0])
 
 	for x:= 0; x < mapXSize; x++ {
 		for y:= 0; y < mapYSize; y++{
-			printTile(inMap[x][y])
+			printTileP(inMap[x][y])
 		}
 		fmt.Print("\n")
 	}
@@ -289,10 +289,10 @@ func main() {
 		}
 	}
 
-	printTileMap(testmap)
+	printTileMapP(testmap)
 	Run(testmap, peopleArray)
 	fmt.Print("\n")
-	printTileMap(testmap)
+	printTileMapP(testmap)
 	
 	if CheckFinish (peopleArray) == false {
 		fmt.Print("false")
