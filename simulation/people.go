@@ -73,6 +73,12 @@ func (p *Person)wait() {
 	p.updateStats()	
 }
 
+func (p *Person)IsWaiting() bool{
+	if len(p.path) <= 1 {
+		return false
+	} else {return p.path[len(p.path) - 1] == p.path[len(p.path) - 2]}
+}
+
 func (p *Person) kill() {
 	p.alive = false
 }

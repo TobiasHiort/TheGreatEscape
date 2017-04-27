@@ -172,16 +172,26 @@ func Run(inMap [][]tile, peopleArray []*Person) {
 	}
 }
 
-func RunGo(inMap [][]tile, peopleArray []*Person) {
+func RunGo(inMap [][]tile, peopleArray []*Person) []*tile{
+	movement := make([]*tile, len(peopleArray))
 	var wg sync.WaitGroup
 	wg.Add(len(peopleArray))
-	for _, person := range peopleArray {
-		go func(currentPerson *Person) {
+	for i, person := range peopleArray {
+		go func(currentPerson *Person, ind int) {
 			defer wg.Done()
-			currentPerson.MovePerson(&inMap)
-		}(person)
-	}
+			currentPerson.MovePerson(&inMap)		
+			if currentPerson.IsWaiting() {			
+				movement[ind] = nil
+			} else {			
+				movement[ind] = currentPerson.path[len(currentPerson.path) - 1]}
+		}(person, i)
+		/*	fmt.Println(i, person.path[len(person.path) - 1])
+	if person.IsWaiting() {
+		movement[i] = nil
+	} else {movement[i] = person.path[len(person.path) - 1]} */
+}
 	wg.Wait()
+	return movement
 }
 
 func printTileP(thisTile tile) {
@@ -311,7 +321,9 @@ func main() {
 
 	for !CheckFinish(peopleArray) {
 		printTileMapP(testmap)
-		RunGo(testmap, peopleArray)
+		movement := RunGo(testmap, peopleArray)
+		fmt.Print("\n")
+		fmt.Println(movement)
 		fmt.Print("\n")
 	}
 	
