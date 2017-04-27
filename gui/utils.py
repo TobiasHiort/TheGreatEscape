@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
 
 # remove some of these?
 import pygame
@@ -32,6 +33,12 @@ COLOR_WHITE = (255, 255, 255)
 COLOR_BLACK = (0, 0, 0)
 COLOR_BLUE = (0, 111, 162)
 COLOR_GREEN = (0, 166, 56)
+COLOR_GREEN_test = [(0, 196, 56),(0, 136, 56),(0, 76, 56)]
+
+
+
+
+
 COLOR_RED = (162, 19, 24)
 COLOR_RED_PNG = (255, 0, 0)
 COLOR_YELLOW = (255, 238, 67)
@@ -44,7 +51,7 @@ COLOR_GREY2 = (145, 145, 145) # darker, org: 221
 colors = {
                 0 : COLOR_WHITE,        # floor
                 1 : COLOR_BLACK,        # wall
-                2 : COLOR_WHITE,        # door
+                2 : COLOR_RED,        # door
                 3 : COLOR_BACKGROUND    # out of bounds
           }
 
@@ -62,10 +69,10 @@ def buildMap(path, mapSurface):
     mapMatrix = numpy.zeros((mapImage.size[1], mapImage.size[0])) # (rows, column)
 
     # game dimensions
-    if mapImage.size[0] < mapImage.size[1]:
-        tilesize = math.floor((713)/mapImage.size[1])
+    if mapImage.size[0] <= mapImage.size[1] * 1.6:
+        tilesize = math.floor((703) / mapImage.size[1]) # this solution (713->703) for small matrices (and NxN) can't be explained in this realm of the universe.
     else:
-        tilesize = math.floor((907)/mapImage.size[0])
+        tilesize = math.floor((907) / mapImage.size[0])
 
     mapwidth = mapImage.size[0] # number of columns in matrix
     mapheight = mapImage.size[1] # number of rows in matrix
@@ -118,7 +125,7 @@ def drawPlayer(playerSurface, player_pos, tilesize, mapheight, mapwidth, player_
 
     for player in range(len(player_pos)):
         # black magic
-        pygame.draw.circle(playerSurface, COLOR_GREEN,
+        pygame.draw.circle(playerSurface, COLOR_GREEN_test[player],
                               ((math.floor(0.5 * (sw - w * t)) + math.floor(t / 2) + t * player_pos[player][0]),
                                   math.floor(0.5 * (-h * t + sh - p)) + math.floor(t / 2) + t * player_pos[player][1]),
                               math.floor((tilesize/2)*player_scale)) # round()?
@@ -243,12 +250,12 @@ def resetState():
     player_count = 0
     return player_scale, current_frame, current_time_float, paused, player_pos, player_count
 
-def cursorBoxHit(mouse_x, mouse_y, x1, x2, y1, y2, tab):
+def cursorBoxHit(mouse_x, mouse_y, x_1, x_2, y_1, y_2, tab):
     """Description.
 
     More...
     """
-    if (mouse_x > x1) and (mouse_x <= x2) and (mouse_y >= y1) and (mouse_y <= y2) and tab:
+    if (mouse_x > x_1) and (mouse_x <= x_2) and (mouse_y >= y_1) and (mouse_y <= y_2) and tab:
         return True
     else:
         return False
