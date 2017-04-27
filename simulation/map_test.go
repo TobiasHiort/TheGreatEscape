@@ -157,6 +157,91 @@ func TestNeighbouringtiles(t *testing.T) {
   assert.Equal(t, expectedWest3, actualWest, "Neighbor to the west is wrong")
 }
 
+func TestAMovement(t *testing.T) {
+
+  testMatrix := [][]int{
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+    {0, 0, 2, 0}}
+
+    /*
+    Initial people placement
+    {0, X, 0, 0 },
+		{0, 0, 0, X },
+		{X, 0, 0, 0 },
+    {0, 0, 2, 0}}
+    */
+
+  testmap := TileConvert(testMatrix)
+  peoplecordinates := [][]int{
+    {0,1},
+    {2,0},
+    {1,3}}
+
+    peoplearray:= PeopleInit(testmap, peoplecordinates)
+
+   //these test needs affection when we make people into threads 
+
+   fmt.Println("Inital people placement")
+   printTileMap(testmap)
+   assert.Equal(t, peoplearray[0], testmap[0][1].occupied, "People1 is in the wrong tile")
+   assert.Equal(t, peoplearray[1], testmap[2][0].occupied, "People2 is in the wrong tile")
+   assert.Equal(t, peoplearray[2], testmap[1][3].occupied, "People3 is in the wrong tile")
+   fmt.Println("\n")
+
+   fmt.Println("One step")
+   Run(testmap, peoplearray)
+   printTileMap(testmap)
+   assert.Equal(t, peoplearray[0], testmap[0][2].occupied, "People1 is in the wrong tile")
+   assert.Equal(t, peoplearray[1], testmap[2][1].occupied, "People2 is in the wrong tile")
+   assert.Equal(t, peoplearray[2], testmap[1][2].occupied, "People3 is in the wrong tile")
+   fmt.Println("\n")
+
+   fmt.Println("Two steps")
+   Run(testmap, peoplearray)
+   printTileMap(testmap)
+   assert.Equal(t, peoplearray[0], testmap[0][2].occupied, "People1 is in the wrong tile")
+   assert.Equal(t, peoplearray[1], testmap[2][2].occupied, "People2 is in the wrong tile")
+   assert.Equal(t, peoplearray[2], testmap[1][2].occupied, "People3 is in the wrong tile")
+   fmt.Println("\n")
+
+   fmt.Println("Three steps")
+   Run(testmap, peoplearray)
+   printTileMap(testmap)
+   assert.Equal(t, peoplearray[0], testmap[0][2].occupied, "People1 is in the wrong tile")
+   assert.Equal(t, peoplearray[1], testmap[3][2].occupied, "People2 is in the wrong tile")
+   assert.Equal(t, peoplearray[2], testmap[2][2].occupied, "People3 is in the wrong tile")
+   fmt.Println("\n")
+
+   fmt.Println("Four steps")
+   Run(testmap, peoplearray)
+   printTileMap(testmap)
+   assert.Equal(t, peoplearray[0], testmap[1][2].occupied, "People1 is in the wrong tile")
+   assert.NotEqual(t, peoplearray[1], testmap[3][2].occupied, "People2 is still in the map")
+   assert.Equal(t, peoplearray[2], testmap[3][2].occupied, "People3 is in the wrong tile")
+   fmt.Println("\n")
+
+   fmt.Println("Five steps")
+   Run(testmap, peoplearray)
+   printTileMap(testmap)
+   assert.Equal(t, peoplearray[0], testmap[2][2].occupied, "People1 is in the wrong tile")
+   assert.NotEqual(t, peoplearray[2], testmap[3][2].occupied, "People3 is still in the map")
+   fmt.Println("\n")
+
+   fmt.Println("Six steps")
+   Run(testmap, peoplearray)
+   printTileMap(testmap)
+   assert.Equal(t, peoplearray[0], testmap[3][2].occupied, "People1 is in the wrong tile")
+   fmt.Println("\n")
+
+   fmt.Println("Seven steps")
+   Run(testmap, peoplearray)
+   printTileMap(testmap)
+   assert.NotEqual(t, peoplearray[0], testmap[3][2].occupied, "People1 is still in the map")
+   fmt.Println("\n")
+}
+
 /*
 func TestFireSpread(t* testing.T) {
 
@@ -189,10 +274,11 @@ func printTile(thisTile tile) {
 	} else {
 		fmt.Print("[Floor(")
 	}
-	fmt.Print(thisTile.fireLevel)
-
-	fmt.Print(" Heat: ")
-	fmt.Print(thisTile.heat)
+  if thisTile.occupied != nil {
+	fmt.Print("X")
+}
+	//fmt.Print(" Heat: ")
+	//fmt.Print(thisTile.heat)
 	fmt.Print(")] ")
 }
 
