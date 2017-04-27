@@ -32,6 +32,12 @@ pygame.time.set_timer(TIMER100, 100)
 target_fps = 60
 prev_time = time.time() # for fps
 
+
+# TEMP JOHAN
+players_movement = [[[3,1],[2,1],[2,2],[2,3],[2,4],[3,4],[3,5],[3,6],[4,6],[4,7]],[[3,2],[2,2],[2,3],[2,4],[3,4],[3,5],[3,6],[4,6],[4,7],[4,7]],[[1,4],[2,4],[3,4],[3,5],[3,6],[4,6],[4,7],[4,7],[4,7],[4,7]]]
+#player_pos = [[0,0],[1,0],[2,0]]
+player_pos = [[3,1],[3,2],[1,4]]
+
 # variables
 counter_seconds = 0 # counter for TIMER1000
 current_frame = 0 # which time frame for movement, int
@@ -41,8 +47,8 @@ player_scale = 1.0
 player_count = 0
 pop_percent = 0.2 # init as this later?
 
-player_pos = [] # might use this as indicator to not populate instead of players_movement?
-players_movement = []
+#player_pos = [] # might use this as indicator to not populate instead of players_movement?
+#players_movement = []
 
 # debugger var inits, not needed later
 active_map_path_tmp = None
@@ -176,7 +182,7 @@ while True:
                 elif event.key == K_s and paused and player_pos != []:
                     #print(len(players_movement[0][0]))
                     print(current_frame)
-                    if players_movement != [] and current_frame < len(players_movement[0]) - 1:  # do not start time frame clock if not pupulated.
+                    if players_movement != [] and current_frame <= len(players_movement[0]) - 1:  # do not start time frame clock if not pupulated.
                                                                                                  # problems if we have no people?
                                                                                                  # shaky logic with current frame, can otherwise
                                                                                                  # run/unpause at last frame
@@ -194,7 +200,7 @@ while True:
                     #if players_movement != [] and current_frame == 0: # warning, cannot run sim without people due to this.
                                                                        # shitty handling for no respawn (current_frame)?,
                                                                        # if respawn is needed, remove current_frame
-                        player_pos, player_count = populateMap(mapMatrix, pop_percent)
+                        #player_pos, player_count = populateMap(mapMatrix, pop_percent)
                         
                         # remove, for testing. creates a 1 frame movement (players_movement from player_pos).
                         # MUST BE DONE BEFORE TIMER100 EVENT/K_s, not current players_movement otherwise
@@ -206,14 +212,14 @@ while True:
                             #player_pos_test3 = [[],[]]
                             player_pos_test3[x] = [player_pos_test1[x], player_pos_test2[x]]
                         #print(player_pos_test3[0][0][0])
-                        for player in range( player_count ):
+                        for player in range(player_count):
                             for frame in range(1):
                                  player_pos_test3[player][1][1] += 1
                                  #player_pos_test3[player][frame][0] += 1
                         #print(player_pos_test3)
                         #print(player_pos_test2)
                         #print(player_pos_test2[0])
-                        players_movement = copy.deepcopy(player_pos_test3)
+                        #players_movement = copy.deepcopy(player_pos_test3)
 
                     else:
                         print('Depop first')
@@ -272,7 +278,7 @@ while True:
                     if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
                         # reset state.
-                        player_scale, current_frame, current_time_float, paused, player_pos, player_count = resetState()
+                        player_scale, current_frame, current_time_float, paused, _, player_count = resetState()
                         # clear old map
                         mapSurface.fill(COLOR_BACKGROUND)
                         # build new map
@@ -281,15 +287,15 @@ while True:
                         current_map_sqm = mapSqm(mapMatrix)
                         current_map_exits = mapExits(mapMatrix)
                         
-                        player_pos, player_count = populateMap(mapMatrix, pop_percent)
-                        players_movement = []
+                        #player_pos, player_count = populateMap(mapMatrix, pop_percent)
+                        #players_movement = []
                 # upload button routine rmenu
                 if cursorBoxHit(mouse_x, mouse_y, 937, 999, 685, 747, active_tab_bools[0]) and active_map_path is not None:
                     active_map_path_tmp = fileDialogPath()
                     if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
                         # reset state.
-                        player_scale, current_frame, current_time_float, paused, player_pos, player_count = resetState()
+                        player_scale, current_frame, current_time_float, paused, _, player_count = resetState()
                         # clear old map
                         mapSurface.fill(COLOR_BACKGROUND) 
                         # build new map
@@ -298,8 +304,8 @@ while True:
                         current_map_sqm = mapSqm(mapMatrix)
                         current_map_exits = mapExits(mapMatrix)
                         
-                        player_pos, player_count = populateMap(mapMatrix, pop_percent)
-                        players_movement = []
+                        #player_pos, player_count = populateMap(mapMatrix, pop_percent)
+                        #players_movement = []
                 # scale plus/minus
                 if cursorBoxHit(mouse_x, mouse_y, 932, 946, 364, 378, active_tab_bools[0]) and active_map_path is not None:
                     if player_scale > 0.5: # crashes if negative radius, keep it > zero
@@ -437,20 +443,11 @@ while True:
     # (debugger) check out of bounds.
     # crashes the fuck out if there are players outside mapMatrix's bounds,
     # as long as Go provides correct data this should not happen
-    p_oob = None
-    p_oob_id = []
-    if player_pos != []:
-        for player in range(len(players_movement)):
-            if mapMatrix[player_pos[player][1]][player_pos[player][0]] == 1 or mapMatrix[player_pos[player][1]][player_pos[player][0]] == 3:
-                p_oob_id.append(player)
-    if p_oob_id == []:
-        p_oob = False
-    else:
-        p_oob = True
+
 
     #placeText(displaySurface, "+p_pos: " + str(player_pos), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 810, 31)
-    placeText(displaySurface, "+p_oob: " + str(p_oob), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 31)
-    placeText(displaySurface, "+oob_id: " + str(p_oob_id), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 43)
+    #placeText(displaySurface, "+p_oob: " + str(p_oob), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 31)
+    #placeText(displaySurface, "+oob_id: " + str(p_oob_id), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 43)
     placeText(displaySurface, "+paused: " + str(paused), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 0)
     placeText(displaySurface, "+elapsed: " + str(counter_seconds), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 11)
     placeText(displaySurface, "+frame_float: " + str(round(current_time_float, 2)), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 21)
