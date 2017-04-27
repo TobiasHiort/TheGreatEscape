@@ -1,6 +1,7 @@
 package main
 
-//import "fmt"
+import "fmt"
+	
 
 const MINHEAT = 10
 const MEDIUMHEAT = 20
@@ -170,36 +171,44 @@ func Run(inMap [][]tile, peopleArray []*Person) {
 		person.MovePerson(&inMap)
 	}
 }
-/*
-func printTile(thisTile tile) {
-	if thisTile.wall {
-		fmt.Print("[vägg(")
+
+func printTileP(thisTile tile) {
+	if thisTile.occupied != nil{
+		fmt.Print("X")
+	} else if thisTile.wall {
+		fmt.Print("1")
 	} else if thisTile.door {
-		fmt.Print("[dörr(")
+		fmt.Print("2")
 	} else if thisTile.outOfBounds {
-		fmt.Print("[ute(")
+		fmt.Print("3")
 	} else {
-		fmt.Print("[golv(")
+		fmt.Print("0")
 	}
-  fmt.Print(thisTile.fireLevel)
+  
+}
 
-  fmt.Print(" Heat: ")
-  fmt.Print(thisTile.heat)
-	fmt.Print(")] ")
-}*/
 
-/*
-func printTileMap(inMap [][]tile) {
+func printTileMapP(inMap [][]tile) {
 	mapXSize := len(inMap)
 	mapYSize := len(inMap[0])
 
-	for x:= 0; x < mapXSize; x++{
+	for x:= 0; x < mapXSize; x++ {
 		for y:= 0; y < mapYSize; y++{
-			printTile(inMap[x][y])
+			printTileP(inMap[x][y])
 		}
 		fmt.Print("\n")
 	}
 }
+
+ func CheckFinish (peopleArray []*Person) bool {
+ 	for i := 0; i < len(peopleArray); i++ {
+ 		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {
+ 			return false
+ 		}  
+ 	}
+ 	return true
+ }
+/*
 func printNeighbors(atile tile) {
 	if atile.neighborNorth != nil {
 		fmt.Print("North: ")
@@ -233,7 +242,7 @@ func printNeighbors(atile tile) {
 */
 
 func main() {
-/*
+
 	matrix := [][]int{
 		{0, 0, 0, 1, 0, 0, 0},
 		{0, 0, 0, 1, 0, 0, 0},
@@ -246,9 +255,8 @@ func main() {
 	/*
 		var tile = GetTile (testmap, 2, 0)
 		printTile(*tile)
-		fmt.Print("/n")*/
-
-	/*
+		fmt.Print("/n")
+/*
 		start1 := &testmap[1][0]
 		start2 := &testmap[1][2]
 		start3 := &testmap[0][1]
@@ -262,12 +270,39 @@ func main() {
 		var p4 = *makePerson(start2)
 		var p5 = *makePerson(start1)
 		var p6 = *makePerson(start2)
-	*/
+*/
+		/*
+		list := make([][]int, 0)
+		list.append([1][2])
+		list.append([0][2])
+		list.append([2][3])*/
+		list := [][]int{
+			{1, 2},
+			{0, 2},
+			{3, 0}}
+
+		 peopleArray := PeopleInit (testmap, list)
+	for _, people := range peopleArray {
+		if people != nil {
+			fmt.Print("True")
+			fmt.Print("\n")
+		}
+	}
+
+	printTileMapP(testmap)
+	Run(testmap, peopleArray)
+	fmt.Print("\n")
+	printTileMapP(testmap)
 	
+	if CheckFinish (peopleArray) == false {
+		fmt.Print("false")
+		fmt.Print("\n")
+	}
 
 
 
 	//mainPath()
-	MainPeople()
+	//MainPeople()
 
 }
+

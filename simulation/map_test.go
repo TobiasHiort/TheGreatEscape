@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"testing"
-	// "github.com/stretchr/testify/assert"
+  "github.com/stretchr/testify/assert"
 )
 
 func TestSizeOfTileConvert(t *testing.T) {
@@ -59,58 +59,33 @@ func TestTileConvert(t *testing.T) {
 	actualtile := (amap[0][0]) //floor
 	//x = row 0, y = column 0
 
-	if actualtile.wall != false {
-		t.Errorf("Expected a floor, but this is a wall")
-	}
-	if actualtile.door != false {
-		t.Errorf("Expected a floor, but this is a door")
-	}
-	if actualtile.outOfBounds != false {
-		t.Errorf("Expected a floor, but this is a outofbounds")
-	}
+  //test, expected, actual, errormessage
+  assert.Equal(t, false, actualtile.wall, "Expected a floor but this is a wall")
+  assert.Equal(t, false, actualtile.door, "Expected a floor but this is a door")
+  assert.Equal(t, false, actualtile.outOfBounds, "Expected a floor, but this is a outofbounds")  
+  
+  actualtile = amap[0][1] //wall
 
-	actualtile = amap[0][1] //wall
-
-	if actualtile.wall != true {
-		t.Errorf("Expected a wall, but this is not a wall")
-	}
-	if actualtile.door != false {
-		t.Errorf("Expected a wall, but this is a door")
-	}
-	if actualtile.outOfBounds != false {
-		t.Errorf("Expected a wall, but this is a outofbounds")
-	}
-	if actualtile.outOfBounds != false && actualtile.door != false && actualtile.wall == false {
+  assert.Equal(t, true, actualtile.wall, "Expected a wall, but this is not a wall" )
+  assert.Equal(t, false, actualtile.door, "Expected a wall, but this is a door")
+  assert.Equal(t, false, actualtile.outOfBounds, "Expected a wall, but this is a outofbounds")  
+  if actualtile.outOfBounds != false && actualtile.door != false && actualtile.wall == false {
 		t.Errorf("Expected a wall, but this is a floor")
 	}
 
 	actualtile = amap[1][0] //door
-
-	if actualtile.door != true {
-		t.Errorf("Expected a door, but this is not a door")
-	}
-	if actualtile.wall != false {
-		t.Errorf("Expected a door, but this is a wall")
-	}
-	if actualtile.outOfBounds != false {
-		t.Errorf("Expected a door, but this is outofbounds")
-	}
+  assert.Equal(t, true, actualtile.door, "Expected a door, but this is not a door" )
+  assert.Equal(t, false, actualtile.wall, "Expected a door, but this is a wall")
+  assert.Equal(t, false, actualtile.outOfBounds, "Expected a door, but this is a outofbounds")  
 	if actualtile.outOfBounds != false && actualtile.wall != false && actualtile.door == false {
 		t.Errorf("Expected a door, but this is a floor")
 	}
 
 	actualtile = amap[1][1] //out of bounds
-
-	if actualtile.outOfBounds != true {
-		t.Errorf("Expected outofbounds, but this is not a outofbounds")
-	}
-	if actualtile.wall != false {
-		t.Errorf("Expected a outofbounds, but this is a wall")
-	}
-	if actualtile.door != false {
-		t.Errorf("Expected a outofbounds, but this is door")
-	}
-	if actualtile.door != false && actualtile.wall != false && actualtile.outOfBounds == false {
+  assert.Equal(t, true, actualtile.outOfBounds, "Expected a outofbounds, but this is not a outofbounds" )
+  assert.Equal(t, false, actualtile.wall, "Expected a outofbounds, but this is a wall")
+  assert.Equal(t, false, actualtile.door, "Expected a outofbounds, but this is a door")  	
+  if actualtile.door != false && actualtile.wall != false && actualtile.outOfBounds == false {
 		t.Errorf("Expected outofbounds, but this is a floor")
 	}
 }
@@ -131,21 +106,14 @@ func TestNeighbouringtiles(t *testing.T) {
 
 	expectedEast := &amap[0][1]
 	expectedSouth := &amap[1][0]
+  
+  //test, expected, actual, errormessage
+  assert.Equal(t, ((*tile)(nil)), actualNorth, "Neighbor to the north is wrong")
+  assert.Equal(t, expectedEast, actualEast, "Neigbor to the east is wrong")
+  assert.Equal(t, expectedSouth, actualSouth, "Neigbor to the south is wrong")
+  assert.Equal(t, ((*tile)(nil)), actualWest, "Neighbor to the west is wrong")
 
-	if actualNorth != nil {
-		t.Errorf("Neighbor to the north is wrong")
-	}
-	if actualEast != expectedEast {
-		t.Errorf("Neighbor to the east is wrong")
-	}
-	if actualSouth != expectedSouth {
-		t.Errorf("Neighbor to the south is wrong")
-	}
-	if actualWest != nil {
-		t.Errorf("Neighbor to the west is wrong")
-	}
-
-	testMatrix2 := [][]int{
+  testMatrix2 := [][]int{
 		{0, 1},
 		{2, 3},
 		{0, 0}}
@@ -160,18 +128,10 @@ func TestNeighbouringtiles(t *testing.T) {
 	expectedNorth2 := &amap2[1][1]
 	expectedWest2 := &amap2[2][0]
 
-	if actualNorth != expectedNorth2 {
-		t.Errorf("Neighbor to the north is wrong")
-	}
-	if actualEast != nil {
-		t.Errorf("Neighbor to the east is wrong")
-	}
-	if actualSouth != nil {
-		t.Errorf("Neighbor to the south is wrong")
-	}
-	if actualWest != expectedWest2 {
-		t.Errorf("Neighbor to the west is wrong")
-	}
+  assert.Equal(t, expectedNorth2, actualNorth, "Neighbor to the north is wrong")
+  assert.Equal(t, ((*tile)(nil)), actualEast, "Neigbor to the east is wrong")
+  assert.Equal(t, ((*tile)(nil)), actualSouth, "Neigbor to the south is wrong")
+  assert.Equal(t, expectedWest2, actualWest, "Neighbor to the west is wrong")
 
 	testMatrix3 := [][]int{
 		{0, 1, 0},
@@ -190,19 +150,11 @@ func TestNeighbouringtiles(t *testing.T) {
 	expectedSouth3 := &amap3[2][1]
 	expectedWest3 := &amap3[1][0]
 
-	if actualNorth != expectedNorth3 {
-		t.Errorf("Neighbor to the north is wrong")
-	}
-	if actualEast != expectedEast3 {
-		t.Errorf("Neighbor to the east is wrong")
-	}
-	if actualSouth != expectedSouth3 {
-		t.Errorf("Neighbor to the south is wrong")
-	}
-	if actualWest != expectedWest3 {
-		t.Errorf("Neighbor to the west is wrong")
-	}
-
+  //test, expected, actual, errormessage
+  assert.Equal(t, expectedNorth3, actualNorth, "Neighbor to the north is wrong")
+  assert.Equal(t, expectedEast3, actualEast, "Neigbor to the east is wrong")
+  assert.Equal(t, expectedSouth3, actualSouth, "Neigbor to the south is wrong")
+  assert.Equal(t, expectedWest3, actualWest, "Neighbor to the west is wrong")
 }
 
 /*
@@ -217,9 +169,10 @@ func TestFireSpread(t* testing.T) {
 
     SetFire(&amap[1][1]);
 
-    for i := 0; i < 10; i++{
+    for i := 0; i < 100; i++{
       FireSpread(amap)
-      assert.Equal(t, i, amap[1][1].fireLevel-1, "They should be equal")
+      fmt.Println(amap[1][1].heat)
+      //assert.Equal(t, i, amap[1][1].fireLevel-1, "They should be equal")
       //fmt.Println("\n")
       //printTileMap(amap)
     }
