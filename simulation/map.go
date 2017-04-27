@@ -142,7 +142,6 @@ func TileConvert(inMap [][]int) [][]tile {
 
 }
 
-
 func GetTile(inMap [][]tile, x int, y int) *tile {
 	for i := range inMap {
 		for j := range inMap[i] {
@@ -163,6 +162,8 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 	}
 	return peopleArray
 }
+
+
 func Run(inMap [][]tile, peopleArray []*Person) {
 	// go run ruitnes for concurrency
 	for _, person := range peopleArray {
@@ -185,8 +186,7 @@ func printTile(thisTile tile) {
   fmt.Print(" Heat: ")
   fmt.Print(thisTile.heat)
 	fmt.Print(")] ")
-}
-*/
+}*/
 
 /*
 func printTileMap(inMap [][]tile) {
@@ -233,30 +233,39 @@ func printNeighbors(atile tile) {
 */
 
 func main() {
-	/*	testMatrix := [][]int{
-				{0, 0, 0, 0, 0},
-				{0, 0, 0, 0, 0},
-				{1, 1, 0, 1, 1},
-				{0, 0, 0, 3, 3}}
+/*
+	matrix := [][]int{
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{1, 0, 1, 1, 1, 1, 1},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 2, 0, 0, 0}}
+	testmap := TileConvert(matrix)
+	/*
+		var tile = GetTile (testmap, 2, 0)
+		printTile(*tile)
+		fmt.Print("/n")*/
 
-			amap := TileConvert(testMatrix)
-			//tileConvert(testMatrix)
-		//	printTileMap(amap)
-			fmt.Print("\n")
-			printNeighbors(amap[0][0])
+	/*
+		start1 := &testmap[1][0]
+		start2 := &testmap[1][2]
+		start3 := &testmap[0][1]
+		start4 := &testmap[3][4]
+		start5 := &testmap[2][0]
+		start6 := &testmap[5][5]
+/*
+		var p1 = *makePerson(start1)
+		var p2 = *makePerson(start2)
+		var p3 = *makePerson(start1)
+		var p4 = *makePerson(start2)
+		var p5 = *makePerson(start1)
+		var p6 = *makePerson(start2)
+	*/
+	
 
-			//fire testing
-			SetFire(&(amap[2][2]))
-			printTileMap(amap)
-		//
 
-		    for i := 0; i < 100; i++{
-					FireSpread(amap)
-				//	if i%10 == 0{
-		    fmt.Println("\n")
-						printTileMap(amap)
-					//}
-				}*/
 
 	//mainPath()
 	MainPeople()
