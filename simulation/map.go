@@ -1,7 +1,7 @@
 package main
 
 import "fmt"
-	
+import "sync"
 
 const MINHEAT = 10
 const MEDIUMHEAT = 20
@@ -172,6 +172,18 @@ func Run(inMap [][]tile, peopleArray []*Person) {
 	}
 }
 
+func RunGo(inMap [][]tile, peopleArray []*Person) {
+	var wg sync.WaitGroup
+	wg.Add(len(peopleArray))
+	for _, person := range peopleArray {
+		go func(currentPerson *Person) {
+			defer wg.Done()
+			currentPerson.MovePerson(&inMap)
+		}(person)
+	}
+	wg.Wait()
+}
+
 func printTileP(thisTile tile) {
 	if thisTile.occupied != nil{
 		fmt.Print("X")
@@ -243,7 +255,7 @@ func printNeighbors(atile tile) {
 
 func main() {
 
-/*	matrix := [][]int{
+	matrix := [][]int{
 		{0, 0, 0, 1, 0, 0, 0},
 		{0, 0, 0, 1, 0, 0, 0},
 		{1, 0, 1, 1, 1, 1, 1},
@@ -251,7 +263,7 @@ func main() {
 		{0, 0, 0, 1, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 2, 0, 0, 0}}
-	testmap := TileConvert(matrix)*/
+	testmap := TileConvert(matrix)
 	/*
 		var tile = GetTile (testmap, 2, 0)
 		printTile(*tile)
@@ -276,7 +288,7 @@ func main() {
 		list.append([1][2])
 		list.append([0][2])
 		list.append([2][3])*/
-/*		list := [][]int{
+		list := [][]int{
 			{1, 2},
 			{0, 2},
 			{3, 0}}
@@ -288,21 +300,30 @@ func main() {
 			fmt.Print("\n")
 		}
 	}
-
+/*
 	printTileMapP(testmap)
 	Run(testmap, peopleArray)
 	fmt.Print("\n")
 	printTileMapP(testmap)
+	Run(testmap, peopleArray)
+	fmt.Print("\n")
+	printTileMapP(testmap) */
+
+	for !CheckFinish(peopleArray) {
+		printTileMapP(testmap)
+		RunGo(testmap, peopleArray)
+		fmt.Print("\n")
+	}
 	
 	if CheckFinish (peopleArray) == false {
 		fmt.Print("false")
 		fmt.Print("\n")
 	}
-*/
+
 
 
 	//mainPath()
-	MainPeople()
+//	MainPeople()
 
 }
 
