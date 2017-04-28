@@ -317,7 +317,46 @@ func main() {
 	}
 
 	mainPath()
-//	MainPeople()
+	//	MainPeople()
 
+	testRedirect()
+
+}
+
+func testRedirect() {
+	matrix := [][]int{
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{1, 0, 1, 1, 1, 0, 1},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 2, 0, 0, 0, 0}}
+	testmap := TileConvert(matrix)
+
+	list := [][]int{
+		{1, 1},
+		{1, 2},
+		{0, 2},
+		{0, 0},
+		{2, 1},
+		{3, 1},
+		{0, 3},
+		{0, 1},
+		{1, 0},
+		{1, 3}}
+
+	peopleArray := PeopleInit (testmap, list)
+	for _, people := range peopleArray {
+		if people != nil {				
+		}
+	}
+	for !CheckFinish(peopleArray) {
+		printTileMapP(testmap)
+		/*movement := */RunGo(testmap, peopleArray)
+		fmt.Print("\n")
+		//	fmt.Println(movement)
+		//	fmt.Print("\n")
+	}
 }
 

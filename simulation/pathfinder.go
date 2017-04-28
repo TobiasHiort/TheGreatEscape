@@ -37,7 +37,7 @@ func getPath(m *[][]tile, from *tile) ([]*tile, bool) {
 
 	// ----testing----
 
-	countW8 := true
+//	countW8 := true
 	
 
 	for len(costQueue) != 0 && !current.tile.door {
@@ -47,17 +47,19 @@ func getPath(m *[][]tile, from *tile) ([]*tile, bool) {
 		var wg sync.WaitGroup
 		wg.Add(len(neighbors))
 		var mutex = &sync.Mutex{}
-		for _, neighbor := range neighbors {		
+		for _, neighbor := range neighbors {			
 			go func(n *tile) {			
 				defer wg.Done()			
 				cost := current.cost + stepCost(*n)
-				if countW8 {cost += 1}
+				if n.occupied.IsWaiting() {cost += 1}
+
 				// TODO: 1 default cost improve!? depending on heat, smoke etc
 				mutex.Lock()
 				if cost < costQueue.costOf(n) {
 				
 					parentOf[n] = current.tile
-					costQueue.Update(n, cost)				
+					costQueue.Update(n, cost)
+				//	fmt.Println(n, cost)
 				
 				}
 					mutex.Unlock()

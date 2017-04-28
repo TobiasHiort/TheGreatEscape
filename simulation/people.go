@@ -74,6 +74,7 @@ func (p *Person)wait() {
 }
 
 func (p *Person)IsWaiting() bool{
+	if p == nil {return false}
 	if len(p.path) <= 1 {
 		return false
 	} else {return p.path[len(p.path) - 1] == p.path[len(p.path) - 2]}
