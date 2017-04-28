@@ -131,7 +131,7 @@ func TestGetNeighbors(t *testing.T) {
 		{0, 0, 0, 0, 0, 0, 0}}
 	testmap := TileConvert(matrix)
 	tileQ := mapToQueue(testmap)
-	fmt.Println(len(tileQ))
+//	fmt.Println(len(tileQ))
 //	for _, tl := range tileQ {fmt.Println(tl.tile.xCoord, tl.tile.yCoord)}
 	
 	for i, list := range testmap {

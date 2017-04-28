@@ -6,18 +6,11 @@ import (
 	"sync"
 )
 
-type mutexTile struct {
-	tile *tile
-	lock *sync.Mutex
-}
-
 func getPath(m *[][]tile, from *tile) ([]*tile, bool) {
 
 	// map to keep track of the final path
 	var parentOf map[*tile]*tile
 	parentOf = make(map[*tile]*tile)
-//	var parentOf map[mutexTile]*tile
-//	parentOf = make(map[mutexTile]*tile)	
 
 	//initialise 'costqueue', start-0, other-infinite
 	costQueue := queue{}
@@ -37,9 +30,6 @@ func getPath(m *[][]tile, from *tile) ([]*tile, bool) {
 
 	// ----testing----
 
-//	countW8 := true
-	
-
 	for len(costQueue) != 0 && !current.tile.door {
 		current = (&costQueue).Pop()
 
@@ -58,15 +48,13 @@ func getPath(m *[][]tile, from *tile) ([]*tile, bool) {
 				if cost < costQueue.costOf(n) {
 				
 					parentOf[n] = current.tile
-					costQueue.Update(n, cost)
-				//	fmt.Println(n, cost)
+					costQueue.Update(n, cost)			
 				
 				}
 					mutex.Unlock()
 			}(neighbor)		
 		}
-		wg.Wait()
-		//	fmt.Println("w8ed")
+		wg.Wait()	
 		//	checkedQueue.AddTC(current)
 		//	costQueue.Remove(current.tile)
 	

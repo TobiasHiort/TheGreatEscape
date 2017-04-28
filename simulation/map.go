@@ -264,7 +264,7 @@ func printNeighbors(atile tile) {
 */
 
 func main() {
-
+/*
 	matrix := [][]int{
 		{0, 0, 0, 1, 0, 0, 0},
 		{0, 0, 0, 1, 0, 0, 0},
@@ -273,7 +273,7 @@ func main() {
 		{0, 0, 0, 1, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 2, 0, 0, 0}}
-	testmap := TileConvert(matrix)
+	testmap := TileConvert(matrix) */
 	/*
 		var tile = GetTile (testmap, 2, 0)
 		printTile(*tile)
@@ -298,7 +298,7 @@ func main() {
 		list.append([1][2])
 		list.append([0][2])
 		list.append([2][3])*/
-		list := [][]int{
+/*		list := [][]int{
 			{1, 2},
 			{0, 2},
 			{3, 0}}
@@ -310,17 +310,17 @@ func main() {
 	}
 	for !CheckFinish(peopleArray) {
 		printTileMapP(testmap)
-		/*movement := */RunGo(testmap, peopleArray)
-		fmt.Print("\n")
+		/*movement := */ //RunGo(testmap, peopleArray)
+	/*	fmt.Print("\n")
 	//	fmt.Println(movement)
 		//	fmt.Print("\n")
 	}
 
-	mainPath()
+	mainPath() */
 	//	MainPeople()
 
-	testRedirect()
-
+//	testRedirect()
+	testMutex()
 }
 
 func testRedirect() {
@@ -345,6 +345,34 @@ func testRedirect() {
 		{0, 1},
 		{1, 0},
 		{1, 3}}
+
+	peopleArray := PeopleInit (testmap, list)
+	for _, people := range peopleArray {
+		if people != nil {				
+		}
+	}
+	for !CheckFinish(peopleArray) {
+		printTileMapP(testmap)
+		/*movement := */RunGo(testmap, peopleArray)
+		fmt.Print("\n")
+		//	fmt.Println(movement)
+		//	fmt.Print("\n")
+	}
+}
+
+func testMutex() {
+	matrix := [][]int{
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2}}
+	testmap := TileConvert(matrix)
+
+	list := [][]int{
+		{0,0}}
 
 	peopleArray := PeopleInit (testmap, list)
 	for _, people := range peopleArray {
