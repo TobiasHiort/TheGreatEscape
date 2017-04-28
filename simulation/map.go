@@ -26,6 +26,11 @@ type tile struct {
 	neighborEast  *tile
 	neighborSouth *tile
 	neighborWest  *tile
+
+	neighborNW *tile
+	neighborNE *tile
+	neighborSE *tile
+	neighborSW *tile
 }
 
 //Initializes the fire
@@ -84,13 +89,26 @@ func assignNeighbor(thisTile *tile, x int, y int, maxX int, maxY int, tileMap []
 	if y < maxY-1 {
 		thisTile.neighborEast = &tileMap[x][y+1]
 	}
+	
+	if x > 0 && y > 0 {
+		thisTile.neighborNW = &tileMap[x-1][y-1]
+	}	
+	if x > 0 && y < maxY-1 {
+		thisTile.neighborNE = &tileMap[x-1][y+1]
+	}	
+	if x < maxX-1 && y < maxY-1 {
+		thisTile.neighborSE = &tileMap[x+1][y+1]		
+	}
+	if x < maxX-1 && y > 0 {
+		thisTile.neighborSW = &tileMap[x+1][y-1]
+	}
 }
 
 func makeNewTile(thisPoint int, x int, y int) tile {
 
 	//makes a basic floor tile with no nothin on it
 	//and also no neighbors
-	newTile := tile{x, y, 0, 0, false, false, nil, 0, false, nil, nil, nil, nil}
+	newTile := tile{x, y, 0, 0, false, false, nil, 0, false, nil, nil, nil, nil, nil, nil, nil, nil}
 
 	if thisPoint == 0 {
 		//make normal floor
@@ -230,38 +248,72 @@ func printTileMapP(inMap [][]tile) {
  	}
  	return true
  }
-/*
+
+func printTile(atile tile) {
+	fmt.Println(atile.xCoord, atile.yCoord)
+	fmt.Print("\n")
+}
+
 func printNeighbors(atile tile) {
 	if atile.neighborNorth != nil {
 		fmt.Print("North: ")
 		printTile(*(atile.neighborNorth))
-		fmt.Print("\n")
+	//	fmt.Print("\n")
 	} else {
 		fmt.Print("North: nil\n")
 	}
 	if atile.neighborWest != nil {
 		fmt.Print("West: ")
 		printTile(*(atile.neighborWest))
-		fmt.Print("\n")
+		//fmt.Print("\n")
 	} else {
 		fmt.Print("West: nil\n")
 	}
 	if atile.neighborEast != nil {
 		fmt.Print("East: ")
 		printTile(*(atile.neighborEast))
-		fmt.Print("\n")
+		//fmt.Print("\n")
 	} else {
 		fmt.Print("East: nil\n")
 	}
 	if atile.neighborSouth != nil {
 		fmt.Print("South: ")
 		printTile(*(atile.neighborSouth))
-		fmt.Print("\n")
+		//fmt.Print("\n")
 	} else {
 		fmt.Print("South: nil\n")
 	}
+	if atile.neighborNW != nil {
+		fmt.Print("NW: ")
+		printTile(*(atile.neighborNW))
+	//	fmt.Print("\n")
+	} else {
+		fmt.Print("NW: nil\n")
+	}
+	if atile.neighborNE != nil {
+		fmt.Print("NE: ")
+		printTile(*(atile.neighborNE))
+	//	fmt.Print("\n")
+	} else {
+		fmt.Print("NE: nil\n")
+	}
+	if atile.neighborSE != nil {
+		fmt.Print("SE: ")
+		printTile(*(atile.neighborSE))
+		//fmt.Print("\n")
+	} else {
+		fmt.Print("SE: nil\n")
+	}
+	if atile.neighborSW != nil {
+		fmt.Print("SW: ")
+		printTile(*(atile.neighborSW))
+		//fmt.Print("\n")
+	} else {
+		fmt.Print("SW: nil\n")
+	}
+	
 }
-*/
+
 
 func main() {
 /*
@@ -320,7 +372,8 @@ func main() {
 	//	MainPeople()
 
 //	testRedirect()
-	testMutex()
+	//testMutex()
+	testDiagonally()
 }
 
 func testRedirect() {
@@ -385,6 +438,20 @@ func testMutex() {
 		fmt.Print("\n")
 		//	fmt.Println(movement)
 		//	fmt.Print("\n")
+	}
+}
+
+func testDiagonally() {
+	matrix := [][]int{
+		{0,0,0},
+		{0,0,0},
+		{0,0,0}}
+	testmap := TileConvert(matrix)
+
+	for _, list := range testmap {
+		for _, t := range list {
+			printNeighbors(t)
+		}
 	}
 }
 
