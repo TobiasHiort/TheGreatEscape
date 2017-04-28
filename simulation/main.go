@@ -12,8 +12,8 @@ func GameLoop() {
 
 	//simulates 5000 steps
 	for i := 0; i < 5000; i++ {
-		go Tick()
-		go Discretize()
+
+		//send update -> 
 	}
 }
 

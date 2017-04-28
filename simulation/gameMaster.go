@@ -2,18 +2,19 @@ package main
 
 //toppen av stupröret, yttersta lagret av löken
 
-//time := int
-//time = 0
-
-var time *(int)
-//*time = 0
-
-type Event struct {
-	tileMap [][]tile
-	timeStamp int
+type personEvent struct {
+	newPos *tile
+	newAliveState *bool
+	currentPerson *Person
 }
 
-func TimeInit(){
+type updateEvent {
+	//each person has a spot in this array. if they dont move, the coords are blank
+	//if they die, maybe a -1,-1???
+	personMoveList		*([][]int)
+	//sends a map of the coords that have fire that has increased
+	fireIncreaseList	*([][]int)
+	//timeStamp int
 }
 
 //func get ppl movement from map
@@ -31,11 +32,6 @@ func timeStamp(inMap [][]tile, currentTime int) Event{
 //grabs data from map
 //returns an Event
 
-func Tick(){
-	//should run as goroutine
-	*time++
-}
-
 func MapInit(peopleList [][]int, newMap [][]int) [][]tile{
 	//gets map data from GM and inits the map
 	var currentMap ([][]tile)
@@ -47,16 +43,4 @@ func MapInit(peopleList [][]int, newMap [][]int) [][]tile{
 	//Populate()
 	//gets ppl data from GM and calls the initpppl function in map 
 	return currentMap
-}
-
-/*
-func fetch(inMap [][]tile){
-}
-*/
-
-
-func Discretize() { //Vemvare?
-	// should be a goroutine
-
-	// save timeStamp((fetch(*tileMap)), *time) to mem
 }
