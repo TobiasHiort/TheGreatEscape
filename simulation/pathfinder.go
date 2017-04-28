@@ -3,19 +3,29 @@ package main
 import (
 	"fmt"
 	"math"
+	"sync"
 )
+
+type mutexTile struct {
+	tile *tile
+	lock *sync.Mutex
+}
 
 func getPath(m *[][]tile, from *tile) ([]*tile, bool) {
 
 	// map to keep track of the final path
 	var parentOf map[*tile]*tile
 	parentOf = make(map[*tile]*tile)
+//	var parentOf map[mutexTile]*tile
+//	parentOf = make(map[mutexTile]*tile)	
+
 	//initialise 'costqueue', start-0, other-infinite
 	costQueue := queue{}
 
 	for i, list := range *m {
 		for j, _ := range list {
 			costQueue.Add(&(*m)[i][j], float32(math.Inf(1)))
+		//	parentOf[mutexTile{&tile{}, &sync.Mutex{}}] = &(*m)[i][j]
 		}
 	}
 
@@ -25,8 +35,45 @@ func getPath(m *[][]tile, from *tile) ([]*tile, bool) {
 
 	current := tileCost{&tile{}, 0}
 
-	//essential loop
+	// ----testing----
+
+	countW8 := true
+	
+
 	for len(costQueue) != 0 && !current.tile.door {
+		current = (&costQueue).Pop()
+
+		neighbors := getNeighbors(current.tile, costQueue)
+		var wg sync.WaitGroup
+		wg.Add(len(neighbors))
+		var mutex = &sync.Mutex{}
+		for _, neighbor := range neighbors {		
+			go func(n *tile) {			
+				defer wg.Done()			
+				cost := current.cost + stepCost(*n)
+				if countW8 {cost += 1}
+				// TODO: 1 default cost improve!? depending on heat, smoke etc
+				mutex.Lock()
+				if cost < costQueue.costOf(n) {
+				
+					parentOf[n] = current.tile
+					costQueue.Update(n, cost)				
+				
+				}
+					mutex.Unlock()
+			}(neighbor)		
+		}
+		wg.Wait()
+		//	fmt.Println("w8ed")
+		//	checkedQueue.AddTC(current)
+		//	costQueue.Remove(current.tile)
+	
+	}	
+	// ----testing----
+	
+	
+	//essential loop	it
+	/*	for len(costQueue) != 0 && !current.tile.door {
 
 		current = (&costQueue).Pop()
 		neighbors := getNeighbors(current.tile)
@@ -40,7 +87,7 @@ func getPath(m *[][]tile, from *tile) ([]*tile, bool) {
 		}
 		//	checkedQueue.AddTC(current)
 		//	costQueue.Remove(current.tile)
-	}
+	}*/
 	return compactPath(parentOf, from, current.tile)
 }
 
@@ -62,19 +109,19 @@ func stepCost(t tile) float32 {
 	return cost
 }
 
-func getNeighbors(current *tile) []*tile {
+func getNeighbors(current *tile, costQueue queue) []*tile {
 	neighbors := []*tile{}
 
-	if validTile(current.neighborNorth) {
+	if validTile(current.neighborNorth) && costQueue.inQueue(current.neighborNorth){
 		neighbors = append(neighbors, current.neighborNorth)
 	}
-	if validTile(current.neighborEast) {
+	if validTile(current.neighborEast) && costQueue.inQueue(current.neighborEast){
 		neighbors = append(neighbors, current.neighborEast)
 	}
-	if validTile(current.neighborWest) {
+	if validTile(current.neighborWest) && costQueue.inQueue(current.neighborWest){
 		neighbors = append(neighbors, current.neighborWest)
 	}
-	if validTile(current.neighborSouth) {
+	if validTile(current.neighborSouth) && costQueue.inQueue(current.neighborSouth){
 		neighbors = append(neighbors, current.neighborSouth)
 	}
 
@@ -95,9 +142,10 @@ func compactPath(parentOf map[*tile]*tile, from *tile, to *tile) ([]*tile, bool)
 
 	for current.xCoord != from.xCoord || current.yCoord != from.yCoord {
 		path = append([]*tile{parentOf[current]}, path...)
-
+		
 		ok := true
 		current, ok = parentOf[current]
+	
 		if !ok {
 			return nil, false
 		}
@@ -120,9 +168,9 @@ func mainPath() {
 
 	workingPath()
 	fmt.Println("--------------")
-	blockedPath()
+/*	blockedPath()
 	fmt.Println("--------------")
-	firePath()
+	firePath()*/
 	fmt.Println("--------------")
 	doorsPath()
 }

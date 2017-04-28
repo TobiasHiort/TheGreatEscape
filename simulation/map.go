@@ -316,7 +316,7 @@ func main() {
 		//	fmt.Print("\n")
 	}
 
-	//mainPath()
+	mainPath()
 //	MainPeople()
 
 }
