@@ -6,15 +6,4 @@ package main
 
 */
 
-func GameLoop() {
-	//newMap := MapInit(foo, bar)
-	//do all the Inits
-
-	//simulates 5000 steps
-	for i := 0; i < 5000; i++ {
-
-		//send update -> 
-	}
-}
-
-
+[][]int, peopleList []*Person, fireStartPos []int

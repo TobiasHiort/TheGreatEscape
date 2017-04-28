@@ -188,7 +188,7 @@ func printTileP(thisTile tile) {
 }
 
 
-func printTileMapP(inMap [][]tile) {
+func PrintTileMapP(inMap [][]tile) {
 	mapXSize := len(inMap)
 	mapYSize := len(inMap[0])
 
