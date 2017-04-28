@@ -371,9 +371,9 @@ func main() {
 	mainPath() */
 	//	MainPeople()
 
-//	testRedirect()
-	//testMutex()
-	testDiagonally()
+	//testRedirect()
+	testMutex()
+//	testDiagonally()
 }
 
 func testRedirect() {

@@ -114,9 +114,26 @@ func getNeighbors(current *tile, costQueue queue) []*tile {
 	if validTile(current.neighborSouth) && costQueue.inQueue(current.neighborSouth){
 		neighbors = append(neighbors, current.neighborSouth)
 	}
+	//
+	if validTile(current.neighborNW) && costQueue.inQueue(current.neighborNW){
+		neighbors = append(neighbors, current.neighborNW)
+	}
+	if validTile(current.neighborNE) && costQueue.inQueue(current.neighborNE){
+		neighbors = append(neighbors, current.neighborNE)
+	}
+	if validTile(current.neighborSE) && costQueue.inQueue(current.neighborSE){
+		neighbors = append(neighbors, current.neighborSE)
+	}
+	if validTile(current.neighborSW) && costQueue.inQueue(current.neighborSW){
+		neighbors = append(neighbors, current.neighborSW)
+	}
+	
+	//
 
 	return neighbors
 }
+
+
 
 func validTile(t *tile) bool {
 	if t == nil {
