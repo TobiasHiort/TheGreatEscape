@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"time"
+	"sync"
 )
 
 var step = float32(0)
@@ -120,15 +121,23 @@ func (p *Person) MovePerson(m *[][]tile) {
 }
 
 func MovePeople(m *[][]tile, ppl []*Person) {
+	var wg sync.WaitGroup
+
+	
 	for !CheckFinish(ppl) {
+		wg.Add(len(ppl))
 		print("\033[H\033[2J")
 		printTileMapP(*m)
 		fmt.Print("\n")
 		time.Sleep(1000 * time.Millisecond)
-		for _, p := range ppl {
-			p.MovePerson(m)
+		for _, pers := range ppl {			
+			go func(p *Person){
+				defer wg.Done()
+				p.MovePerson(m)
+			}(pers)
 		}
 		step++
+		wg.Wait()
 	}
 }
 

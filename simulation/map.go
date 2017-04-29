@@ -195,7 +195,6 @@ func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{
 	movement := make([]*tile, len(peopleArray))
 	var wg sync.WaitGroup
 
-
 	wg.Add(len(peopleArray))
 	for i, person := range peopleArray {
 		go func(currentPerson *Person, ind int) {
@@ -537,6 +536,6 @@ func testMovePeople() {
 	fmt.Println("P1 time:", peopleArray[0].time)
 	fmt.Println("P2 time:", peopleArray[1].time)
 	fmt.Println("P3 time:", peopleArray[2].time)	
-
+	// Note: it takes 1 timeunit to take a step from the door and away
 }
 
