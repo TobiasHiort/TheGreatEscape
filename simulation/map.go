@@ -2,6 +2,7 @@ package main
 
 import "fmt"
 import "sync"
+//import "time"
 
 const MINHEAT = 10
 const MEDIUMHEAT = 20
@@ -190,25 +191,47 @@ func Run(inMap [][]tile, peopleArray []*Person) {
 	}
 }
 
-func RunGo(inMap [][]tile, peopleArray []*Person) []*tile{
+func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{
 	movement := make([]*tile, len(peopleArray))
 	var wg sync.WaitGroup
+
+
 	wg.Add(len(peopleArray))
 	for i, person := range peopleArray {
 		go func(currentPerson *Person, ind int) {
 			defer wg.Done()
-			currentPerson.MovePerson(&inMap)		
+			if (!currentPerson.DiagonalStep()) {
+				fmt.Println("not diagonal move!")
+				currentPerson.MovePerson(inMap)}		
 			if currentPerson.IsWaiting() {			
 				movement[ind] = nil
 			} else {			
 				movement[ind] = currentPerson.path[len(currentPerson.path) - 1]}
 		}(person, i)
-		/*	fmt.Println(i, person.path[len(person.path) - 1])
-	if person.IsWaiting() {
-		movement[i] = nil
-	} else {movement[i] = person.path[len(person.path) - 1]} */
-}
+	}
+
 	wg.Wait()
+
+	//	print("\033[H\033[2J")
+	fmt.Print("\n")
+	printTileMapP(*inMap)
+	//	time.Sleep(1000 * time.Millisecond)
+
+	//	movement := make([]*tile, len(peopleArray))
+	//	var wg sync.WaitGroup
+
+	wg.Add(len(peopleArray))
+	for i, person := range peopleArray {
+		go func(currentPerson *Person, ind int) {
+			defer wg.Done()
+			currentPerson.MovePerson(inMap)			
+			if currentPerson.IsWaiting() {
+				movement[ind] = nil
+			} else {			
+				movement[ind] = currentPerson.path[len(currentPerson.path) - 1]}
+		}(person, i)
+	}	
+	
 	return movement
 }
 
@@ -329,7 +352,7 @@ func main() {
 	/*
 		var tile = GetTile (testmap, 2, 0)
 		printTile(*tile)
-		fmt.Print("/n")
+		fmt.Print("/n)
 /*
 		start1 := &testmap[1][0]
 		start2 := &testmap[1][2]
@@ -369,11 +392,13 @@ func main() {
 	}
 
 	mainPath() */
-	//	MainPeople()
+//		MainPeople()
 
 	//testRedirect()
-	testMutex()
+	//	testMutex()
+//	testDiag()
 //	testDiagonally()
+	testMovePeople()
 }
 
 func testRedirect() {
@@ -406,12 +431,42 @@ func testRedirect() {
 	}
 	for !CheckFinish(peopleArray) {
 		printTileMapP(testmap)
-		/*movement := */RunGo(testmap, peopleArray)
+		/*movement := */RunGo(&testmap, peopleArray)
 		fmt.Print("\n")
 		//	fmt.Println(movement)
 		//	fmt.Print("\n")
 	}
 }
+
+func testDiag() {
+	matrix := [][]int{
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2}}
+	testmap := TileConvert(matrix)
+
+	list := [][]int{
+		{0, 0},
+		{0, 6}}
+
+	peopleArray := PeopleInit (testmap, list)
+	for _, people := range peopleArray {
+		if people != nil {				
+		}
+	}
+	for !CheckFinish(peopleArray) {
+	//	print("\033[H\033[2J")
+		printTileMapP(testmap)
+		/*movement := */RunGo(&testmap, peopleArray)
+		fmt.Print("\n")
+	//	time.Sleep(1000 * time.Millisecond)
+		//	fmt.Println(movement)
+		//	fmt.Print("\n")
+	}
+}
+
+
 
 func testMutex() {
 	matrix := [][]int{
@@ -425,7 +480,9 @@ func testMutex() {
 	testmap := TileConvert(matrix)
 
 	list := [][]int{
-		{0,0}}
+		{0, 0},
+		{0, 6},
+		{2, 4}}
 
 	peopleArray := PeopleInit (testmap, list)
 	for _, people := range peopleArray {
@@ -433,9 +490,11 @@ func testMutex() {
 		}
 	}
 	for !CheckFinish(peopleArray) {
+	//	print("\033[H\033[2J")
 		printTileMapP(testmap)
-		/*movement := */RunGo(testmap, peopleArray)
+		/*movement := */RunGo(&testmap, peopleArray)
 		fmt.Print("\n")
+	//	time.Sleep(1000 * time.Millisecond)
 		//	fmt.Println(movement)
 		//	fmt.Print("\n")
 	}
@@ -453,5 +512,31 @@ func testDiagonally() {
 			printNeighbors(t)
 		}
 	}
+}
+
+func testMovePeople() {
+	matrix := [][]int{
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2}}
+	testmap := TileConvert(matrix)
+
+	list := [][]int{
+		{0, 0},
+		{0, 6},
+		{2, 4}}
+
+	peopleArray := PeopleInit (testmap, list)
+
+	MovePeople(&testmap, peopleArray)
+
+	fmt.Println("P1 time:", peopleArray[0].time)
+	fmt.Println("P2 time:", peopleArray[1].time)
+	fmt.Println("P3 time:", peopleArray[2].time)	
+
 }
 
