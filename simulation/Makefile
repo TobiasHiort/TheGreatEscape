@@ -1,5 +1,5 @@
 map: map.go
-	go build map.go people.go pathfinder.go queue.go
+	go build map.go people.go pathfinder.go queue.go print.go
 	./map
 
 test: map.go map_test.go

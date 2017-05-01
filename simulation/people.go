@@ -28,7 +28,7 @@ func makePerson(t *tile) *Person {
 }
 
 func (p *Person) updateStats() {
-	currentTile := p.path[len(p.path)-1]
+	currentTile := p.currentTile()
 	(p.path[len(p.path)-1]).occupied = p
 	if len(p.path) > 1 {
 		if p.path[len(p.path) - 2] != currentTile {p.path[len(p.path)-2].occupied = nil}
@@ -36,8 +36,7 @@ func (p *Person) updateStats() {
 	p.hp = p.hp - currentTile.getDamage()
 	if p.hp <= 0 {
 		p.kill()
-	}
-	
+	}	
 }
 
 func (t *tile) getDamage() float32 {
@@ -63,10 +62,10 @@ func (p *Person) followPlan() {
 	if len(p.plan) > 0 { // follow tha plan!		
 		if p.moveTo(p.plan[0]) {   // next step in plan is available -> move		
 			p.plan = p.plan[1:]
-			p.updateTime()   // vart i loopen..?
+			p.updateTime()  
 		} else {                   // next step in plan is occupied -> w8
 			p.wait()
-			p.updateTime()   // vart i loopen..?
+			p.updateTime()
 		}          
 	} else if p.path[len(p.path) - 1].door {   // standing at the exit -> leave
 		(p.path[len(p.path) - 1].occupied) = nil
@@ -115,19 +114,18 @@ func (p *Person) MovePerson(m *[][]tile) {
 		return
 	}
 	if p.time <= step {
-		p.updatePlan(m)  // OBS: osäker på vart if bör vara..
-		p.followPlan()		
+		p.updatePlan(m)
+		p.followPlan()	
 	}
 }
 
 func MovePeople(m *[][]tile, ppl []*Person) {
 	var wg sync.WaitGroup
-
 	
 	for !CheckFinish(ppl) {
 		wg.Add(len(ppl))
 		print("\033[H\033[2J")
-		printTileMapP(*m)
+		PrintTileMapP(*m)
 		fmt.Print("\n")
 		time.Sleep(1000 * time.Millisecond)
 		for _, pers := range ppl {			
@@ -138,6 +136,7 @@ func MovePeople(m *[][]tile, ppl []*Person) {
 		}
 		step++
 		wg.Wait()
+		FireSpread(*m)
 	}
 }
 
@@ -172,10 +171,6 @@ func Diagonal(t1, t2 *tile) bool {
 	if t1.neighborSW == t2 {return true}
 	return false
 }
-
-
-
-
 
 func MainPeople() {
 
@@ -217,42 +212,4 @@ func MainPeople() {
 	printPath(p1.path)
 	fmt.Println("p2")
 	printPath(p2.path)
-
-	/*
-	matrix := [][]int{
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{1, 2, 1, 1, 1, 1, 1},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 2, 0, 0, 0}}
-	testmap := TileConvert(matrix)
-
-	start1 := &testmap[1][0]
-	start2 := &testmap[1][2]
-	var p1 = *makePerson(start1)
-	var p2 = *makePerson(start2)
-
-	for !p1.safe && p1.alive || !p2.safe && p2.alive {
-		if !p1.safe {
-			fmt.Println("p1:", p1.path[len(p1.path)-1])
-			p1.MovePerson(&testmap)
-		}
-		if !p2.safe {
-			fmt.Println("p2:", p2.path[len(p2.path)-1])
-			p2.MovePerson(&testmap)
-		}
-		fmt.Println("- - - - - - -")
-	}
-	fmt.Println("p1:", p1.path[len(p1.path) - 1])
-	fmt.Println("p2:", p2.path[len(p2.path) - 1])
-
-	fmt.Println("- - - - - - -")
-	fmt.Println("- - - - - - -")
-
-	fmt.Println("p1")
-	printPath(p1.path)
-	fmt.Println("p2")
-	printPath(p2.path)*/	
 }

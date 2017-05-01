@@ -103,6 +103,29 @@ func stepCost(t tile) float32 {
 func getNeighbors(current *tile, costQueue queue) []*tile {
 	neighbors := []*tile{}
 
+	north := validTile(current.neighborNorth) && costQueue.inQueue(current.neighborNorth)
+	east := validTile(current.neighborEast) && costQueue.inQueue(current.neighborEast)
+	west := validTile(current.neighborWest) && costQueue.inQueue(current.neighborWest)
+	south := validTile(current.neighborSouth) && costQueue.inQueue(current.neighborSouth)
+
+	if north {
+		neighbors = append(neighbors, current.neighborNorth)
+		if west && validTile(current.neighborNW) && costQueue.inQueue(current.neighborNW) {
+			neighbors = append(neighbors, current.neighborNW)}
+		if east && validTile(current.neighborNE) && costQueue.inQueue(current.neighborNE){
+			neighbors = append(neighbors, current.neighborNE)}
+	}
+	if east {neighbors = append(neighbors, current.neighborEast)}
+	if west {neighbors = append(neighbors, current.neighborWest)}
+	if south {
+		neighbors = append(neighbors, current.neighborSouth)
+		if west && validTile(current.neighborSW) && costQueue.inQueue(current.neighborSW){
+			neighbors = append(neighbors, current.neighborSW)}
+		if east && validTile(current.neighborSE) && costQueue.inQueue(current.neighborSE){
+			neighbors = append(neighbors, current.neighborSE)}	
+	}
+	/*
+	
 	if validTile(current.neighborNorth) && costQueue.inQueue(current.neighborNorth){
 		neighbors = append(neighbors, current.neighborNorth)
 	}
@@ -128,7 +151,7 @@ func getNeighbors(current *tile, costQueue queue) []*tile {
 	if validTile(current.neighborSW) && costQueue.inQueue(current.neighborSW){
 		neighbors = append(neighbors, current.neighborSW)
 	}
-	
+	*/
 	//
 
 	return neighbors

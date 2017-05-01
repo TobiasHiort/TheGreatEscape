@@ -213,7 +213,7 @@ func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{
 
 	//	print("\033[H\033[2J")
 	fmt.Print("\n")
-	printTileMapP(*inMap)
+	PrintTileMapP(*inMap)
 	//	time.Sleep(1000 * time.Millisecond)
 
 	//	movement := make([]*tile, len(peopleArray))
@@ -234,34 +234,6 @@ func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{
 	return movement
 }
 
-func printTileP(thisTile tile) {
-	if thisTile.occupied != nil{
-		fmt.Print("X")
-	} else if thisTile.wall {
-		fmt.Print("1")
-	} else if thisTile.door {
-		fmt.Print("2")
-	} else if thisTile.outOfBounds {
-		fmt.Print("3")
-	} else {
-		fmt.Print("0")
-	}
-  
-}
-
-
-func printTileMapP(inMap [][]tile) {
-	mapXSize := len(inMap)
-	mapYSize := len(inMap[0])
-
-	for x:= 0; x < mapXSize; x++ {
-		for y:= 0; y < mapYSize; y++{
-			printTileP(inMap[x][y])
-		}
-		fmt.Print("\n")
-	}
-}
-
  func CheckFinish (peopleArray []*Person) bool {
  	for i := 0; i < len(peopleArray); i++ {
  		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {
@@ -270,72 +242,6 @@ func printTileMapP(inMap [][]tile) {
  	}
  	return true
  }
-
-func printTile(atile tile) {
-	fmt.Println(atile.xCoord, atile.yCoord)
-	fmt.Print("\n")
-}
-
-func printNeighbors(atile tile) {
-	if atile.neighborNorth != nil {
-		fmt.Print("North: ")
-		printTile(*(atile.neighborNorth))
-	//	fmt.Print("\n")
-	} else {
-		fmt.Print("North: nil\n")
-	}
-	if atile.neighborWest != nil {
-		fmt.Print("West: ")
-		printTile(*(atile.neighborWest))
-		//fmt.Print("\n")
-	} else {
-		fmt.Print("West: nil\n")
-	}
-	if atile.neighborEast != nil {
-		fmt.Print("East: ")
-		printTile(*(atile.neighborEast))
-		//fmt.Print("\n")
-	} else {
-		fmt.Print("East: nil\n")
-	}
-	if atile.neighborSouth != nil {
-		fmt.Print("South: ")
-		printTile(*(atile.neighborSouth))
-		//fmt.Print("\n")
-	} else {
-		fmt.Print("South: nil\n")
-	}
-	if atile.neighborNW != nil {
-		fmt.Print("NW: ")
-		printTile(*(atile.neighborNW))
-	//	fmt.Print("\n")
-	} else {
-		fmt.Print("NW: nil\n")
-	}
-	if atile.neighborNE != nil {
-		fmt.Print("NE: ")
-		printTile(*(atile.neighborNE))
-	//	fmt.Print("\n")
-	} else {
-		fmt.Print("NE: nil\n")
-	}
-	if atile.neighborSE != nil {
-		fmt.Print("SE: ")
-		printTile(*(atile.neighborSE))
-		//fmt.Print("\n")
-	} else {
-		fmt.Print("SE: nil\n")
-	}
-	if atile.neighborSW != nil {
-		fmt.Print("SW: ")
-		printTile(*(atile.neighborSW))
-		//fmt.Print("\n")
-	} else {
-		fmt.Print("SW: nil\n")
-	}
-	
-}
-
 
 func main() {
 /*
@@ -396,8 +302,8 @@ func main() {
 	//testRedirect()
 	//	testMutex()
 //	testDiag()
-//	testDiagonally()
-	testMovePeople()
+	testDiagonally()
+//	testMovePeople()
 }
 
 func testRedirect() {
@@ -429,7 +335,7 @@ func testRedirect() {
 		}
 	}
 	for !CheckFinish(peopleArray) {
-		printTileMapP(testmap)
+		PrintTileMapP(testmap)
 		/*movement := */RunGo(&testmap, peopleArray)
 		fmt.Print("\n")
 		//	fmt.Println(movement)
@@ -456,7 +362,7 @@ func testDiag() {
 	}
 	for !CheckFinish(peopleArray) {
 	//	print("\033[H\033[2J")
-		printTileMapP(testmap)
+		PrintTileMapP(testmap)
 		/*movement := */RunGo(&testmap, peopleArray)
 		fmt.Print("\n")
 	//	time.Sleep(1000 * time.Millisecond)
@@ -490,7 +396,7 @@ func testMutex() {
 	}
 	for !CheckFinish(peopleArray) {
 	//	print("\033[H\033[2J")
-		printTileMapP(testmap)
+		PrintTileMapP(testmap)
 		/*movement := */RunGo(&testmap, peopleArray)
 		fmt.Print("\n")
 	//	time.Sleep(1000 * time.Millisecond)
@@ -501,16 +407,31 @@ func testMutex() {
 
 func testDiagonally() {
 	matrix := [][]int{
-		{0,0,0},
-		{0,0,0},
-		{0,0,0}}
+		{0, 1, 0, 0, 0, 0, 0},
+		{0, 1, 0, 0, 0, 0, 0},
+		{0, 1, 0, 0, 0, 0, 0},
+		{0, 1, 0, 0, 0, 0, 0},
+		{0, 1, 0, 1, 0, 0, 0},
+		{0, 1, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 2}}
 	testmap := TileConvert(matrix)
 
-	for _, list := range testmap {
-		for _, t := range list {
-			printNeighbors(t)
-		}
-	}
+	list := [][]int{
+		{0, 0},
+		{0, 6},
+		{2, 4}}
+
+	peopleArray := PeopleInit (testmap, list)
+	SetFire(&testmap[1][2])
+	MovePeople(&testmap, peopleArray)
+
+	fmt.Println("P1 time:", peopleArray[0].time)
+	fmt.Println("P2 time:", peopleArray[1].time)
+	fmt.Println("P3 time:", peopleArray[2].time)	
+	// Note: it takes 1 timeunit to take a step from the door and away
+	fmt.Println("P1 health:", peopleArray[0].hp)
+	fmt.Println("P2 health:", peopleArray[1].hp)
+	fmt.Println("P3 health:", peopleArray[2].hp)	
 }
 
 func testMovePeople() {
