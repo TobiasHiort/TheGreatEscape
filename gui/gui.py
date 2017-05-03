@@ -23,7 +23,7 @@ from PIL import Image
 # init game
 pygame.init()
 
-print("splitPipeData: " + str(splitPipeData("abcdefg12345678")))
+#print("splitPipeData: " + str(splitPipeData("abcdefg12345678")))
 
 # set window icon and program name
 icon = pygame.image.load(os.path.join('gui', 'window_icon.png'))
@@ -49,6 +49,10 @@ pop_percent = 0.1 # init as this later?
 
 player_pos = [] # might use this as indicator to not populate instead of players_movement?
 players_movement = []
+
+
+#How much data is sent in each pipe
+byte_limit = 5
 
 # debugger var inits, not needed later
 active_map_path_tmp = None
@@ -179,7 +183,13 @@ while True:
                     child.stdout.flush()
                     child.stdin.flush()
                     print(getsizeof(json.dumps(mapMatrix.tolist())))
-                    print(json.dumps(mapMatrix.tolist()), file=child.stdin)
+                    #pipes length of pipe data
+                    print(makeItr(byte_limit, json.dumps(mapMatrix.tolist())), file=child.stdin)
+
+                    #wait for inpput from go
+                    #
+                    #the real deal pipe mother
+                    print(splitPipeData(byte_limit, json.dumps(mapMatrix.tolist())), file=child.stdin)
                     fromgo_json = child.stdout.readline().rstrip('\n')
 
                     print(getsizeof(fromgo_json))

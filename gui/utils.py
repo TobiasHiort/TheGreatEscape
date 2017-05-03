@@ -346,16 +346,41 @@ def populateMap(mapMatrix, pop_percent):
         player_count = len(floor_coords)
     return floor_coords, player_count
 
-def splitPipeData(str1):
-    if len(str1) < 2:
+def makeItr(byte_limit, str1):
+    itr = math.floor(len(str1) / byte_limit)
+    return itr
+
+def splitPipeData(byte_limit, str1):
+    """Description.    More...
+    """
+    #byte_limit = 5
+    if len(str1) < byte_limit:
         return str1
     else:
+        if math.floor(len(str1) % byte_limit) == 0:
+            #itr = math.floor(len(str1) / byte_limit)
+            itr = makeItr(byte_limit, str1)
+        else:
+            #itr = math.floor(len(str1) / byte_limit) + 1
+            itr = makeItr(byte_limit, str1)
         tmp_str = []
-        lolsiz = 2
-        hejidx = 0
-        for _ in range(math.floor(len(str1)/2)+1):
-            tmp_str.append(str1[hejidx:hejidx+lolsiz])
-            hejidx += lolsiz
+        idx = 0
+        for _ in range(itr):
+            tmp_str.append(str1[idx:idx+byte_limit])
+            idx += byte_limit
         return tmp_str
+
+   #return (50 + len(str) - 1)
+##def splitPipeData(str1):
+##    if len(str1) < 2:
+ ##       return str1
+  ##  else:
+   ##     tmp_str = []
+    ##    lolsiz = 2
+     ##   hejidx = 0
+      ##  for _ in range(math.floor(len(str1)/2)+1):
+       ##     tmp_str.append(str1[hejidx:hejidx+lolsiz])
+        ##    hejidx += lolsiz
+       ## return tmp_str
 
         #return (50 + len(str) - 1)

@@ -15,6 +15,7 @@ func main() {
 
     bio := bufio.NewReader(os.Stdin)
     line, _, _ := bio.ReadLine()
+//		arrsiz := bio.ReadLine()
 
     var p = [][]float32{}
 
