@@ -1,7 +1,8 @@
 package main
 
 import "fmt"
-	
+import "sync"
+//import "time"
 
 const MINHEAT = 10
 const MEDIUMHEAT = 20
@@ -26,6 +27,11 @@ type tile struct {
 	neighborEast  *tile
 	neighborSouth *tile
 	neighborWest  *tile
+
+	neighborNW *tile
+	neighborNE *tile
+	neighborSE *tile
+	neighborSW *tile
 }
 
 //Initializes the fire
@@ -84,13 +90,26 @@ func assignNeighbor(thisTile *tile, x int, y int, maxX int, maxY int, tileMap []
 	if y < maxY-1 {
 		thisTile.neighborEast = &tileMap[x][y+1]
 	}
+	
+	if x > 0 && y > 0 {
+		thisTile.neighborNW = &tileMap[x-1][y-1]
+	}	
+	if x > 0 && y < maxY-1 {
+		thisTile.neighborNE = &tileMap[x-1][y+1]
+	}	
+	if x < maxX-1 && y < maxY-1 {
+		thisTile.neighborSE = &tileMap[x+1][y+1]		
+	}
+	if x < maxX-1 && y > 0 {
+		thisTile.neighborSW = &tileMap[x+1][y-1]
+	}
 }
 
 func makeNewTile(thisPoint int, x int, y int) tile {
 
 	//makes a basic floor tile with no nothin on it
 	//and also no neighbors
-	newTile := tile{x, y, 0, 0, false, false, nil, 0, false, nil, nil, nil, nil}
+	newTile := tile{x, y, 0, 0, false, false, nil, 0, false, nil, nil, nil, nil, nil, nil, nil, nil}
 
 	if thisPoint == 0 {
 		//make normal floor
@@ -165,39 +184,72 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 }
 
 
-func Run(inMap [][]tile, peopleArray []*Person) {
-	// go run ruitnes for concurrency
+func Run(m *[][]tile, ppl []*Person) []Stats{
+	sList := []Stats{}
+
+	var wg sync.WaitGroup	
+
+	wg.Add(len(ppl))
+	for _, pers := range ppl {			
+		go func(p *Person){
+			defer wg.Done()
+			p.MovePerson(m)
+			sList = append(sList, p.getStats())
+		}(pers)
+	}
+	step++
+	wg.Wait()
+	FireSpread(*m)
+	//	}
+	
+	/*	// go run ruitnes for concurrency
 	for _, person := range peopleArray {
 		person.MovePerson(&inMap)
-	}
+	}*/
+	return sList
 }
 
-func printTileP(thisTile tile) {
-	if thisTile.occupied != nil{
-		fmt.Print("X")
-	} else if thisTile.wall {
-		fmt.Print("1")
-	} else if thisTile.door {
-		fmt.Print("2")
-	} else if thisTile.outOfBounds {
-		fmt.Print("3")
-	} else {
-		fmt.Print("0")
+func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{
+	movement := make([]*tile, len(peopleArray))
+	var wg sync.WaitGroup
+
+	wg.Add(len(peopleArray))
+	for i, person := range peopleArray {
+		go func(currentPerson *Person, ind int) {
+			defer wg.Done()
+			if (!currentPerson.DiagonalStep()) {
+				fmt.Println("not diagonal move!")
+				currentPerson.MovePerson(inMap)}		
+			if currentPerson.IsWaiting() {			
+				movement[ind] = nil
+			} else {			
+				movement[ind] = currentPerson.path[len(currentPerson.path) - 1]}
+		}(person, i)
 	}
-  
-}
 
+	wg.Wait()
 
-func printTileMapP(inMap [][]tile) {
-	mapXSize := len(inMap)
-	mapYSize := len(inMap[0])
+	//	print("\033[H\033[2J")
+	fmt.Print("\n")
+	PrintTileMapP(*inMap)
+	//	time.Sleep(1000 * time.Millisecond)
 
-	for x:= 0; x < mapXSize; x++ {
-		for y:= 0; y < mapYSize; y++{
-			printTileP(inMap[x][y])
-		}
-		fmt.Print("\n")
-	}
+	//	movement := make([]*tile, len(peopleArray))
+	//	var wg sync.WaitGroup
+
+	wg.Add(len(peopleArray))
+	for i, person := range peopleArray {
+		go func(currentPerson *Person, ind int) {
+			defer wg.Done()
+			currentPerson.MovePerson(inMap)			
+			if currentPerson.IsWaiting() {
+				movement[ind] = nil
+			} else {			
+				movement[ind] = currentPerson.path[len(currentPerson.path) - 1]}
+		}(person, i)
+	}	
+	
+	return movement
 }
 
  func CheckFinish (peopleArray []*Person) bool {
@@ -208,101 +260,140 @@ func printTileMapP(inMap [][]tile) {
  	}
  	return true
  }
-/*
-func printNeighbors(atile tile) {
-	if atile.neighborNorth != nil {
-		fmt.Print("North: ")
-		printTile(*(atile.neighborNorth))
-		fmt.Print("\n")
-	} else {
-		fmt.Print("North: nil\n")
-	}
-	if atile.neighborWest != nil {
-		fmt.Print("West: ")
-		printTile(*(atile.neighborWest))
-		fmt.Print("\n")
-	} else {
-		fmt.Print("West: nil\n")
-	}
-	if atile.neighborEast != nil {
-		fmt.Print("East: ")
-		printTile(*(atile.neighborEast))
-		fmt.Print("\n")
-	} else {
-		fmt.Print("East: nil\n")
-	}
-	if atile.neighborSouth != nil {
-		fmt.Print("South: ")
-		printTile(*(atile.neighborSouth))
-		fmt.Print("\n")
-	} else {
-		fmt.Print("South: nil\n")
-	}
-}
-*/
 
 func main() {
-
-	matrix := [][]int{
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{1, 0, 1, 1, 1, 1, 1},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 2, 0, 0, 0}}
-	testmap := TileConvert(matrix)
-	/*
-		var tile = GetTile (testmap, 2, 0)
-		printTile(*tile)
-		fmt.Print("/n")
-/*
-		start1 := &testmap[1][0]
-		start2 := &testmap[1][2]
-		start3 := &testmap[0][1]
-		start4 := &testmap[3][4]
-		start5 := &testmap[2][0]
-		start6 := &testmap[5][5]
-/*
-		var p1 = *makePerson(start1)
-		var p2 = *makePerson(start2)
-		var p3 = *makePerson(start1)
-		var p4 = *makePerson(start2)
-		var p5 = *makePerson(start1)
-		var p6 = *makePerson(start2)
-*/
-		/*
-		list := make([][]int, 0)
-		list.append([1][2])
-		list.append([0][2])
-		list.append([2][3])*/
-		list := [][]int{
-			{1, 2},
-			{0, 2},
-			{3, 0}}
-
-		 peopleArray := PeopleInit (testmap, list)
-	for _, people := range peopleArray {
-		if people != nil {
-			fmt.Print("True")
-			fmt.Print("\n")
-		}
-	}
-
-	printTileMapP(testmap)
-	Run(testmap, peopleArray)
-	fmt.Print("\n")
-	printTileMapP(testmap)
-	
-	if CheckFinish (peopleArray) == false {
-		fmt.Print("false")
-		fmt.Print("\n")
-	}
-
-
-
-	//mainPath()
-	//MainPeople()
-
+//	mainPath() 
+//	MainPeople()
+//      testRedirect()
+//	testDiagPpl()
+//	testDiag()
+//	testDiagonally()
+	testMovePeople()
 }
 
+func testRedirect() {
+	matrix := [][]int{
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{1, 0, 1, 1, 1, 0, 1},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 2, 0, 0, 0, 0}}
+
+	list := [][]int{
+		{1, 1},
+		{1, 2},
+		{0, 2},
+		{0, 0},
+		{2, 1},
+		{3, 1},
+		{0, 3},
+		{0, 1},
+		{1, 0},
+		{1, 3}}
+
+	tryThis(matrix, list, -1, -1)
+}
+
+func testDiag() {
+	matrix := [][]int{
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2}}
+
+	list := [][]int{
+		{0, 0},
+		{0, 6}}
+	tryThis(matrix, list, -1, -1)
+}
+
+
+
+func testDiagPpl() {
+	matrix := [][]int{
+		{0, 0, 1, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2}}
+
+	list := [][]int{
+		{0, 0},
+		{0, 1},
+		{1, 0},
+		{0, 6},
+		{2, 4}}
+
+	tryThis(matrix, list, -1, -1)
+}
+
+func testDiagonally() {
+	matrix := [][]int{
+		{0, 1, 0, 0, 0, 0, 0},
+		{0, 1, 0, 0, 0, 0, 0},
+		{0, 1, 0, 0, 0, 0, 0},
+		{0, 1, 0, 0, 0, 0, 0},
+		{0, 1, 0, 1, 0, 0, 0},
+		{0, 1, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 2}}
+
+	list := [][]int{
+		{0, 0},
+		{0, 6},
+		{2, 4}}
+
+	tryThis(matrix, list, 1, 2)	
+}
+
+func testMovePeople() {
+	matrix := [][]int{
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2}}
+
+	list := [][]int{
+		{0, 0},
+		{0, 6},		
+		{2, 4}}
+
+	tryThis(matrix, list, -1, -1)
+	// Note: it takes 1 timeunit to take a step from the door and away
+}
+
+func tryThis(matrix [][]int, ppl [][]int, x, y int) {
+	testmap := TileConvert(matrix)
+	pplArray := PeopleInit(testmap, ppl)
+
+	if x >= 0 && y >= 0 {SetFire(&testmap[x][y])}
+	MovePeople(&testmap, pplArray)
+
+	for i, p := range pplArray {
+		fmt.Println("Person", i, "time:  ", p.time, "\n         health:", p.hp)
+	}
+}
+/*
+func testLargeMap() {
+	matrix := [][]int{}
+
+	xS := 1000000
+	yS := 1000000
+
+	for x := 0; x < xS; x++ {
+		row := []int{}
+		for y := 0; y < yS; y++ {
+			row = append(row, 0)
+		}		
+		matrix = append(matrix, row)
+	}
+	testmap := TileConvert(matrix)
+
+	pplArray := PeopleInit(testmap, [][]int{{0,0}})
+}*/

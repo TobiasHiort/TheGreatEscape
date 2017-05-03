@@ -2,7 +2,12 @@ package main
 
 import (
 	"fmt"
+	"math"
+	"time"
+	"sync"
 )
+
+var step = float32(0)
 
 type Person struct {
 	alive bool
@@ -10,6 +15,17 @@ type Person struct {
 	hp    float32
 	path  []*tile
 	plan  []*tile
+	time float32
+}
+
+type Stats struct {
+	x int
+	y int
+	hp float32
+}
+
+func (p *Person)getStats() Stats {
+	return Stats{p.currentTile().xCoord, p.currentTile().yCoord, p.hp}
 }
 
 func makePerson(t *tile) *Person {
@@ -22,15 +38,15 @@ func makePerson(t *tile) *Person {
 }
 
 func (p *Person) updateStats() {
-	currentTile := p.path[len((p.path))-1]
+	currentTile := p.currentTile()
 	(p.path[len(p.path)-1]).occupied = p
 	if len(p.path) > 1 {
-		p.path[len(p.path)-2].occupied = nil
+		if p.path[len(p.path) - 2] != currentTile {p.path[len(p.path)-2].occupied = nil}
 	}
 	p.hp = p.hp - currentTile.getDamage()
 	if p.hp <= 0 {
 		p.kill()
-	}
+	}	
 }
 
 func (t *tile) getDamage() float32 {
@@ -52,24 +68,38 @@ func (p *Person) moveTo(t *tile) bool {
 }
 
 func (p *Person) followPlan() {
-	if len(p.plan) > 0 {
-		if p.moveTo(p.plan[0]) {
+	if p.path[len(p.path) - 1] == nil { return} // TODO updatestats
+	if len(p.plan) > 0 { // follow tha plan!		
+		if p.moveTo(p.plan[0]) {   // next step in plan is available -> move		
 			p.plan = p.plan[1:]
-		} else {p.wait()}
-	} else if p.path[len(p.path) - 1].door {
+			p.updateTime()  
+		} else {                   // next step in plan is occupied -> w8
+			p.wait()
+			p.updateTime()
+		}          
+	} else if p.path[len(p.path) - 1].door {   // standing at the exit -> leave
 		(p.path[len(p.path) - 1].occupied) = nil
 		p.path = append(p.path, nil)  // replace with safezone?
+		p.updateTime()
 		p.save()
 	} else {
 		fmt.Println("you're screwed!")
 		p.kill()
 		// TODO: no valid path! panic behavior? lay down and w8 for death?
+		// idea: don't update last plan-path, follow it despite fire etc?
 	}
 }
 
 func (p *Person)wait() {
 	p.path = append(p.path, p.path[len(p.path) - 1])
 	p.updateStats()	
+}
+
+func (p *Person)IsWaiting() bool{
+	if p == nil {return false}
+	if len(p.path) <= 1 {
+		return false
+	} else {return p.path[len(p.path) - 1] == p.path[len(p.path) - 2]}
 }
 
 func (p *Person) kill() {
@@ -89,31 +119,86 @@ func (p *Person) updatePlan(m *[][]tile) {
 }
 
 func (p *Person) MovePerson(m *[][]tile) {
+	if p == nil {return}
 	if p.safe || !p.alive {
 		return
 	}
-	p.updatePlan(m)
-	p.followPlan()
+	if p.time <= step {
+		p.updatePlan(m)
+		p.followPlan()	
+	}
+}
+
+func MovePeople(m *[][]tile, ppl []*Person) {
+	var wg sync.WaitGroup
+	
+	for !CheckFinish(ppl) {
+		wg.Add(len(ppl))
+		print("\033[H\033[2J")
+		PrintTileMapP(*m)
+		fmt.Print("\n")
+		time.Sleep(1000 * time.Millisecond)
+		for _, pers := range ppl {			
+			go func(p *Person){
+				defer wg.Done()
+				p.MovePerson(m)
+			}(pers)
+		}
+		step++
+		wg.Wait()
+		FireSpread(*m)
+	}
+}
+
+func (p *Person)currentTile() *tile{
+	if len(p.path) == 0 {return nil}
+	return p.path[len(p.path) - 1]
+}
+
+func (p *Person)updateTime() {
+	if p.wasDiag() {//p.DiagonalStep() {
+		p.time += float32(math.Sqrt(2))	
+	} else {p.time += 1}
+}
+
+func (p *Person)DiagonalStep() bool{    // Is the next step a diagonal one?
+	if p == nil {return false}
+	if len(p.plan) < 1 {return false}
+	return Diagonal (p.path[len(p.path) - 1], p.plan[0])
+}
+
+func (p *Person)wasDiag() bool{ // was the last step a diagonal one?
+	if len(p.path) < 2 {return false}
+	return Diagonal(p.path[len(p.path) - 1], p.path[len(p.path) - 2])
+}
+
+func Diagonal(t1, t2 *tile) bool {
+	if t1 == nil {return false}
+	if t2 == nil {return false}
+	if t1.neighborNW == t2 {return true}
+	if t1.neighborNE == t2 {return true}
+	if t1.neighborSE == t2 {return true}
+	if t1.neighborSW == t2 {return true}
+	return false
 }
 
 func MainPeople() {
 
 	matrix := [][]int{
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{1, 0, 1, 1, 1, 1, 1},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 2, 0, 0, 0}}
+		{0,0,0,0},
+		{0,0,0,0},
+		{0,0,0,0},
+		{0,0,2,0}}
 	testmap := TileConvert(matrix)
-
-	start1 := &testmap[1][0]
-	start2 := &testmap[1][2]
+	
+	start1 := &testmap[0][1]
+	start2 := &testmap[2][0]
+	start3 := &testmap[1][3]
 	var p1 = *makePerson(start1)
 	var p2 = *makePerson(start2)
+	var p3 = *makePerson(start3)
 
-	for !p1.safe && p1.alive || !p2.safe && p2.alive {
+	for !p1.safe || !p2.safe || !p3.alive  {
 		if !p1.safe {
 			fmt.Println("p1:", p1.path[len(p1.path)-1])
 			p1.MovePerson(&testmap)
@@ -122,16 +207,19 @@ func MainPeople() {
 			fmt.Println("p2:", p2.path[len(p2.path)-1])
 			p2.MovePerson(&testmap)
 		}
+		if !p3.safe {
+			fmt.Println("p3:", p3.path[len(p3.path)-1])
+			p3.MovePerson(&testmap)
+		}
+		
 		fmt.Println("- - - - - - -")
 	}
 	fmt.Println("p1:", p1.path[len(p1.path) - 1])
 	fmt.Println("p2:", p2.path[len(p2.path) - 1])
-
 	fmt.Println("- - - - - - -")
 	fmt.Println("- - - - - - -")
-
 	fmt.Println("p1")
 	printPath(p1.path)
 	fmt.Println("p2")
-	printPath(p2.path)	
+	printPath(p2.path)
 }
