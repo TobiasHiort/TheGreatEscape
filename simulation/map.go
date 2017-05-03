@@ -1,12 +1,8 @@
 package main
 
 import "fmt"
-<<<<<<< HEAD
 import "sync"
 //import "time"
-=======
-
->>>>>>> 124d7ef3a9e4af118c752e2b651df4389fe83499
 
 const MINHEAT = 10
 const MEDIUMHEAT = 20
@@ -213,7 +209,7 @@ func Run(m *[][]tile, ppl []*Person) []Stats{
 	return sList
 }
 
-func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{
+func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{   // OBS: not working
 	movement := make([]*tile, len(peopleArray))
 	var wg sync.WaitGroup
 
@@ -230,35 +226,6 @@ func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{
 				movement[ind] = currentPerson.path[len(currentPerson.path) - 1]}
 		}(person, i)
 	}
-<<<<<<< HEAD
-=======
-
-}
->>>>>>> 124d7ef3a9e4af118c752e2b651df4389fe83499
-
-	wg.Wait()
-
-<<<<<<< HEAD
-	//	print("\033[H\033[2J")
-	fmt.Print("\n")
-	PrintTileMapP(*inMap)
-	//	time.Sleep(1000 * time.Millisecond)
-
-	//	movement := make([]*tile, len(peopleArray))
-	//	var wg sync.WaitGroup
-
-	wg.Add(len(peopleArray))
-	for i, person := range peopleArray {
-		go func(currentPerson *Person, ind int) {
-			defer wg.Done()
-			currentPerson.MovePerson(inMap)			
-			if currentPerson.IsWaiting() {
-				movement[ind] = nil
-			} else {			
-				movement[ind] = currentPerson.path[len(currentPerson.path) - 1]}
-		}(person, i)
-	}	
-	
 	return movement
 }
 
@@ -389,43 +356,3 @@ func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 		fmt.Println("Person", i, "time:  ", p.time, "\n         health:", p.hp)
 	}
 }
-/*
-func testLargeMap() {
-	matrix := [][]int{}
-
-	xS := 1000000
-	yS := 1000000
-
-	for x := 0; x < xS; x++ {
-		row := []int{}
-		for y := 0; y < yS; y++ {
-			row = append(row, 0)
-		}		
-		matrix = append(matrix, row)
-	}
-	testmap := TileConvert(matrix)
-
-	pplArray := PeopleInit(testmap, [][]int{{0,0}})
-}*/
-=======
-func PrintTileMapP(inMap [][]tile) {
-	mapXSize := len(inMap)
-	mapYSize := len(inMap[0])
-
-	for x:= 0; x < mapXSize; x++ {
-		for y:= 0; y < mapYSize; y++{
-			printTileP(inMap[x][y])
-		}
-		fmt.Print("\n")
-	}
-}
-
- func CheckFinish (peopleArray []*Person) bool {
-	for i := 0; i < len(peopleArray); i++ {
-		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {
-			return false
-		}
-	}
-	return true
- }
->>>>>>> 124d7ef3a9e4af118c752e2b651df4389fe83499
