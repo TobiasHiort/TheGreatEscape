@@ -13,3 +13,13 @@ tests: queue.go queue_test.go map.go pathfinder.go pathfinder_test.go
 
 clear:
 	rm map
+
+people:
+	go build people.go
+
+all: map 
+	go build gameMaster.go
+
+gameMaster: clock.go gameMaster.go map.go
+	go build clock.go gameMaster.go map.go
+

@@ -1,8 +1,12 @@
 package main
 
 import "fmt"
+<<<<<<< HEAD
 import "sync"
 //import "time"
+=======
+
+>>>>>>> 124d7ef3a9e4af118c752e2b651df4389fe83499
 
 const MINHEAT = 10
 const MEDIUMHEAT = 20
@@ -226,9 +230,15 @@ func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{
 				movement[ind] = currentPerson.path[len(currentPerson.path) - 1]}
 		}(person, i)
 	}
+<<<<<<< HEAD
+=======
+
+}
+>>>>>>> 124d7ef3a9e4af118c752e2b651df4389fe83499
 
 	wg.Wait()
 
+<<<<<<< HEAD
 	//	print("\033[H\033[2J")
 	fmt.Print("\n")
 	PrintTileMapP(*inMap)
@@ -397,3 +407,25 @@ func testLargeMap() {
 
 	pplArray := PeopleInit(testmap, [][]int{{0,0}})
 }*/
+=======
+func PrintTileMapP(inMap [][]tile) {
+	mapXSize := len(inMap)
+	mapYSize := len(inMap[0])
+
+	for x:= 0; x < mapXSize; x++ {
+		for y:= 0; y < mapYSize; y++{
+			printTileP(inMap[x][y])
+		}
+		fmt.Print("\n")
+	}
+}
+
+ func CheckFinish (peopleArray []*Person) bool {
+	for i := 0; i < len(peopleArray); i++ {
+		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {
+			return false
+		}
+	}
+	return true
+ }
+>>>>>>> 124d7ef3a9e4af118c752e2b651df4389fe83499

@@ -1,5 +1,8 @@
+
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+
+from tkinter import *
 
 # remove some of these?
 import pygame
@@ -8,13 +11,15 @@ import os
 import numpy
 import math
 import time
-import tkinter as tk # replace
+#import tkinter as tk # replace
 import subprocess
 import doctest # read from txt, read docs
 import random
+from sys import getsizeof
 
 from pygame.locals import *
-from tkinter import filedialog # remove?
+
+
 from PIL import Image
 #from pygame import gfxdraw # use later, AA
 
@@ -131,6 +136,40 @@ def drawPlayer(playerSurface, player_pos, tilesize, mapheight, mapwidth, player_
                               math.floor((tilesize/2)*player_scale)) # round()?
     return playerSurface
 
+def drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth):
+    """Description.
+
+    More...
+    """
+    fireSurface.fill(COLOR_KEY) # remove last frame
+
+    # for formula
+    t = tilesize
+    sh = 713 # map surface height
+    sw = 907 # map surface width
+    p = PADDING_MAP
+    h = mapheight
+    w = mapwidth
+
+    # create the map with draw.rect on mapSurface
+    for idx in range(len(fire_pos)):
+            if fire_pos[idx][2] == 1:
+                pygame.draw.rect(fireSurface, COLOR_YELLOW,
+                                 (math.floor(0.5 * (sw - w * t + 2 * t * fire_pos[idx][0])),
+                                    math.floor((sh - p)/2 - (h * t)/2 + t * fire_pos[idx][1]),
+                                 tilesize, tilesize))
+            if fire_pos[idx][2] == 2:
+                pygame.draw.rect(fireSurface, COLOR_RED_PNG,
+                                 (math.floor(0.5 * (sw - w * t + 2 * t * fire_pos[idx][0])),
+                                    math.floor((sh - p)/2 - (h * t)/2 + t * fire_pos[idx][1]),
+                                 tilesize, tilesize))
+            if fire_pos[idx][2] == 3:
+                pygame.draw.rect(fireSurface, COLOR_RED,
+                                 (math.floor(0.5 * (sw - w * t + 2 * t * fire_pos[idx][0])),
+                                    math.floor((sh - p)/2 - (h * t)/2 + t * fire_pos[idx][1]),
+                                 tilesize, tilesize))
+    return fireSurface
+
 def placeText(surface, text, font, size, color, x, y):
     """Description.
 
@@ -166,7 +205,7 @@ def timeToString(seconds_input):
         minutes = "0" + str(mmss[0])
     else:
         minutes = str(mmss[0])
-    
+
     if mmss[1] < 10:
         seconds = "0" + str(mmss[1])
     else:
@@ -230,9 +269,10 @@ def fileDialogPath():
     More...
     """
     file_opt = {}
-    root = tk.Tk()
+    root = Tk()
+    #root.update()
     root.withdraw()
-    file_path = filedialog.askopenfilename(**file_opt)
+    file_path = tkFileDialog.askopenfilename(**file_opt)
     filename_pos = file_path.rfind('/')+1 # position for filename
     active_map_path_tmp = file_path[filename_pos:]
     return active_map_path_tmp
@@ -301,10 +341,10 @@ def populateMap(mapMatrix, pop_percent):
                 counter += 1
 
     pop_remove = round(counter - (pop_percent * counter)) # how many to remove from floor_coords
-    
+
     #print("counter: " + str(counter))
     #print("pop_remove: " + str(pop_remove))
-    
+
     random.seed() # remove '5' later, using same seed rn. () = system clock
     # delete pop_remove number of players
     for _ in range(pop_remove):
@@ -314,3 +354,20 @@ def populateMap(mapMatrix, pop_percent):
         counter -= 1
         player_count = len(floor_coords)
     return floor_coords, player_count
+<<<<<<< HEAD
+=======
+
+def splitPipeData(str1):
+    if len(str1) < 2:
+        return str1
+    else:
+        tmp_str = []
+        lolsiz = 2
+        hejidx = 0
+        for _ in range(math.floor(len(str1)/2)+1):
+            tmp_str.append(str1[hejidx:hejidx+lolsiz])
+            hejidx += lolsiz
+        return tmp_str
+
+        #return (50 + len(str) - 1)
+>>>>>>> 124d7ef3a9e4af118c752e2b651df4389fe83499
