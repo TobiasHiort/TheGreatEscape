@@ -25,6 +25,8 @@ type Stats struct {
 }
 
 func (p *Person)getStats() Stats {
+	if p == nil {return Stats{}}
+	if p.currentTile() == nil {return Stats{-1, -1, p.hp}}
 	return Stats{p.currentTile().xCoord, p.currentTile().yCoord, p.hp}
 }
 

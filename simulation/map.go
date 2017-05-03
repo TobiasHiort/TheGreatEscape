@@ -245,7 +245,9 @@ func main() {
 //	testDiagPpl()
 //	testDiag()
 //	testDiagonally()
-	testMovePeople()
+	//testMovePeople()
+
+	GLoop()
 }
 
 func testRedirect() {
