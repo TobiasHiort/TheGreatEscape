@@ -184,11 +184,29 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 }
 
 
-func Run(inMap [][]tile, peopleArray []*Person) {
-	// go run ruitnes for concurrency
+func Run(m *[][]tile, ppl []*Person) []Stats{
+	sList := []Stats{}
+
+	var wg sync.WaitGroup	
+
+	wg.Add(len(ppl))
+	for _, pers := range ppl {			
+		go func(p *Person){
+			defer wg.Done()
+			p.MovePerson(m)
+			sList = append(sList, p.getStats())
+		}(pers)
+	}
+	step++
+	wg.Wait()
+	FireSpread(*m)
+	//	}
+	
+	/*	// go run ruitnes for concurrency
 	for _, person := range peopleArray {
 		person.MovePerson(&inMap)
-	}
+	}*/
+	return sList
 }
 
 func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{
@@ -244,66 +262,13 @@ func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{
  }
 
 func main() {
-/*
-	matrix := [][]int{
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{1, 0, 1, 1, 1, 1, 1},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 2, 0, 0, 0}}
-	testmap := TileConvert(matrix) */
-	/*
-		var tile = GetTile (testmap, 2, 0)
-		printTile(*tile)
-		fmt.Print("/n)
-/*
-		start1 := &testmap[1][0]
-		start2 := &testmap[1][2]
-		start3 := &testmap[0][1]
-		start4 := &testmap[3][4]
-		start5 := &testmap[2][0]
-		start6 := &testmap[5][5]
-/*
-		var p1 = *makePerson(start1)
-		var p2 = *makePerson(start2)
-		var p3 = *makePerson(start1)
-		var p4 = *makePerson(start2)
-		var p5 = *makePerson(start1)
-		var p6 = *makePerson(start2)
-*/
-		/*
-		list := make([][]int, 0)
-		list.append([1][2])
-		list.append([0][2])
-		list.append([2][3])*/
-/*		list := [][]int{
-			{1, 2},
-			{0, 2},
-			{3, 0}}
-
-		 peopleArray := PeopleInit (testmap, list)
-	for _, people := range peopleArray {
-		if people != nil {				
-		}
-	}
-	for !CheckFinish(peopleArray) {
-		printTileMapP(testmap)
-		/*movement := */ //RunGo(testmap, peopleArray)
-	/*	fmt.Print("\n")
-	//	fmt.Println(movement)
-		//	fmt.Print("\n")
-	}
-
-	mainPath() */
-//		MainPeople()
-
-	//testRedirect()
-	//	testMutex()
+//	mainPath() 
+//	MainPeople()
+//      testRedirect()
+//	testDiagPpl()
 //	testDiag()
-	testDiagonally()
-//	testMovePeople()
+//	testDiagonally()
+	testMovePeople()
 }
 
 func testRedirect() {
@@ -315,7 +280,6 @@ func testRedirect() {
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 2, 0, 0, 0, 0}}
-	testmap := TileConvert(matrix)
 
 	list := [][]int{
 		{1, 1},
@@ -329,18 +293,7 @@ func testRedirect() {
 		{1, 0},
 		{1, 3}}
 
-	peopleArray := PeopleInit (testmap, list)
-	for _, people := range peopleArray {
-		if people != nil {				
-		}
-	}
-	for !CheckFinish(peopleArray) {
-		PrintTileMapP(testmap)
-		/*movement := */RunGo(&testmap, peopleArray)
-		fmt.Print("\n")
-		//	fmt.Println(movement)
-		//	fmt.Print("\n")
-	}
+	tryThis(matrix, list, -1, -1)
 }
 
 func testDiag() {
@@ -349,60 +302,33 @@ func testDiag() {
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 2}}
-	testmap := TileConvert(matrix)
 
 	list := [][]int{
 		{0, 0},
 		{0, 6}}
-
-	peopleArray := PeopleInit (testmap, list)
-	for _, people := range peopleArray {
-		if people != nil {				
-		}
-	}
-	for !CheckFinish(peopleArray) {
-	//	print("\033[H\033[2J")
-		PrintTileMapP(testmap)
-		/*movement := */RunGo(&testmap, peopleArray)
-		fmt.Print("\n")
-	//	time.Sleep(1000 * time.Millisecond)
-		//	fmt.Println(movement)
-		//	fmt.Print("\n")
-	}
+	tryThis(matrix, list, -1, -1)
 }
 
 
 
-func testMutex() {
+func testDiagPpl() {
 	matrix := [][]int{
+		{0, 0, 1, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 2}}
-	testmap := TileConvert(matrix)
 
 	list := [][]int{
 		{0, 0},
+		{0, 1},
+		{1, 0},
 		{0, 6},
 		{2, 4}}
 
-	peopleArray := PeopleInit (testmap, list)
-	for _, people := range peopleArray {
-		if people != nil {				
-		}
-	}
-	for !CheckFinish(peopleArray) {
-	//	print("\033[H\033[2J")
-		PrintTileMapP(testmap)
-		/*movement := */RunGo(&testmap, peopleArray)
-		fmt.Print("\n")
-	//	time.Sleep(1000 * time.Millisecond)
-		//	fmt.Println(movement)
-		//	fmt.Print("\n")
-	}
+	tryThis(matrix, list, -1, -1)
 }
 
 func testDiagonally() {
@@ -414,24 +340,13 @@ func testDiagonally() {
 		{0, 1, 0, 1, 0, 0, 0},
 		{0, 1, 0, 1, 0, 0, 0},
 		{0, 0, 0, 1, 0, 0, 2}}
-	testmap := TileConvert(matrix)
 
 	list := [][]int{
 		{0, 0},
 		{0, 6},
 		{2, 4}}
 
-	peopleArray := PeopleInit (testmap, list)
-	SetFire(&testmap[1][2])
-	MovePeople(&testmap, peopleArray)
-
-	fmt.Println("P1 time:", peopleArray[0].time)
-	fmt.Println("P2 time:", peopleArray[1].time)
-	fmt.Println("P3 time:", peopleArray[2].time)	
-	// Note: it takes 1 timeunit to take a step from the door and away
-	fmt.Println("P1 health:", peopleArray[0].hp)
-	fmt.Println("P2 health:", peopleArray[1].hp)
-	fmt.Println("P3 health:", peopleArray[2].hp)	
+	tryThis(matrix, list, 1, 2)	
 }
 
 func testMovePeople() {
@@ -443,20 +358,42 @@ func testMovePeople() {
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 2}}
-	testmap := TileConvert(matrix)
 
 	list := [][]int{
 		{0, 0},
-		{0, 6},
+		{0, 6},		
 		{2, 4}}
 
-	peopleArray := PeopleInit (testmap, list)
-
-	MovePeople(&testmap, peopleArray)
-
-	fmt.Println("P1 time:", peopleArray[0].time)
-	fmt.Println("P2 time:", peopleArray[1].time)
-	fmt.Println("P3 time:", peopleArray[2].time)	
+	tryThis(matrix, list, -1, -1)
 	// Note: it takes 1 timeunit to take a step from the door and away
 }
 
+func tryThis(matrix [][]int, ppl [][]int, x, y int) {
+	testmap := TileConvert(matrix)
+	pplArray := PeopleInit(testmap, ppl)
+
+	if x >= 0 && y >= 0 {SetFire(&testmap[x][y])}
+	MovePeople(&testmap, pplArray)
+
+	for i, p := range pplArray {
+		fmt.Println("Person", i, "time:  ", p.time, "\n         health:", p.hp)
+	}
+}
+/*
+func testLargeMap() {
+	matrix := [][]int{}
+
+	xS := 1000000
+	yS := 1000000
+
+	for x := 0; x < xS; x++ {
+		row := []int{}
+		for y := 0; y < yS; y++ {
+			row = append(row, 0)
+		}		
+		matrix = append(matrix, row)
+	}
+	testmap := TileConvert(matrix)
+
+	pplArray := PeopleInit(testmap, [][]int{{0,0}})
+}*/

@@ -90,8 +90,8 @@ func TestUpdate(t *testing.T) {
 	}
 
 	for _, tc := range testQ {
-		if tc.cost != newVal {
-			t.Errorf("Expected cost: %f, but got cost: %f", newVal, tc.cost)
+		if *tc.cost != newVal {
+			t.Errorf("Expected cost: %f, but got cost: %f", newVal, *tc.cost)
 		}
 		//jenny kan inte organisera paranteser korrekt.... time wasted
 
@@ -104,8 +104,8 @@ func TestUpdate(t *testing.T) {
 		t.Errorf("Expected len: %d, but got len: %d, update changed length of queue", size, testQ.Len())
 	}
 	for _, tc := range testQ {
-		if tc.cost != newVal {
-			t.Errorf("Expected cost: %f, but got cost: %f", newVal, tc.cost)
+		if *tc.cost != newVal {
+			t.Errorf("Expected cost: %f, but got cost: %f", newVal, *tc.cost)
 		}
 		//ghaaaa writing tests are boring....
 	}
@@ -117,12 +117,12 @@ func TestPop(t *testing.T) {
 	testQ := *makeTestQueue(size)
 	// pops all elements and then some
 	for i := 0; i < size*2; i++ {
-		current := testQ.Pop()
+		current := testQ.Pop()	
 		if i < size {
-			if current.cost != float32(i) { // checks that popped tile has correct value
+			if *current.cost != float32(i) { // checks that popped tile has correct value
 				t.Errorf("Expected cost: %d but got cost: %d", i, current.cost)
 			}
-		} else if current.cost != 0 { // checks that popped tile is 'nil', zero cost
+		} else if current.cost != nil && *current.cost != 0 { // checks that popped tile is 'nil', zero cost
 			t.Errorf("Expected cost: %d but got cost: %d", 0, current.cost)
 		}
 	}

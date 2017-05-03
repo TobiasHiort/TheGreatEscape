@@ -4,6 +4,7 @@ import (
 	"math"
 	"testing"
 	"fmt"
+	"sync"
 )
 
 func TestWorkingPath(t *testing.T) {
@@ -17,9 +18,9 @@ func TestWorkingPath(t *testing.T) {
 	path, ok := getPath(&testmap, &testmap[0][0])
 
 	if !ok {t.Errorf("Expected a valid path")}
-	if len(path) != 9 {t.Errorf("Expected pathlength: 9, but got pathlength: %d", len(path))}
+	if len(path) != 8 {t.Errorf("Expected pathlength: 8, but got pathlength: %d", len(path))}
 	if *path[0] != testmap[0][0] {t.Errorf("Expected starttile: %d, but got starttile: %d", testmap[0][0], path[0])}
-	if *path[8] != testmap[0][2] {t.Errorf("Expected lasttile: %d, but got lasttile: %d", testmap[0][2], path[8])}
+	if *path[7] != testmap[0][2] {t.Errorf("Expected lasttile: %d, but got lasttile: %d", testmap[0][2], path[7])}
 }
 
 func TestBlockedPath(t *testing.T) {
@@ -52,9 +53,9 @@ func TestFirePath(t *testing.T) {
 
 	path, ok := getPath(&testmap, &testmap[0][3])
 	if !ok {t.Errorf("Expected a valid path")}
-	if len(path) != 9 {t.Errorf("Expected pathlength: 9, but got pathlength: %d", len(path))}
+	if len(path) != 7 {t.Errorf("Expected pathlength: 7, but got pathlength: %d", len(path))}
 	if *path[0] != testmap[0][3] {t.Errorf("Expected starttile: %d, but got starttile: %d", testmap[0][3], path[0])}
-	if *path[8] != testmap[6][3] {t.Errorf("Expected lasttile: %d, but got lasttile: %d", testmap[6][3], path[8])}
+	if *path[6] != testmap[6][3] {t.Errorf("Expected lasttile: %d, but got lasttile: %d", testmap[6][3], path[6])}
 }
 
 func TestDoorsPath(t *testing.T) {
@@ -71,9 +72,9 @@ func TestDoorsPath(t *testing.T) {
 
 	path, ok := getPath(&testmap, &testmap[0][0])
 	if !ok {t.Errorf("Expected a valid path")}
-	if len(path) != 15 {t.Errorf("Expected pathlength: 15, but got pathlength: %d", len(path))}
+	if len(path) != 13 {t.Errorf("Expected pathlength: 13, but got pathlength: %d", len(path))}
 	if *path[0] != testmap[0][0] {t.Errorf("Expected starttile: %d, but got starttile: %d", testmap[0][0], path[0])}
-	if *path[14] != testmap[6][0] {t.Errorf("Expected lasttile: %d, but got lasttile: %d", testmap[6][0], path[8])}	
+	if *path[12] != testmap[6][0] {t.Errorf("Expected lasttile: %d, but got lasttile: %d", testmap[6][0], path[12])}	
 }
 
 
@@ -113,7 +114,8 @@ func mapToQueue(m [][]tile) queue{
 	q := queue{}
 	for i, list := range m {
 		for j, _ := range list {
-			q = append(q, tileCost{&m[i][j], 0})
+			v := float32(0)
+			q = append(q, tileCost{&m[i][j], &v})
 		}
 	}
 	return q
@@ -150,8 +152,8 @@ func TestGetNeighbors(t *testing.T) {
 					t.Errorf("Expected 2 neigbors, but got %d neighbors", len(neighbors))
 				}
 			} else if (i == 5 || i == 6) && j > 0 && j < 6 {
-				if len(neighbors) != 4 {
-					t.Errorf("Expected 4 neigbors, but got %d neighbors", len(neighbors))
+				if len(neighbors) != 8 {
+					t.Errorf("Expected 8 neigbors, but got %d neighbors", len(neighbors))
 				}
 			}
 		}
@@ -217,4 +219,117 @@ func TestCompactPath(t *testing.T) {
 			}
 		}		
 	}
+}
+
+/*
+func TestTime(t *testing.T) {
+	q := queue{}
+
+	size := 10000
+
+	matrix := [][]int{
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{0,0,0,0,2}}
+	testmap := TileConvert(matrix)
+
+	for i := 0; i < size; i++ {
+		q.Add()
+	}
+
+}*/
+
+
+/* 1000000*1000000tiles:
+
+=== RUN   TestLargeMap
+signal: killed
+FAIL	command-line-arguments	255.629s
+Makefile:12: recipe for target 'tests' failed
+make: *** [tests] Error 1
+
+*/
+
+
+/* 1000*1000tiles:
+
+*** Test killed with quit: ran too long (10m0s).
+FAIL	command-line-arguments	600.006s
+Makefile:12: recipe for target 'tests' failed
+make: *** [tests] Error 1
+
+*/
+
+// 100*100tiles: 5.810s
+
+func TestTwo(t *testing.T) {
+	matrix := [][]int{}
+	xS := 200
+	yS := 200
+
+	for x := 0; x < xS; x++ {
+		row := []int{}
+		for y := 0; y < yS; y++ {
+			row = append(row, 0)
+		}		
+		matrix = append(matrix, row)
+	}
+	matrix[xS - 1][yS - 1] = 2
+	testmap := TileConvert(matrix)
+
+	ok1 := false
+	ok2 := false
+	var wg sync.WaitGroup
+	wg.Add(4)
+	go func() {
+		defer wg.Done()
+		_, ok1 = getPath(&testmap, &testmap[0][0])}()
+	go func() {
+		defer wg.Done()
+		_, ok2 = getPath(&testmap, &testmap[1][1])}()
+	go func() {
+		defer wg.Done()
+		_, ok2 = getPath(&testmap, &testmap[1][1])}()
+	go func() {
+		defer wg.Done()
+		_, ok2 = getPath(&testmap, &testmap[1][1])}()
+	go func() {
+		defer wg.Done()
+		_, ok2 = getPath(&testmap, &testmap[1][1])}()
+	wg.Wait()
+	
+	if !ok1 {t.Errorf("Expected a valid path, but got a invalid one")}
+	if !ok2 {t.Errorf("Expected a valid path, but got a invalid one")}
+	
+	/*	ppl := &testmap[0][0], &testmap[1][1]
+	for pers := range ppl {
+		go func(p *Tile) {
+			getPath(&testmap, p)	
+		}(pers)
+	}*/
+//	_, ok := getPath(&testmap, &testmap[0][0])
+
+//	if !ok {t.Errorf("Expected a valid path, buut got a invalid one")}	
+}
+
+func TestLargeMap(t *testing.T) {
+	matrix := [][]int{}
+	xS := 100
+	yS := 100
+
+	for x := 0; x < xS; x++ {
+		row := []int{}
+		for y := 0; y < yS; y++ {
+			row = append(row, 0)
+		}		
+		matrix = append(matrix, row)
+	}
+	matrix[xS - 1][yS - 1] = 2
+	testmap := TileConvert(matrix)
+	_, ok := getPath(&testmap, &testmap[0][0])
+
+	if !ok {t.Errorf("Expected a valid path, buut got a invalid one")}
 }

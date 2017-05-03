@@ -18,6 +18,16 @@ type Person struct {
 	time float32
 }
 
+type Stats struct {
+	x int
+	y int
+	hp float32
+}
+
+func (p *Person)getStats() Stats {
+	return Stats{p.currentTile().xCoord, p.currentTile().yCoord, p.hp}
+}
+
 func makePerson(t *tile) *Person {
 	var person = Person{}
 	person.alive = true
