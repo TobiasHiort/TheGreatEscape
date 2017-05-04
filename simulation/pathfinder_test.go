@@ -4,9 +4,9 @@ import (
 	"math"
 	"testing"
 	"fmt"
-	"sync"
+//	"sync"
 )
-
+/*
 func TestWorkingPath(t *testing.T) {
 	matrix := [][]int{
 		{0, 1, 2, 0},
@@ -77,7 +77,7 @@ func TestDoorsPath(t *testing.T) {
 	if *path[12] != testmap[6][0] {t.Errorf("Expected lasttile: %d, but got lasttile: %d", testmap[6][0], path[12])}	
 }
 
-
+*/
 
 /*
 func TestGetPath(t *testing.T) {
@@ -255,11 +255,11 @@ func makeTestMap(xSize, ySize int) [][]tile{
 		
 	return TileConvert(testMatrix)
 }
-
+/*
 func TestTwo(t *testing.T) {
 	matrix := [][]int{}
-	xS := 200
-	yS := 200
+	xS := 10
+	yS := 10
 
 	for x := 0; x < xS; x++ {
 		row := []int{}
@@ -274,42 +274,26 @@ func TestTwo(t *testing.T) {
 	ok1 := false
 	ok2 := false
 	var wg sync.WaitGroup
-	wg.Add(4)
+	wg.Add(2)
 	go func() {
 		defer wg.Done()
 		_, ok1 = getPath(&testmap, &testmap[0][0])}()
 	go func() {
 		defer wg.Done()
 		_, ok2 = getPath(&testmap, &testmap[1][1])}()
-	go func() {
-		defer wg.Done()
-		_, ok2 = getPath(&testmap, &testmap[1][1])}()
-	go func() {
-		defer wg.Done()
-		_, ok2 = getPath(&testmap, &testmap[1][1])}()
-	go func() {
-		defer wg.Done()
-		_, ok2 = getPath(&testmap, &testmap[1][1])}()
-	wg.Wait()
-	
+
 	if !ok1 {t.Errorf("Expected a valid path, but got a invalid one")}
 	if !ok2 {t.Errorf("Expected a valid path, but got a invalid one")}
-	
-	/*	ppl := &testmap[0][0], &testmap[1][1]
-	for pers := range ppl {
-		go func(p *Tile) {
-			getPath(&testmap, p)	
-		}(pers)
-	}*/
+
 //	_, ok := getPath(&testmap, &testmap[0][0])
 
 //	if !ok {t.Errorf("Expected a valid path, buut got a invalid one")}	
-}
+} */
 
 func TestLargeMap(t *testing.T) {
 	matrix := [][]int{}
-	xS := 100
-	yS := 100
+	xS := 200
+	yS := 200
 
 	for x := 0; x < xS; x++ {
 		row := []int{}
@@ -322,5 +306,53 @@ func TestLargeMap(t *testing.T) {
 	testmap := TileConvert(matrix)
 	_, ok := getPath(&testmap, &testmap[0][0])
 
-	if !ok {t.Errorf("Expected a valid path, buut got a invalid one")}
+	if !ok {t.Errorf("Expected a valid path, but got a invalid one")}
+} 
+
+func inNbrs(nbrs []*tile, t *tile) bool{
+	for _, n := range nbrs {
+		if *n == *t {return true}
+	}
+	return false
 }
+/*
+
+func TestGetNeighborsPruned(t *testing.T) {
+	matrix := [][]int{
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{0,0,0,0,2}}
+	testmap := TileConvert(matrix)
+
+
+	nbrs := []*tile{}
+	
+	nbrs  = getNeighborsPruned(&testmap[1][1], Direction{0,1})
+//	fmt.Println(nbrs[0])
+	if !inNbrs(nbrs, &testmap[0][1]) {t.Errorf("whoopsie")}
+
+	nbrs = getNeighborsPruned(&testmap[1][1], Direction{0,-1})
+//	fmt.Println(nbrs[0])
+	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
+
+	
+	nbrs = getNeighborsPruned(&testmap[1][1], Direction{1,0})
+//	fmt.Println(nbrs[0])
+	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
+
+	nbrs = getNeighborsPruned(&testmap[1][1], Direction{-1,0})
+	fmt.Println(nbrs[0])
+	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
+	
+	nbrs = getNeighborsPruned(&testmap[1][1], Direction{0,-1})
+	fmt.Println(nbrs[0])
+	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
+	
+	nbrs = getNeighborsPruned(&testmap[1][1], Direction{0,-1})
+	fmt.Println(nbrs[0])
+	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
+}
+*/

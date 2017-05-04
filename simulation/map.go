@@ -245,9 +245,9 @@ func main() {
 //	testDiagPpl()
 //	testDiag()
 //	testDiagonally()
-	//testMovePeople()
+	testMovePeople()
 
-	GLoop()
+//	GLoop()
 }
 
 func testRedirect() {
@@ -331,17 +331,17 @@ func testDiagonally() {
 func testMovePeople() {
 	matrix := [][]int{
 		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 1, 0, 0, 0, 0},
+		{1, 0, 1, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 2}}
 
 	list := [][]int{
-		{0, 0},
-		{0, 6},		
-		{2, 4}}
+		{0, 0}}
+	//	{0, 6},		
+	//	{2, 4}}
 
 	tryThis(matrix, list, -1, -1)
 	// Note: it takes 1 timeunit to take a step from the door and away

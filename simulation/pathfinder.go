@@ -6,6 +6,11 @@ import (
 	"sync"
 )
 
+type Direction struct {
+	xDir int   //-1,0,1
+	yDir int   //-1,0,1
+}
+
 func getPath(m *[][]tile, from *tile) ([]*tile, bool) {
 
 	// map to keep track of the final path
@@ -27,14 +32,20 @@ func getPath(m *[][]tile, from *tile) ([]*tile, bool) {
 
 	v := float32(0)
 	current := tileCost{&tile{}, &v}
-
+	currentDir := Direction{1,1}
+	
 	for len(costQueue) != 0 && !current.tile.door {
+	//	fmt.Println("----")
 		current = (&costQueue).Pop()
-		neighbors := getNeighbors(current.tile, costQueue)
+		currentDir = getDir(parentOf[current.tile], current.tile)  // for reference!
+	//	fmt.Println(currentDir)
+		//neighbors := getNeighbors(current.tile, costQueue)
+		neighbors := getNeighborsPruned(current.tile, currentDir)
 		var wg sync.WaitGroup
 		wg.Add(len(neighbors))
 		var mutex = &sync.Mutex{}
-		for _, neighbor := range neighbors {		
+		for _, neighbor := range neighbors {
+		//	fmt.Println(neighbor)
 			go func(n *tile) {			
 				defer wg.Done()			
 				cost := *current.cost + stepCost(*n)
@@ -74,6 +85,123 @@ func stepCost(t tile) float32 {
 	}
 	return cost
 }
+
+
+/*
+func getJumpPoint(m *[][]tile, current *tile, dir Direction, from *tile, to *tile) *tile {
+	//from+to onödig(?)
+	nextX := current.xCoord + dir.xDir
+	nextY := current.yCoord + dir.yDir
+	nextTile := GetTile(m, nextX, nextY)
+
+	if nextTile == nil {return nil}
+	
+	if nextTile.door {return nextTile}
+
+	//	if 
+}*/
+
+func getNeighborsPruned(current *tile, dir Direction) []*tile{
+	neighbors := []*tile{}
+
+	north := validTile(current.neighborNorth) 
+	east := validTile(current.neighborEast)
+	west := validTile(current.neighborWest)
+	south := validTile(current.neighborSouth)   // replace !?
+	
+	if dir.yDir == 0 {  // horisontal/vertical? hur vare med coordsen..
+		if dir.xDir == -1 {  // går rakt uppåt
+			if north {
+				neighbors = append(neighbors, current.neighborNorth)
+				//	if !west {neighbors = append(neighbors, current.neighborNW )}
+				//	if !east {neighbors = append(neighbors, current.neighborNE )}
+			
+			}
+			if !validTile(current.neighborSW) && west {
+				neighbors = append(neighbors, current.neighborWest)
+				if north && validTile(current.neighborNW) {neighbors = append(neighbors, current.neighborNW)}
+			}
+			if !validTile(current.neighborSE) && east {
+				neighbors = append(neighbors, current.neighborEast)
+				if north && validTile(current.neighborNE) {neighbors = append(neighbors, current.neighborNE)}
+			}
+			
+		} else { // går rakt neråt
+			if validTile(current.neighborSouth) {
+				neighbors = append(neighbors, current.neighborSouth)
+				//	if !validTile(current.neighborWest) {neighbors = append(neighbors, current.neighborSW )}
+				//	if !validTile(current.neighborEast) {neighbors = append(neighbors, current.neighborSE )}				
+			}
+			if !validTile(current.neighborNW) && west {
+				neighbors = append(neighbors, current.neighborWest)
+				if south && validTile(current.neighborSW) {neighbors = append(neighbors, current.neighborSW)}	
+			}
+			if !validTile(current.neighborNE) && east {
+				neighbors = append(neighbors, current.neighborEast)
+				if south && validTile(current.neighborSE) {neighbors = append(neighbors, current.neighborSE)}
+			}  // done so far!			
+		}		
+	} else if dir.yDir == 1 { 
+		if dir.xDir == 1 { // går SE
+			if validTile(current.neighborEast) {
+				neighbors = append(neighbors, current.neighborEast)			
+			}
+			if validTile(current.neighborSouth) {
+				neighbors = append(neighbors, current.neighborSouth)
+			//	if !validTile(current.neighborNW) && validTile(current.neighborNW) {
+			//		neighbors = append(neighbors, current.neighborNW)}
+			}
+			if east && south && validTile(current.neighborSE) {neighbors = append(neighbors, current.neighborSE)}
+
+			
+		} else if dir.xDir == -1 { // går NE    
+			if east {neighbors = append(neighbors, current.neighborEast)}
+			if east && north && validTile(current.neighborSE) {neighbors = append(neighbors, current.neighborNE)}
+			if north {
+				neighbors = append(neighbors, current.neighborNorth)
+				//	if !west && validTile(current.neighborSW) {neighbors = append(neighbors, current.neighborSW)}
+			}
+			
+		} else {  // ydir = 0,  går höger   //fixed!
+			if east {
+				neighbors = append(neighbors, current.neighborEast)
+			}
+			if !validTile(current.neighborNW) && north {
+				neighbors = append(neighbors, current.neighborNorth)
+				if east && validTile(current.neighborNE) {neighbors = append(neighbors, current.neighborNE)}
+			}
+			if !validTile(current.neighborSW) && south {
+				neighbors = append(neighbors, current.neighborSouth)
+				if east && validTile(current.neighborSE) {neighbors = append(neighbors, current.neighborSE)}
+			}
+		}
+
+	} else { //xdir = -1
+		if dir.xDir == 1 { // går NW
+			if west {neighbors = append(neighbors, current.neighborWest)}
+			if north {neighbors = append(neighbors, current.neighborNorth)}
+			if west && north && validTile(current.neighborNW) {neighbors = append(neighbors, current.neighborNW)}	
+		} else if dir.xDir == -1 { // går SW
+			if west {neighbors = append(neighbors, current.neighborWest)}
+			if south {neighbors = append(neighbors, current.neighborSouth)}
+			if west && south && validTile(current.neighborSW) {neighbors = append(neighbors, current.neighborSW)}
+		} else {  // ydir = 0,  går vänster
+			if west {neighbors = append(neighbors, current.neighborWest)}
+			if !validTile(current.neighborNE) && north {
+				neighbors = append(neighbors, current.neighborNorth)
+				if west && validTile(current.neighborNW) {neighbors = append(neighbors, current.neighborNW)}
+			}
+			if !validTile(current.neighborSE) && south {
+				neighbors = append(neighbors, current.neighborSouth)
+				if west && validTile(current.neighborSW) {neighbors = append(neighbors, current.neighborSW)}
+			}
+			
+		}
+	}
+
+	return neighbors
+}
+
 
 func getNeighbors(current *tile, costQueue queue) []*tile {
 	neighbors := []*tile{}
@@ -272,4 +400,24 @@ func doorsPath() {
 	path, _ := getPath(&testmap, &testmap[0][0])
 	fmt.Println("\nDoors path:")
 	printPath(path)
+}
+
+
+
+// new funcs
+
+func getDir(from *tile, to *tile) Direction{
+	if from == nil{ 
+//		fmt.Println("nil!")
+		//fmt.Println(to.xCoord, to.yCoord)
+		//fmt.Println(from.xCoord, from.yCoord)
+		return Direction{1,1}}
+//	fmt.Println(from.xCoord, from.yCoord)
+//	fmt.Println(to.xCoord, to.yCoord)
+//	fmt.Println("not nil!")
+	return Direction {to.xCoord - from.xCoord, to.yCoord - from.yCoord}
+}
+
+func getJumpPoint() {
+
 }
