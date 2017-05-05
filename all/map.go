@@ -184,17 +184,18 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 }
 
 
-func Run(m *[][]tile, ppl []*Person) []Stats{
-	sList := []Stats{}
+func Run(m *[][]tile, ppl []*Person, statsList[][] int) {
+	//sList := []Stats{}
 
 	var wg sync.WaitGroup	
 
 	wg.Add(len(ppl))
-	for _, pers := range ppl {			
+	for i, pers := range ppl {			
 		go func(p *Person){
 			defer wg.Done()
 			p.MovePerson(m)
-			sList = append(sList, p.getStats())
+      p.getStats(statsList[i]) 
+      //sList = append(sList, p.getStats())
 		}(pers)
 	}
 	step++
@@ -206,7 +207,7 @@ func Run(m *[][]tile, ppl []*Person) []Stats{
 	for _, person := range peopleArray {
 		person.MovePerson(&inMap)
 	}*/
-	return sList
+	//return sList
 }
 
 func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{   // OBS: not working
