@@ -418,6 +418,14 @@ func getDir(from *tile, to *tile) Direction{
 	return Direction {to.xCoord - from.xCoord, to.yCoord - from.yCoord}
 }
 
-func getJumpPoint() {
-
+func getJumpPoint(current *tile, dir Direction) *tile{
+	if current.door {return current}
+	if dir.xDir == 0 {
+		if dir.yDir == 1 { // höger
+			if validTile(current.neighborEast) {
+				return getJumpPoint(current.neighborEast, dir)
+			} else {return current}
+		}
+	}
+	return nil
 }
