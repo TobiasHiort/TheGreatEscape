@@ -17,7 +17,7 @@ from subprocess import Popen, PIPE
 from utils import *
 from pygame.locals import *
 from PIL import Image
-#from pygame import gfxdraw # use later, AA
+from pygame import gfxdraw # use later, AA
 
 # file dialog init
 app = wx.App()
@@ -142,7 +142,7 @@ while True:
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
-        # user event (time)
+        # time events
         elif event.type == TIMER1000: # just specific for clock animation, 10*100ms below instead?
             counter_seconds += 1
         elif event.type == TIMER10:
@@ -404,9 +404,6 @@ while True:
             displaySurface.blit(mapSurface, (0, 55)) # empty here
         # chosen map
         else:
-
-
-
             if current_frame == 0:
                 if counter_seconds % 2 == 0: # even
                     rmenuSurface.blit(TIMER_BACKGROUND, (2, 245))

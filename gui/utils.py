@@ -11,13 +11,14 @@ import time
 import subprocess
 import doctest # read from txt, read docs
 import random
+
 from sys import getsizeof
 
 from pygame.locals import *
 
 
 from PIL import Image
-#from pygame import gfxdraw # use later, AA
+from pygame import gfxdraw # use later, AA
 
 #doctest.testfile("unit_tests.txt") # doctest
 
@@ -46,7 +47,7 @@ COLOR_GREY2 = (145, 145, 145) # darker, org: 221
 colors = {
                 0 : COLOR_WHITE,        # floor
                 1 : COLOR_BLACK,        # wall
-                2 : COLOR_WHITE,        # door
+                2 : COLOR_BLUE,        # door
                 3 : COLOR_BACKGROUND    # out of bounds
           }
 
@@ -83,7 +84,8 @@ def buildMap(path, mapSurface):
                 mapMatrix[row][column] = 2 # expand for more than floor and wall...
             elif mapRGBA[column, row] == COLOR_KEY + (255,): # warning: mapRGBA has [column, row]. RGBA
                 mapMatrix[row][column] = 3
-                # expand for more than floor and wall...
+            else:
+                raise ValueError('Invalid RGB value(s) in map: ' + '(x: ' + str(column+1) + ', y: ' + str(row+1) + '), ' + 'wrong RGBA: ' +  str(mapRGBA[column, row]))
 
     # for formula
     t = tilesize
@@ -113,19 +115,27 @@ def calcScaling(PADDING_MAP, tilesize, mapheight, mapwidth):
     radius_scale = math.floor(tilesize/2)
     return coord_x, coord_y, radius_scale
 
+# create drawPlayer2 for this AA solution. Only for playerSurface (circles). createSurface biggest change!
 def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale):
     """Description.
 
     More...
     """
-    playerSurface.fill(COLOR_KEY) # remove last frame
+    playerSurface.fill((0, 0, 0, 0), None, BLEND_RGBA_MULT) # remove last frame. Also black magic for AA gfxdraw blitting of players.
 
     for player in range(len(player_pos)):
         # black magic
-        pygame.draw.circle(playerSurface, COLOR_GREEN,
-                              (coord_x + tilesize * player_pos[player][0],
-                               coord_y + tilesize * player_pos[player][1]),
-                           math.floor(radius_scale*player_scale)) # round()?
+        pygame.gfxdraw.aacircle(playerSurface,
+                              coord_x + tilesize * player_pos[player][0],
+                               coord_y + tilesize * player_pos[player][1],
+                           math.floor(radius_scale*player_scale), COLOR_GREEN) # round()?
+
+        pygame.gfxdraw.filled_circle(playerSurface,
+                              coord_x + tilesize * player_pos[player][0],
+                               coord_y + tilesize * player_pos[player][1],
+                           math.floor(radius_scale*player_scale), COLOR_GREEN) # round()?
+        
+
     return playerSurface
 
 def drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth):
@@ -285,8 +295,8 @@ def createSurface(x, y):
 
     More...
     """
-    surface = pygame.Surface((x, y))
-    surface = surface.convert()
+    surface = pygame.Surface((x, y), SRCALPHA)
+    surface = surface.convert_alpha()
     surface.fill(COLOR_KEY) # COLOR_BACKGROUND?
     surface.set_colorkey(COLOR_KEY)
     return surface
