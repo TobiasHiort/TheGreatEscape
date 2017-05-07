@@ -21,11 +21,15 @@ type Person struct {
 type Stats struct {
 	x int
 	y int
-	hp float32
+//	hp float32
 }
 
-func (p *Person)getStats() Stats {
-	return Stats{p.currentTile().xCoord, p.currentTile().yCoord, p.hp}
+func (p *Person)getStats() []int {
+	//if p == nil || p.currentTile() == nil {return Stats{}}
+	//if len(p.path) < 1 {return []int{0,0}}
+//	return Stats{p.path[len(p.path) - 1].xCoord, p.path[len(p.path) - 1].yCoord}
+//	return []int{p.currentTile().xCoord, p.currentTile().yCoord}//, p.hp}
+	return []int{p.currentTile().yCoord, p.currentTile().xCoord}//, p.hp}
 }
 
 func makePerson(t *tile) *Person {
@@ -108,6 +112,7 @@ func (p *Person) kill() {
 
 func (p *Person) save() {
 	p.safe = true
+	p.path[len(p.path) - 1] = &tile{}
 	// TODO: maybe p.movetosafezone?
 }
 
@@ -124,7 +129,8 @@ func (p *Person) MovePerson(m *[][]tile) {
 		return
 	}
 	if p.time <= step {
-		if p.plan[0].occupied != nil || !validTile(p.plan[0]) {p.updatePlan(m)}
+		//if p.plan[0].occupied != nil || !validTile(p.plan[0]) {p.updatePlan(m)}
+		p.updatePlan(m)
 		p.followPlan()	
 	}
 }

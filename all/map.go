@@ -184,8 +184,29 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 }
 
 
-func Run(m *[][]tile, ppl []*Person) []Stats{
-	sList := []Stats{}
+func RunSimple(m *[][]tile, ppl []*Person) [][]int{
+	sList := [][]int{} //[]Stats{}
+
+	for _, pers := range ppl {			
+		pers.MovePerson(m)		
+		sList = append(sList, pers.getStats())
+	}
+
+	step++
+	FireSpread(*m)
+	//	}
+	
+	/*	// go run ruitnes for concurrency
+	for _, person := range peopleArray {
+		person.MovePerson(&inMap)
+	}*/
+//	fmt.Println(sList)
+	return sList
+}
+
+
+func Run(m *[][]tile, ppl []*Person) [][]int{
+	sList := [][]int{} //[]Stats{}
 
 	var wg sync.WaitGroup	
 
@@ -193,7 +214,7 @@ func Run(m *[][]tile, ppl []*Person) []Stats{
 	for _, pers := range ppl {			
 		go func(p *Person){
 			defer wg.Done()
-			p.MovePerson(m)
+			p.MovePerson(m)		
 			sList = append(sList, p.getStats())
 		}(pers)
 	}
@@ -206,6 +227,7 @@ func Run(m *[][]tile, ppl []*Person) []Stats{
 	for _, person := range peopleArray {
 		person.MovePerson(&inMap)
 	}*/
+//	fmt.Println(sList)
 	return sList
 }
 
@@ -238,7 +260,7 @@ func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{   // OBS: not workin
  	return true
  }
 
-func main() {
+func mainMap() {
 //	mainPath() 
 //	MainPeople()
 //      testRedirect()

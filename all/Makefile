@@ -9,7 +9,7 @@ path: map.go queue.go pathfinder.go
 	go run map.go queue.go pathfinder.go
 
 tests: queue.go queue_test.go map.go pathfinder.go pathfinder_test.go
-	go test -v queue.go pathfinder.go map.go people.go print.go queue_test.go pathfinder_test.go
+	go test -v queue.go pathfinder.go map.go people.go print.go queue_test.go pathfinder_test.go people_test.go
 
 clear:
 	rm map

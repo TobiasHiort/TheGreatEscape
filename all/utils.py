@@ -130,7 +130,7 @@ def drawPlayer(playerSurface, player_pos, tilesize, mapheight, mapwidth, player_
 
     for player in range(len(player_pos)):
         # black magic
-        pygame.draw.circle(playerSurface, COLOR_GREEN_test[player],
+        pygame.draw.circle(playerSurface, COLOR_GREEN,
                               ((math.floor(0.5 * (sw - w * t)) + math.floor(t / 2) + t * player_pos[player][0]),
                                   math.floor(0.5 * (-h * t + sh - p)) + math.floor(t / 2) + t * player_pos[player][1]),
                               math.floor((tilesize/2)*player_scale)) # round()?
@@ -354,8 +354,8 @@ def populateMap(mapMatrix, pop_percent):
         counter -= 1
         player_count = len(floor_coords)
     return floor_coords, player_count
-<<<<<<< HEAD
-=======
+
+
 
 def splitPipeData(str1):
     if len(str1) < 2:
@@ -370,4 +370,4 @@ def splitPipeData(str1):
         return tmp_str
 
         #return (50 + len(str) - 1)
->>>>>>> 124d7ef3a9e4af118c752e2b651df4389fe83499
+
