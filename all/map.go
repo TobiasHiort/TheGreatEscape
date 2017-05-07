@@ -183,40 +183,21 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 	return peopleArray
 }
 
-
-func RunSimple(m *[][]tile, ppl []*Person) [][]int{
-	sList := [][]int{} //[]Stats{}
-
-	for _, pers := range ppl {			
-		pers.MovePerson(m)		
-		sList = append(sList, pers.getStats())
-	}
-
-	step++
-	FireSpread(*m)
-	//	}
-	
-	/*	// go run ruitnes for concurrency
-	for _, person := range peopleArray {
-		person.MovePerson(&inMap)
-	}*/
-//	fmt.Println(sList)
-	return sList
-}
-
-
-func Run(m *[][]tile, ppl []*Person) [][]int{
-	sList := [][]int{} //[]Stats{}
+func Run(m *[][]tile, ppl []*Person, statsList[][] int) {
+	//sList := []Stats{}
 
 	var wg sync.WaitGroup	
 
 	wg.Add(len(ppl))
-	for _, pers := range ppl {			
-		go func(p *Person){
+	for i, pers := range ppl {			
+		go func(p *Person, ind int){
 			defer wg.Done()
-			p.MovePerson(m)		
-			sList = append(sList, p.getStats())
-		}(pers)
+		
+		//	sList = append(sList, p.getStats())
+
+			p.MovePerson(m)
+			p.getStats(statsList[ind]) 
+		}(pers, i)
 	}
 	step++
 	wg.Wait()
@@ -227,8 +208,7 @@ func Run(m *[][]tile, ppl []*Person) [][]int{
 	for _, person := range peopleArray {
 		person.MovePerson(&inMap)
 	}*/
-//	fmt.Println(sList)
-	return sList
+//	return sList
 }
 
 func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{   // OBS: not working

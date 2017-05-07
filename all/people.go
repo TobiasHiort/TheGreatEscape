@@ -12,7 +12,7 @@ var step = float32(0)
 type Person struct {
 	alive bool
 	safe  bool
-	hp    float32
+	hp    int
 	path  []*tile
 	plan  []*tile
 	time float32
@@ -23,6 +23,7 @@ type Stats struct {
 	y int
 //	hp float32
 }
+/*
 
 func (p *Person)getStats() []int {
 	//if p == nil || p.currentTile() == nil {return Stats{}}
@@ -30,6 +31,11 @@ func (p *Person)getStats() []int {
 //	return Stats{p.path[len(p.path) - 1].xCoord, p.path[len(p.path) - 1].yCoord}
 //	return []int{p.currentTile().xCoord, p.currentTile().yCoord}//, p.hp}
 	return []int{p.currentTile().yCoord, p.currentTile().xCoord}//, p.hp}
+======= */
+func (p *Person)getStats(aslice []int) {
+  aslice[0] = p.currentTile().xCoord
+  aslice[1] = p.currentTile().yCoord
+  aslice[2] = p.hp
 }
 
 func makePerson(t *tile) *Person {
@@ -53,10 +59,10 @@ func (p *Person) updateStats() {
 	}	
 }
 
-func (t *tile) getDamage() float32 {
-	damage := float32(0)
-	damage = 100 * float32(t.fireLevel) // man dör om man kliver i elden, right...
-	damage = damage + float32(t.heat)   // TODO: how much does the fire hurt??
+func (t *tile) getDamage() int {
+	damage := int(0)
+	damage = 100 * int(t.fireLevel) // man dör om man kliver i elden, right...
+	damage = damage + int(t.heat)   // TODO: how much does the fire hurt??
 	// damage = damage + effect from smoke'n stuff
 	return damage
 }

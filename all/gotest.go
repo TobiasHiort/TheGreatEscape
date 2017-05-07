@@ -10,7 +10,6 @@ import (
     //"log"
 )
 
-
 func main1() {
 	//fmt.Println("GO STARTED2")
 
@@ -72,25 +71,26 @@ func main() {
 	ppl := PeopleInit(testmap, list)
 
 
-	stats := RunSimple(&testmap, ppl) // startstats!
+	stats := [][]int{}
+	Run(&testmap, ppl, stats) // startstats!
 
-//	check := 0
+	//	check := 0
 	
 	for !CheckFinish(ppl) {
 		toPipe(stats)
 		time.Sleep(1000 * time.Millisecond)
-		stats = RunSimple(&testmap, ppl)		
-/*		
+		Run(&testmap, ppl, stats)		
+		/*		
 		for check == 0 {			
 			check = fromPipe()
 		} */	
 	}
 
 	
-//	go func() {		
-//		SingleSimulation(m, ppl)
-//	}()
-//	if timeToSend {toPipe(stats)}		
+	//	go func() {		
+	//		SingleSimulation(m, ppl)
+	//	}()
+	//	if timeToSend {toPipe(stats)}		
 }
 
 func fromPipe() int{
