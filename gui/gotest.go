@@ -13,23 +13,37 @@ import (
 func main() {
 	//fmt.Println("GO STARTED2")
 
-    bio := bufio.NewReader(os.Stdin)
-    line, _, _ := bio.ReadLine()
-//		arrsiz := bio.ReadLine()
+	//arrsiz := bufio.NewReader(os.Stdin)
+	bio := bufio.NewReader(os.Stdin)
 
-    var p = [][]float32{}
+	arrsiz, _, _ := bio.ReadLine()
+	var first int
+	lolerr := json.Unmarshal(arrsiz, &first)
+	arrsiz2 := int(first)
+	if lolerr != nil {
+		panic(lolerr)
+	}
 
-    err := json.Unmarshal(line, &p)
-    if err != nil {
-        panic(err)
-    }
+	if arrsiz2 > 0 {
 
-    bytes2, err2 := json.Marshal(p)
-    if err2 != nil {
-        panic(err2)
-    }
-    s := string(bytes2[:])
+		bio = bufio.NewReader(os.Stdin)
+		line, _, _ := bio.ReadLine()
+		//		arrsiz := bio.ReadLine()
 
-    fmt.Println(s)
+		var p = [][]float32{}
+
+		err := json.Unmarshal(line, &p)
+		if err != nil {
+			panic(err)
+		}
+
+		bytes2, err2 := json.Marshal(p)
+		if err2 != nil {
+			panic(err2)
+		}
+		s := string(bytes2[:])
+
+		fmt.Println(s)
+	}
 
 }

@@ -183,6 +183,8 @@ while True:
                     child.stdout.flush()
                     child.stdin.flush()
                     print(getsizeof(json.dumps(mapMatrix.tolist())))
+
+
                     #pipes length of pipe data
                     print(makeItr(byte_limit, json.dumps(mapMatrix.tolist())), file=child.stdin)
 
