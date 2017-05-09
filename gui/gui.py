@@ -228,11 +228,9 @@ while True:
                 elif event.key == K_m and paused:
                     # read stdout through pipe TEST
                     #popen = subprocess.call('./hello') # just a call
-                    child = Popen('./gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+                    child = Popen('../src/gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
                     child.stdout.flush()
                     child.stdin.flush()
-
-
 
                     map_matrixInt = copy.deepcopy(mapMatrix).astype(int)
                     #map_matrixInt.astype(int)
@@ -249,36 +247,34 @@ while True:
                     #print(test54[0])
                     #                 print(getsizeof(json.dumps(mapMatrix.tolist())))
                     #print(json.dumps(mapMatrix.tolist()), file=child.stdin)
-                    fromgo_json = child.stdout.readline().rstrip('\n')
-                    #print(getsizeof(fromgo_json))
 
+
+
+                    fromgo_json = child.stdout.readline().rstrip('\n')
                     print(fromgo_json)
-                    #player_pos = json.loads(fromgo_json)
+                    player_pos = json.loads(fromgo_json)
+                    for pos in player_pos:
+                        players_movement.append([pos])
                     #data1 = json.loads(fromgo_json)
 
+                    print(player_pos)
+                    print(players_movement)
+
                     players_movement_tmp = []
-                    player_pos.append([0,0])
-                    player_pos.append([0,0])
+                    #player_pos.append([0,0])
+                    #player_pos.append([0,0])
+                    #"print(player_pos)
                     while len(fromgo_json) > 5: #fromgo_json != []:
+
                         json_temp = json.loads(fromgo_json)
                         #players_movement_tmp.append(json_temp[0])
                         players_movement_tmp.append(json_temp)
                         print(fromgo_json)
                         fromgo_json = child.stdout.readline().rstrip('\n')
-                    #print(players_movement_tmp)
+                        for i in range(len(json_temp)):
+                            players_movement[i].append(json_temp[i])
 
-                    tmp1 = [[0,0]]
-                    tmp2 = [[0,0]]
-                    for people in (players_movement_tmp):
-                        tmp1.append(people[0])
-                        tmp2.append(people[1])
-                    #paused = False
-
-                    players_movement.append(tmp1)
-                    players_movement.append(tmp2)
-                    print(players_movement[0][0])
-                    print(players_movement[1])
-
+                    print(players_movement)
                 elif event.key == K_s and paused and player_pos != []:
                     #print(len(players_movement[0][0]))
                     #print(current_frame)

@@ -193,7 +193,7 @@ def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord
                             coord_x + tilesize * player_pos[player][0],
                             coord_y + tilesize * player_pos[player][1],
                             math.floor(radius_scale*player_scale), COLOR_GREEN) # round()?
-        
+
 
     return playerSurface
 
@@ -559,10 +559,10 @@ def rawPlot3():
 
     #labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
     #sizes = [15, 30, 45, 10]
-    
+
     #explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
     #fig1, ax = plt.subplots()
-    
+
     #ax.pie(sizes, labels=labels, autopct='%1.0f%%', shadow=True, startangle=90) # explode=explode
     #ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
