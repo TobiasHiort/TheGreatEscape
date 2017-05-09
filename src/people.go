@@ -12,7 +12,7 @@ var step = float32(0)
 type Person struct {
 	alive bool
 	safe  bool
-	hp    float32
+	hp    int
 	path  []*tile
 	plan  []*tile
 	time float32
@@ -21,13 +21,34 @@ type Person struct {
 type Stats struct {
 	x int
 	y int
-	hp float32
+//	hp float32
+}
+/*
+
+func (p *Person)getStats() []int {
+	//if p == nil || p.currentTile() == nil {return Stats{}}
+	//if len(p.path) < 1 {return []int{0,0}}
+//	return Stats{p.path[len(p.path) - 1].xCoord, p.path[len(p.path) - 1].yCoord}
+//	return []int{p.currentTile().xCoord, p.currentTile().yCoord}//, p.hp}
+	return []int{p.currentTile().yCoord, p.currentTile().xCoord}//, p.hp}
+======= */
+func (p *Person)getStats(aslice *[]int) {
+//	aslice[0] = p.currentTile().xCoord
+//	aslice[1] = p.currentTile().yCoord
+	*aslice = append(*aslice, p.currentTile().yCoord)
+	*aslice = append(*aslice, p.currentTile().xCoord)
+	
+  //aslice[2] = p.hp
 }
 
-func (p *Person)getStats() Stats {
-	if p == nil {return Stats{}}
-	if p.currentTile() == nil {return Stats{-1, -1, p.hp}}
-	return Stats{p.currentTile().xCoord, p.currentTile().yCoord, p.hp}
+func StartStats(ppl []*Person) [][]int{
+	lst := [][]int{}
+	for _, pers := range ppl {
+		templst := []int{}
+		pers.getStats(&templst)
+		lst = append(lst, templst)
+	}
+	return lst
 }
 
 func makePerson(t *tile) *Person {
@@ -51,10 +72,10 @@ func (p *Person) updateStats() {
 	}	
 }
 
-func (t *tile) getDamage() float32 {
-	damage := float32(0)
-	damage = 100 * float32(t.fireLevel) // man dör om man kliver i elden, right...
-	damage = damage + float32(t.heat)   // TODO: how much does the fire hurt??
+func (t *tile) getDamage() int {
+	damage := int(0)
+	damage = 100 * int(t.fireLevel) // man dör om man kliver i elden, right...
+	damage = damage + int(t.heat)   // TODO: how much does the fire hurt??
 	// damage = damage + effect from smoke'n stuff
 	return damage
 }
@@ -110,6 +131,7 @@ func (p *Person) kill() {
 
 func (p *Person) save() {
 	p.safe = true
+	p.path[len(p.path) - 1] = &tile{}
 	// TODO: maybe p.movetosafezone?
 }
 
@@ -126,6 +148,7 @@ func (p *Person) MovePerson(m *[][]tile) {
 		return
 	}
 	if p.time <= step {
+		//if p.plan[0].occupied != nil || !validTile(p.plan[0]) {p.updatePlan(m)}
 		p.updatePlan(m)
 		p.followPlan()	
 	}

@@ -1,7 +1,7 @@
 package main
 
 import (
-		"io/ioutil"
+    //"fmt"
     "os"
     "bufio"
     "fmt"
@@ -38,68 +38,65 @@ func toPipe(stats [][]int) {
 	if err2 != nil {
 		panic(err2)
 	}
-	s := string(bytes2[:])
-	fmt.Println(s)
+	s := string(bytes2[:]) 
+	fmt.Println(s)	
 }
 
 
 func main() {
 	//fmt.Println("GO STARTED2")
 
-	/*
 	bio := bufio.NewReader(os.Stdin)
-
 	line, _, _ := bio.ReadLine()
+
 	if line == nil {}
+		
 
     var m = [][]int{}
+
     err := json.Unmarshal(line, &m)
     if err != nil {
         panic(err)
     }
-		*/
 
-		b, _ := ioutil.ReadFile("mapfile.txt")
-    var m = [][]int{}
+	//	m[8][1] = 2
+	//	m[13][0] = 2
 
-		err := json.Unmarshal(b, &m)
-		if err != nil{
-			fmt.Print("fugg :D")
-		}
-
-	m[8][1] = 2
-	m[13][0] = 2
+	
 	testmap := TileConvert(m)
 	if testmap == nil {}
 
 	list := [][]int{
 		{1,1},
-	//	{1,2},
-		{2,2}}
+		{1,3},
+		{1,8},
+		{3,3}}
+
 	ppl := PeopleInit(testmap, list)
 
 
-	stats := [][]int{}
-	Run(&testmap, ppl, &stats) // startstats!
+//	stats := [][]int{}
+	stats := StartStats(ppl)
+	//	Run(&testmap, ppl, &stats) // startstats!
 	//fmt.Println(len(stats))
 
 	//	check := 0
-
+	
 	for !CheckFinish(ppl) {
 		toPipe(stats)
 		time.Sleep(10 * time.Millisecond)
-		Run(&testmap, ppl, &stats)
-		/*
-		for check == 0 {
+		Run(&testmap, ppl, &stats)		
+		/*		
+		for check == 0 {			
 			check = fromPipe()
 		} */
 	}
 
-
-	//	go func() {
+	
+	//	go func() {		
 	//		SingleSimulation(m, ppl)
 	//	}()
-	//	if timeToSend {toPipe(stats)}
+	//	if timeToSend {toPipe(stats)}		
 }
 
 func fromPipe() int{
@@ -115,5 +112,3 @@ func fromPipe() int{
 
 	return m
 }
-
-
