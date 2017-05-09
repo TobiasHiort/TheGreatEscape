@@ -206,14 +206,30 @@ while True:
                     print(fromgo_json)
                    # player_pos = json.loads(fromgo_json)
                     #data1 = json.loads(fromgo_json)                                   
-                                      
+                   
+                    players_movement_tmp = []
+                    player_pos.append([0,0])
+                    player_pos.append([0,0])
                     while len(fromgo_json) > 5: #fromgo_json != []:
-                        player_pos = json.loads(fromgo_json)
-                        #players_movement.append(json.loads(fromgo_json))
+                        
+                        json_temp = json.loads(fromgo_json)     
+                        #players_movement_tmp.append(json_temp[0])
+                        players_movement_tmp.append(json_temp)
                         print(fromgo_json)
                         fromgo_json = child.stdout.readline().rstrip('\n')
-                       
+                    #print(players_movement_tmp) 
+
+                    tmp1 = [[0,0]]
+                    tmp2 = [[0,0]]
+                    for people in (players_movement_tmp):
+                        tmp1.append(people[0])
+                        tmp2.append(people[1])
                        #  paused = False 
+
+                    players_movement.append(tmp1) 
+                    players_movement.append(tmp2)
+                    print(players_movement[0][0]) 
+                    print(players_movement[1]) 
 
                 elif event.key == K_s and paused and player_pos != []:
                     #print(len(players_movement[0][0]))
@@ -339,7 +355,7 @@ while True:
                         #players_movement = []
 
 
-                        player_pos, player_count = populateMap(mapMatrix, pop_percent)
+                        #player_pos, player_count = populateMap(mapMatrix, pop_percent)
                         players_movement = []
 
                 # upload button routine rmenu
@@ -362,7 +378,7 @@ while True:
                         #players_movement = []
 
 
-                        player_pos, player_count = populateMap(mapMatrix, pop_percent)
+                        #player_pos, player_count = populateMap(mapMatrix, pop_percent)
                         players_movement = []
 
                 # scale plus/minus
