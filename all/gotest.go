@@ -68,13 +68,15 @@ func main() {
 
 	list := [][]int{
 		{1,1},
-		{1,2}}
+		{1,3},
+    {1,8},
+    {3,3}}
 
 	ppl := PeopleInit(testmap, list)
 
 
 	stats := [][]int{}
-	Run(&testmap, ppl, &stats) // startstats!
+  Run(&testmap, ppl, &stats) // startstats!
 	//fmt.Println(len(stats))
 
 	//	check := 0
