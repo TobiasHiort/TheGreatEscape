@@ -23,7 +23,7 @@ from PIL import Image
 # init game
 pygame.init()
 
-#print("splitPipeData: " + str(splitPipeData("abcdefg12345678")))
+print("splitPipeData: " + str(splitPipeData("abcdefg12345678")))
 
 # set window icon and program name
 icon = pygame.image.load(os.path.join('gui', 'window_icon.png'))
@@ -40,9 +40,10 @@ prev_time = time.time() # for fps
 
 
 # TEMP JOHAN
-players_movement = [[[3,1],[2,1],[2,2],[2,3],[2,4],[3,4],[3,5],[3,6],[4,6],[4,7]],[[3,2],[2,2],[2,3],[2,4],[3,4],[3,5],[3,6],[4,6],[4,7],[4,7]],[[1,4],[2,4],[3,4],[3,5],[3,6],[4,6],[4,7],[4,7],[4,7],[4,7]]]
+#players_movement = [[[3,1],[2,1],[2,2],[2,3],[2,4],[3,4],[3,5],[3,6],[4,6],[4,7]],[[3,2],[2,2],[2,3],[2,4],[3,4],[3,5],[3,6],[4,6],[4,7],[4,7]],[[1,4],[2,4],[3,4],[3,5],[3,6],[4,6],[4,7],[4,7],[4,7],[4,7]]]
+players_movement = []
 #player_pos = [[0,0],[1,0],[2,0]]
-player_pos = [[3,1],[3,2],[1,4]]
+player_pos = [] #[[3,1],[3,2],[1,4]]
 
 # variables
 counter_seconds = 0 # counter for TIMER1000
@@ -55,10 +56,6 @@ pop_percent = 0.1 # init as this later?
 
 #player_pos = [] # might use this as indicator to not populate instead of players_movement?
 #players_movement = []
-
-
-#How much data is sent in each pipe
-byte_limit = 5
 
 # debugger var inits, not needed later
 active_map_path_tmp = None
@@ -188,46 +185,60 @@ while True:
                     child = Popen('./gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
                     child.stdout.flush()
                     child.stdin.flush()
-                    print(getsizeof(json.dumps(mapMatrix.tolist())))
 
 
-                    #converts stuff to into int
+
                     map_matrixInt = copy.deepcopy(mapMatrix).astype(int)
-
-                    #pipes length of pipe data
-                    print(makeItr(byte_limit, json.dumps(mapMatrix.tolist())), file=child.stdin)
-                    print("itrprint: ")
-                    print(makeItr(byte_limit, json.dumps(mapMatrix.tolist())))
-
-                    map_list = splitPipeData(byte_limit, json.dumps(mapMatrix.tolist()))
-                    #wait for inpput from go
-                    #
-                    #the real deal pipe mother
-                    for map_part in range(map_list)
-                        #get input from go
-
-                        #send stuff to go
-                        print
-                    #print(splitPipeData(byte_limit, json.dumps(mapMatrix.tolist())), file=child.stdin)
+#                    map_matrixInt.astype(int)
+                    print(map_matrixInt)
+#                    map_jsons = json.dumps(mapMatrix.tolist())
+                    map_jsons = json.dumps(map_matrixInt.tolist())
+                    
+                    print(map_jsons, file=child.stdin)
+                    #test54 = splitPipeData(byte_limit, map_jsons)
+                    #print(test54[0])
+                    #                 print(getsizeof(json.dumps(mapMatrix.tolist())))
+  #                  print(json.dumps(mapMatrix.tolist()), file=child.stdin)
                     fromgo_json = child.stdout.readline().rstrip('\n')
+#
+ #                   print(getsizeof(fromgo_json))
+#
+                    print(fromgo_json)
+                   # player_pos = json.loads(fromgo_json)
+                    #data1 = json.loads(fromgo_json)                                   
+                   
+                    players_movement_tmp = []
+                    player_pos.append([0,0])
+                    player_pos.append([0,0])
+                    while len(fromgo_json) > 5: #fromgo_json != []:
+                        
+                        json_temp = json.loads(fromgo_json)     
+                        #players_movement_tmp.append(json_temp[0])
+                        players_movement_tmp.append(json_temp)
+                        print(fromgo_json)
+                        fromgo_json = child.stdout.readline().rstrip('\n')
+                    #print(players_movement_tmp) 
 
-                    print(getsizeof(fromgo_json))
+                    tmp1 = [[0,0]]
+                    tmp2 = [[0,0]]
+                    for people in (players_movement_tmp):
+                        tmp1.append(people[0])
+                        tmp2.append(people[1])
+                       #  paused = False 
 
-                    data1 = json.loads(fromgo_json)
-                    print(type(data1))
-
-                    #child.stdin.close()
-                    #child.stdout.close()
-
+                    players_movement.append(tmp1) 
+                    players_movement.append(tmp2)
+                    print(players_movement[0][0]) 
+                    print(players_movement[1]) 
 
                 elif event.key == K_s and paused and player_pos != []:
                     #print(len(players_movement[0][0]))
 
-                    print(current_frame)
+                  #  print(current_frame)
                     if players_movement != [] and current_frame <= len(players_movement[0]) - 1:  # do not start time frame clock if not pupulated.
 
                     #print(current_frame)
-                    if players_movement != [] and current_frame < len(players_movement[0]) - 1:  # do not start time frame clock if not pupulated.
+                 #   if players_movement != [] and current_frame < len(players_movement[0]) - 1:  # do not start time frame clock if not pupulated.
 
                                                                                                  # problems if we have no people?
                                                                                                  # shaky logic with current frame, can otherwise
@@ -246,13 +257,13 @@ while True:
                     #if players_movement != [] and current_frame == 0: # warning, cannot run sim without people due to this.
                                                                        # shitty handling for no respawn (current_frame)?,
                                                                        # if respawn is needed, remove current_frame
-<<<<<<< HEAD
+
                         #player_pos, player_count = populateMap(mapMatrix, pop_percent)
                         
-=======
+
                         player_pos, player_count = populateMap(mapMatrix, pop_percent)
 
->>>>>>> 124d7ef3a9e4af118c752e2b651df4389fe83499
+
                         # remove, for testing. creates a 1 frame movement (players_movement from player_pos).
                         # MUST BE DONE BEFORE TIMER100 EVENT/K_s, not current players_movement otherwise
                         #print(player_pos)
@@ -325,7 +336,7 @@ while True:
                     active_tab_bools = [False, False, True]
                 # upload button routine startup
                 if cursorBoxHit(mouse_x, mouse_y, 450, 574, 335, 459, active_tab_bools[0]) and active_map_path is None:
-                    #active_map_path_tmp = fileDialogPath()
+#                    active_map_path_tmp = fileDialogPath()
                     active_map_path_tmp = "map2.png"
                     if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
@@ -338,15 +349,15 @@ while True:
                         # compute sqm/exits
                         current_map_sqm = mapSqm(mapMatrix)
                         current_map_exits = mapExits(mapMatrix)
-<<<<<<< HEAD
+
                         
                         #player_pos, player_count = populateMap(mapMatrix, pop_percent)
                         #players_movement = []
-=======
 
-                        player_pos, player_count = populateMap(mapMatrix, pop_percent)
+
+                        #player_pos, player_count = populateMap(mapMatrix, pop_percent)
                         players_movement = []
->>>>>>> 124d7ef3a9e4af118c752e2b651df4389fe83499
+
                 # upload button routine rmenu
                 if cursorBoxHit(mouse_x, mouse_y, 937, 999, 685, 747, active_tab_bools[0]) and active_map_path is not None:
                     active_map_path_tmp = fileDialogPath()
@@ -361,15 +372,15 @@ while True:
                         # compute sqm/exits
                         current_map_sqm = mapSqm(mapMatrix)
                         current_map_exits = mapExits(mapMatrix)
-<<<<<<< HEAD
+
                         
                         #player_pos, player_count = populateMap(mapMatrix, pop_percent)
                         #players_movement = []
-=======
 
-                        player_pos, player_count = populateMap(mapMatrix, pop_percent)
+
+                        #player_pos, player_count = populateMap(mapMatrix, pop_percent)
                         players_movement = []
->>>>>>> 124d7ef3a9e4af118c752e2b651df4389fe83499
+
                 # scale plus/minus
                 if cursorBoxHit(mouse_x, mouse_y, 932, 946, 364, 378, active_tab_bools[0]) and active_map_path is not None:
                     if player_scale > 0.5: # crashes if negative radius, keep it > zero

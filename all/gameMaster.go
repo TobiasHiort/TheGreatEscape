@@ -1,7 +1,7 @@
 package main
 
 
-import "fmt"
+//import "fmt"
 
 //toppen av stupröret, yttersta lagret av löken
 /*
@@ -52,7 +52,7 @@ func MapInit(peopleList [][]int, newMap [][]int) [][]tile{
 }
 
 
-func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos []int) {
+func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos []int, statsList[][]int, a *int, b *int, exitStatus *int) {
 	//newMap := MapInit(foo, bar)
 	//do all the Inits
 
@@ -72,41 +72,17 @@ func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos []int) {
 			{3, 0}}
 			*/
 
-	currentMap := MapInit(peopleList, inMap)
-	peopleArray := PeopleInit(currentMap, peopleList)
-	statsList := [][]Stats{}
-	
-	for !CheckFinish(peopleArray) {
-		//Run(currentMap, peopleArray)
-		statsList = append(statsList, Run(&currentMap, peopleArray))
-		// pipa vidare!
-		//PrintTileMapP(aMap)
-	}
+			currentMap := MapInit(peopleList, inMap)
+			peopleArray := PeopleInit(currentMap, peopleList)
 
-	fmt.Println("Len:", len(statsList))
-
-	for _, m := range statsList {
-		fmt.Println(m)
-	}
+			for !CheckFinish(peopleArray) {
+        if *a == *b {
+				Run(&currentMap, peopleArray, statsList)
+        *a++
+      }//PrintTileMapP(aMap)
+		  *exitStatus++
+    }
 }
-
-func GLoop() {
-	inMap := [][]int{
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{1, 0, 1, 1, 1, 1, 1},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 2, 0, 0, 0}}
-
-	peopleList := [][]int{
-		{1, 2},
-		{0, 2},
-		{3, 0}}
-	GameLoop(inMap, peopleList, []int{})
-}
-
 
 /*
 func main() {
