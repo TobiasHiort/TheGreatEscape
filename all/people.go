@@ -41,6 +41,16 @@ func (p *Person)getStats(aslice *[]int) {
   //aslice[2] = p.hp
 }
 
+func StartStats(ppl []*Person) [][]int{
+	lst := [][]int{}
+	for _, pers := range ppl {
+		templst := []int{}
+		pers.getStats(&templst)
+		lst = append(lst, templst)
+	}
+	return lst
+}
+
 func makePerson(t *tile) *Person {
 	var person = Person{}
 	person.alive = true

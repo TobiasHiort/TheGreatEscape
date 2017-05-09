@@ -59,24 +59,25 @@ func main() {
         panic(err)
     }
 
-//	m[8][1] = 2
-//	m[13][0] = 2
+	//	m[8][1] = 2
+	//	m[13][0] = 2
 
-  
+	
 	testmap := TileConvert(m)
 	if testmap == nil {}
 
 	list := [][]int{
 		{1,1},
 		{1,3},
-    {1,8},
-    {3,3}}
+		{1,8},
+		{3,3}}
 
 	ppl := PeopleInit(testmap, list)
 
 
-	stats := [][]int{}
-  Run(&testmap, ppl, &stats) // startstats!
+//	stats := [][]int{}
+	stats := StartStats(ppl)
+	//	Run(&testmap, ppl, &stats) // startstats!
 	//fmt.Println(len(stats))
 
 	//	check := 0
