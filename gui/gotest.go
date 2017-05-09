@@ -4,22 +4,45 @@ import (
     //"fmt"
     "os"
     "bufio"
-    "fmt"
+    //"fmt"
     "encoding/json"
     //"log"
 )
 
-func assembleMap(pipeAmount int) [][]int {
+func assembleMap(pipeAmount int) /*[][]int*/ {
 	bio2 := bufio.NewReader(os.Stdin)
-	tmp := []int
+	var tmp []int
 	for i := 0; i < pipeAmount; i ++ {
-		//recievee stuff from py
-		piece, _, _ := bio.ReadLine()
-		//append to blah
-		err3 := json.Unmarshal(piece, &tmp1)
 		//send hello to py
+		//handshake()
+		//recievee stuff from py
+		if bio2.Peek(1) != !nil {
+			//yay
+			//shame overwhelms my senses
+
+
+
+			piece, _, _ := bio2.ReadLine()
+			//append to blah
+			err3 := json.Unmarshal(piece, &tmp)
+
+			if err3 != nil {
+				panic(err3)
+			}
+		}
+
 	}
+	//return aMap
 }
+
+/*
+func handshake() {
+	sayhi := true
+	bytes3, _ := json.Marshal(sayhi)
+	histr := string(bytes3[:])
+	fmt.Println(histr)
+}
+*/
 
 func main() {
 	//fmt.Println("GO STARTED2")
@@ -37,15 +60,12 @@ func main() {
 
 
 	if first > 0 {
+		//handshake()
 
 		//bio = bufio.NewReader(os.Stdin)
 		//line, _, _ := bio.ReadLine()
 		//		arrsiz := bio.ReadLine()
 
-		sayhi := true
-		bytes3, _ := json.Marshal(sayhi)
-		histr := string(bytes3[:])
-		fmt.Println(histr)
 
 		//var p = [][]float32{}
 
