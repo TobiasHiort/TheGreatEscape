@@ -68,8 +68,8 @@ func main() {
 
 	list := [][]int{
 		{1,1},
-	//	{1,2},
-		{1,4}}
+		{1,2}}
+
 	ppl := PeopleInit(testmap, list)
 
 
