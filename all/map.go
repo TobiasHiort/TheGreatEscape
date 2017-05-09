@@ -183,28 +183,35 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 	return peopleArray
 }
 
-func Run(m *[][]tile, ppl []*Person, statsList[][] int) {
+func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	//sList := []Stats{}
 
 	var wg sync.WaitGroup	
 
 	wg.Add(len(ppl))
-	for i, pers := range ppl {			
-		go func(p *Person, ind int){
-			defer wg.Done()
+	*statsList = [][]int{}
+	for _, pers := range ppl {
 		
-		//	sList = append(sList, p.getStats())
-
+		go func(p *Person){//, ind int){
+			//	ind := i
+			//p := pers
+			defer wg.Done()
+			
+			//	sList :=  []int{}// append(sList, p.getStats())
 			p.MovePerson(m)
-			p.getStats(statsList[ind]) 
-		}(pers, i)
+			sList := &[]int{}
+			p.getStats(sList)//(statsList[ind])
+			*statsList = append(*statsList, *sList)
+			//	fmt.Println(len(statsList))
+
+		}(pers)//, i)
 	}
 	step++
 	wg.Wait()
 	FireSpread(*m)
 	//	}
-	
-	/*	// go run ruitnes for concurrency
+
+/*	// go run ruitnes for concurrency
 	for _, person := range peopleArray {
 		person.MovePerson(&inMap)
 	}*/

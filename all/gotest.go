@@ -72,18 +72,19 @@ func main() {
 
 
 	stats := [][]int{}
-	Run(&testmap, ppl, stats) // startstats!
+	Run(&testmap, ppl, &stats) // startstats!
+	//fmt.Println(len(stats))
 
 	//	check := 0
 	
 	for !CheckFinish(ppl) {
 		toPipe(stats)
-		time.Sleep(1000 * time.Millisecond)
-		Run(&testmap, ppl, stats)		
+		time.Sleep(10 * time.Millisecond)
+		Run(&testmap, ppl, &stats)		
 		/*		
 		for check == 0 {			
 			check = fromPipe()
-		} */	
+		} */
 	}
 
 	

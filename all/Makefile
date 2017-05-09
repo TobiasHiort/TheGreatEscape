@@ -23,3 +23,6 @@ all: map
 gameMaster: clock.go gameMaster.go map.go
 	go build clock.go gameMaster.go map.go
 
+gui: 
+	go build gotest.go map.go queue.go pathfinder.go people.go print.go 	
+

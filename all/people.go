@@ -32,10 +32,13 @@ func (p *Person)getStats() []int {
 //	return []int{p.currentTile().xCoord, p.currentTile().yCoord}//, p.hp}
 	return []int{p.currentTile().yCoord, p.currentTile().xCoord}//, p.hp}
 ======= */
-func (p *Person)getStats(aslice []int) {
-  aslice[0] = p.currentTile().xCoord
-  aslice[1] = p.currentTile().yCoord
-  aslice[2] = p.hp
+func (p *Person)getStats(aslice *[]int) {
+//	aslice[0] = p.currentTile().xCoord
+//	aslice[1] = p.currentTile().yCoord
+	*aslice = append(*aslice, p.currentTile().yCoord)
+	*aslice = append(*aslice, p.currentTile().xCoord)
+	
+  //aslice[2] = p.hp
 }
 
 func makePerson(t *tile) *Person {
