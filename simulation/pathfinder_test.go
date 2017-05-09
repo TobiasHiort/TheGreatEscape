@@ -289,7 +289,7 @@ func TestTwo(t *testing.T) {
 
 //	if !ok {t.Errorf("Expected a valid path, buut got a invalid one")}	
 } */
-
+/*
 func TestLargeMap(t *testing.T) {
 	matrix := [][]int{}
 	xS := 200
@@ -315,6 +315,60 @@ func inNbrs(nbrs []*tile, t *tile) bool{
 	}
 	return false
 }
+*/
+/*
+// 100*100 took 1.48 s
+func TestLargeMap2(t *testing.T) {
+	matrix := [][]int{}
+	xS := 100
+	yS := 100
+
+	for x := 0; x < xS; x++ {
+		row := []int{}
+		for y := 0; y < yS; y++ {
+			row = append(row, 0)
+		}		
+		matrix = append(matrix, row)
+	}
+	matrix[xS - 1][yS - 1] = 2
+	testmap := TileConvert(matrix)
+	_, ok := getPath2(&testmap, &testmap[0][0])
+
+	if !ok {t.Errorf("Expected a valid path, but got a invalid one")}
+}
+*/
+
+// 200*200 ended after 10min: took to long!
+// 100*100 took 71.66 s
+// 50*50 took 2.22s
+/*
+func TestManyPeople(t *testing.T) {
+	matrix := [][]int{}
+	xS := 100
+	yS := 100
+
+	for x := 0; x < xS; x++ {
+		row := []int{}
+		for y := 0; y < yS; y++ {
+			row = append(row, 0)
+		}		
+		matrix = append(matrix, row)
+	}
+	matrix[xS - 1][yS - 1] = 2
+	testmap := TileConvert(matrix)
+	var wg sync.WaitGroup
+	wg.Add(xS)
+	for x := 0; x < xS; x++ {
+		go func(i int) {
+			defer wg.Done()
+			_, ok := getPath2(&testmap, &testmap[i][0])
+			if !ok {t.Errorf("Expected a valid path, but got a invalid one")} 
+		}(x)
+	}
+	wg.Wait()
+}*/
+
+
 /*
 
 func TestGetNeighborsPruned(t *testing.T) {
@@ -356,3 +410,88 @@ func TestGetNeighborsPruned(t *testing.T) {
 	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
 }
 */
+
+
+func TestGetJumpPoint(t *testing.T) {
+	matrix := [][]int {
+		{0,0,1,0,0,0},
+		{0,0,1,0,0,0},
+		{0,0,0,0,0,0},
+		{0,0,0,0,0,0},
+		{0,0,0,1,0,0},
+		{0,0,0,1,0,2}}
+	testmap := TileConvert(matrix)
+
+
+	// höger
+	jp1 := getJumpPoint(&testmap[3][1], Direction{0,1})
+	if jp1.jp == nil {t.Errorf("Expected a valid jp, but got an invalid one")}
+	if !(*jp1.jp == testmap[3][4]) {t.Errorf("Expected jp: 3 3, but got jp: %d %d", jp1.jp.xCoord, jp1.jp.yCoord)}
+
+	// vänster
+	jp2 := getJumpPoint(&testmap[2][4], Direction{0,-1})
+	if jp2.jp == nil {t.Errorf("Expected a valid jp, but got an invalid one")}
+	if !(*jp2.jp == testmap[2][1]) {t.Errorf("Expected jp: 2 1, but got jp: %d %d", jp2.jp.xCoord, jp2.jp.yCoord)}
+	
+	
+	matrix2 := [][]int {
+		{0,0,0,1,0,0,0},
+		{0,0,0,1,0,0,0},
+		{0,0,0,0,0,0,0},
+		{0,0,0,1,0,0,0},
+		{0,0,0,1,0,0,0},
+		{0,0,0,1,0,0,0}}
+	testmap = TileConvert(matrix2)
+	
+	
+	// höger
+	jp1 = getJumpPoint(&testmap[2][1], Direction{0,1})
+	if jp1.jp == nil {t.Errorf("Expected a valid jp, but got an invalid one")}
+	if !(*jp1.jp == testmap[2][4]) {t.Errorf("Expected jp: 2 4, but got jp: %d %d", jp1.jp.xCoord, jp1.jp.yCoord)}
+//	fmt.Println(jp1.fn[0])
+//	fmt.Println(jp1.fn[1])
+	
+	// vänster
+	jp2 = getJumpPoint(&testmap[2][5], Direction{0,-1})
+	if jp2.jp == nil {t.Errorf("Expected a valid jp, but got an invalid one")}
+	if !(*jp2.jp == testmap[2][2]) {t.Errorf("Expected jp: 2 2, but got jp: %d %d", jp2.jp.xCoord, jp2.jp.yCoord)}
+
+	
+	/*
+	jp := getJumpPoint(&testmap[1][1], Direction{1,1})
+	if jp == nil {t.Errorf("Expected a valid jp, but got an invalid one")}
+	if !(*jp== testmap[3][3]) {t.Errorf("Expected jp: 2 2, but got jp: %d %d", jp.xCoord, jp.yCoord)}*/
+}
+
+func TestSneJP(t *testing.T) {
+	matrix := [][]int {
+		{0,0,0,0,0,0},
+		{0,0,0,0,0,0},
+		{0,0,0,0,0,0},
+		{0,0,0,0,0,0},
+		{0,0,1,0,0,0},
+		{0,0,1,0,0,0}}
+	testmap := TileConvert(matrix)
+	
+	// nw
+	jp1 := sneJP(&testmap[3][3], Direction{-1,-1})
+	if jp1.jp == nil {t.Errorf("Expected a valid jp, but got an invalid one")}
+	if !(*jp1.jp == testmap[3][3]) {t.Errorf("Expected jp: 2 2, but got jp: %d %d", jp1.jp.xCoord, jp1.jp.yCoord)}
+	fmt.Println(jp1.fn[0])
+
+
+}
+/*
+func TestGetPath2(t *testing.T) {
+	matrix := [][]int {
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{0,0,0,0,0},
+		{0,0,1,0,0},
+		{0,0,1,0,2}}
+	testmap := TileConvert(matrix)
+
+	path, ok := getPath2(&testmap, &testmap[0][0])
+	if !ok {t.Errorf("Expected a valid path, but got an invalid one")}
+	if !(*path[0] == testmap[2][2]) {t.Errorf("Expected jp: 2 2, but got jp: %d %d", path[0].xCoord, path[0].yCoord)}
+}*/

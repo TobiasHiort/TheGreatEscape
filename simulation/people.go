@@ -14,7 +14,8 @@ type Person struct {
 	safe  bool
 	hp    float32
 	path  []*tile
-	plan  []*tile
+	plan  []*tile  // plan of jps
+	pPlan []*tile  // partial plan
 	time float32
 }
 
@@ -224,4 +225,87 @@ func MainPeople() {
 	printPath(p1.path)
 	fmt.Println("p2")
 	printPath(p2.path)
+}
+
+
+// new funcs
+
+func (p *Person)MovePerson2(m *[][]tile) {
+	if p == nil {return}
+	if p.safe || !p.alive {return}
+	if p.time <= step {
+		p.updatePlan2(m)
+		p.followPlan2()	
+	}
+}
+
+func printPlan(plan []*tile) {
+	for _, t := range plan {
+		fmt.Println(t.xCoord, t.yCoord)
+	}
+}
+
+func (p *Person)updatePlan2(m *[][]tile) {   // TODO update plan if nexttile's invalid!
+	if len(p.plan) == 0 {  // no jps
+		plan, ok := getPath2(m, p.currentTile())
+		if !ok {
+			fmt.Println("nope1")
+			return}  // Screwed!
+		p.plan = plan[1:]
+	}
+	printPlan(p.plan)
+	if len(p.pPlan) == 0 { // no plan for next jp
+	//	fmt.Println("cur:", p.currentTile())
+	//	fmt.Println("plan:", p.plan[0])
+		pPlan, ok := getPPath(m, p.currentTile(), p.plan[0])
+		if !ok {
+			fmt.Println("nope2")
+			return}  // Screwed!
+		p.pPlan = pPlan[1:]
+	}	
+}
+
+func (p *Person)followPlan2() {
+	if p.currentTile().door {  // freeeedom!
+		(p.currentTile().occupied) = nil
+		p.updateTime()
+		p.save()
+	} else if len(p.pPlan) == 0 {
+		fmt.Println("you're screwed!")
+		p.kill()
+	} else {
+		if p.moveTo(p.pPlan[0]) {   // next step in pPlan is available -> move		
+			p.pPlan = p.pPlan[1:]
+			p.updateTime()  
+		} else {                   // next step in pPlan is occupied -> w8
+			p.wait()
+			p.updateTime()
+		} 
+	}
+}
+
+
+func MovePeople2(m *[][]tile, ppl []*Person) {
+
+
+	ppl[0].MovePerson2(m)
+	printPlan(ppl[0].plan)
+	/*
+	var wg sync.WaitGroup
+	for !CheckFinish(ppl) {
+		wg.Add(len(ppl))
+		print("\033[H\033[2J")
+		PrintTileMapP(*m)
+		fmt.Print("\n")
+		time.Sleep(1000 * time.Millisecond)
+		for _, pers := range ppl {			
+			go func(p *Person){
+				defer wg.Done()
+				p.MovePerson2(m)
+			}(pers)
+		}
+		step++
+		wg.Wait()
+		FireSpread(*m)
+	}*/
 }

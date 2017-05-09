@@ -245,9 +245,10 @@ func main() {
 //	testDiagPpl()
 //	testDiag()
 //	testDiagonally()
-	testMovePeople()
-
-//	GLoop()
+//	testMovePeople()
+	Whut()
+//	testJP()
+	//	GLoop()
 }
 
 func testRedirect() {
@@ -346,6 +347,36 @@ func testMovePeople() {
 	tryThis(matrix, list, -1, -1)
 	// Note: it takes 1 timeunit to take a step from the door and away
 }
+
+
+func testJP() {
+	matrix := [][]int{
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{1, 1, 0, 0, 0, 0, 0},
+		{1, 1, 0, 0, 0, 0, 2}}
+
+	list := [][]int{
+		{0, 0}}
+	//	{0, 6},		
+	//	{2, 4}}
+
+
+	testmap := TileConvert(matrix)
+	pplArray := PeopleInit(testmap, list)
+
+	MovePeople2(&testmap, pplArray)
+
+	for i, p := range pplArray {
+		fmt.Println("Person", i, "time:  ", p.time, "\n         health:", p.hp)
+	}
+
+}
+
+
 
 func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 	testmap := TileConvert(matrix)
