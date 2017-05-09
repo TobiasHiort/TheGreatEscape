@@ -170,6 +170,7 @@ while True:
                             current_frame += 1
                             current_time_float += 0.1
                             for player in range(len(player_pos)):
+                        #    for player in range():
                                 player_pos[player] = players_movement[player][current_frame]
 
                 elif event.key == K_f and paused and player_pos != []: # backwards player movement from players_movement, move later to timed game event
@@ -204,16 +205,47 @@ while True:
  #                   print(getsizeof(fromgo_json))
 #
                     print(fromgo_json)
-                   # player_pos = json.loads(fromgo_json)
+                    player_pos = json.loads(fromgo_json)
+                    for pos in player_pos:
+                        players_movement.append([pos])
                     #data1 = json.loads(fromgo_json)                                   
-                                      
+
+                    print(player_pos)
+                    print(players_movement)
+    
+                    players_movement_tmp = []
+                    #player_pos.append([0,0])
+                    #player_pos.append([0,0])
+                    #"print(player_pos)
                     while len(fromgo_json) > 5: #fromgo_json != []:
-                        player_pos = json.loads(fromgo_json)
-                        #players_movement.append(json.loads(fromgo_json))
+                        
+                        json_temp = json.loads(fromgo_json)     
+                        #players_movement_tmp.append(json_temp[0])
+                        players_movement_tmp.append(json_temp)
                         print(fromgo_json)
                         fromgo_json = child.stdout.readline().rstrip('\n')
-                       
+                        for i in range(len(json_temp)):
+                            players_movement[i].append(json_temp[i])
+                        
+                    print(players_movement) 
+                    
+                    
+                   # for coords in players_movement_tmp:
+                    #    for i in range(coords):
+                     #       players_movement
+                    
+                #    tmp1 = [[]]
+                 #   tmp2 = [[]]
+                 #   for people in (players_movement_tmp):
+                  #      tmp1.append(people[0])
+                   #     tmp2.append(people[1])
                        #  paused = False 
+
+                    #players_movement.append(tmp1) 
+                    #players_movement.append(tmp2)
+                    #print(players_movement[0][0])
+                    #print(players_movement[0]) 
+                    #print(players_movement[1])               
 
                 elif event.key == K_s and paused and player_pos != []:
                     #print(len(players_movement[0][0]))
@@ -321,7 +353,7 @@ while True:
                 # upload button routine startup
                 if cursorBoxHit(mouse_x, mouse_y, 450, 574, 335, 459, active_tab_bools[0]) and active_map_path is None:
 #                    active_map_path_tmp = fileDialogPath()
-                    active_map_path_tmp = "map2.png"
+                    active_map_path_tmp = "map11.png"
                     if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
                         # reset state.
@@ -339,7 +371,7 @@ while True:
                         #players_movement = []
 
 
-                        player_pos, player_count = populateMap(mapMatrix, pop_percent)
+                        #player_pos, player_count = populateMap(mapMatrix, pop_percent)
                         players_movement = []
 
                 # upload button routine rmenu
@@ -362,7 +394,7 @@ while True:
                         #players_movement = []
 
 
-                        player_pos, player_count = populateMap(mapMatrix, pop_percent)
+                        #player_pos, player_count = populateMap(mapMatrix, pop_percent)
                         players_movement = []
 
                 # scale plus/minus
