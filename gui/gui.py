@@ -228,27 +228,56 @@ while True:
                 elif event.key == K_m and paused:
                     # read stdout through pipe TEST
                     #popen = subprocess.call('./hello') # just a call
-                    child = Popen('../simulation/gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+                    child = Popen('./gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
                     child.stdout.flush()
                     child.stdin.flush()
-                    #print(getsizeof(json.dumps(mapMatrix.tolist())))
 
-                    map_jsons = json.dumps(mapMatrix.tolist())
-                    test54 = splitPipeData(byte_limit, map_jsons)
-                    print(test54[0])
 
-                    #print(, file=child.stdin)
 
-                    #fromgo_json = child.stdout.readline().rstrip('\n')
+                    map_matrixInt = copy.deepcopy(mapMatrix).astype(int)
+                    #map_matrixInt.astype(int)
+                    #print(map_matrixInt)
+                    #map_jsons = json.dumps(mapMatrix.tolist())
+                    #map_jsons = json.dumps(map_matrixInt.tolist())
 
+                    #Saving stuff to file
+                    tofile = open('mapfile.txt', 'w+')
+                    tofile.write(map_jsons)
+                    tofile.close()
+                    #print(map_jsons, file=child.stdin)
+                    #test54 = splitPipeData(byte_limit, map_jsons)
+                    #print(test54[0])
+                    #                 print(getsizeof(json.dumps(mapMatrix.tolist())))
+                    #print(json.dumps(mapMatrix.tolist()), file=child.stdin)
+                    fromgo_json = child.stdout.readline().rstrip('\n')
                     #print(getsizeof(fromgo_json))
 
+                    print(fromgo_json)
+                    #player_pos = json.loads(fromgo_json)
                     #data1 = json.loads(fromgo_json)
-                    #print(getsizeof(data1))
 
-                    #child.stdin.close()
-                    #child.stdout.close()
+                    players_movement_tmp = []
+                    player_pos.append([0,0])
+                    player_pos.append([0,0])
+                    while len(fromgo_json) > 5: #fromgo_json != []:
+                        json_temp = json.loads(fromgo_json)
+                        #players_movement_tmp.append(json_temp[0])
+                        players_movement_tmp.append(json_temp)
+                        print(fromgo_json)
+                        fromgo_json = child.stdout.readline().rstrip('\n')
+                    #print(players_movement_tmp)
 
+                    tmp1 = [[0,0]]
+                    tmp2 = [[0,0]]
+                    for people in (players_movement_tmp):
+                        tmp1.append(people[0])
+                        tmp2.append(people[1])
+                    #paused = False
+
+                    players_movement.append(tmp1)
+                    players_movement.append(tmp2)
+                    print(players_movement[0][0])
+                    print(players_movement[1])
 
                 elif event.key == K_s and paused and player_pos != []:
                     #print(len(players_movement[0][0]))
