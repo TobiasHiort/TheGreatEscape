@@ -1,7 +1,7 @@
 package main
 
 import (
-    //"fmt"
+		"io/ioutil"
     "os"
     "bufio"
     "fmt"
@@ -46,7 +46,9 @@ func toPipe(stats [][]int) {
 func main() {
 	//fmt.Println("GO STARTED2")
 
+	/*
 	bio := bufio.NewReader(os.Stdin)
+	
 	line, _, _ := bio.ReadLine()
 
 	if line == nil {}
@@ -58,6 +60,15 @@ func main() {
     if err != nil {
         panic(err)
     }
+		*/
+
+		b, _ := ioutil.ReadFile("mapfile.txt")
+    var m = [][]int{}
+
+		err := json.Unmarshal(b, &m)
+		if err != nil{
+			fmt.Print("fugg :D")
+		}
 
 	m[8][1] = 2
 	m[13][0] = 2

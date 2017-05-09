@@ -194,7 +194,11 @@ while True:
 #                    map_jsons = json.dumps(mapMatrix.tolist())
                     map_jsons = json.dumps(map_matrixInt.tolist())
                     
-                    print(map_jsons, file=child.stdin)
+                    #Saving stuff to file
+                    tofile = open('mapfile.txt', 'w+')
+                    tofile.write(map_jsons)
+                    tofile.close()
+                    #print(map_jsons, file=child.stdin)
                     #test54 = splitPipeData(byte_limit, map_jsons)
                     #print(test54[0])
                     #                 print(getsizeof(json.dumps(mapMatrix.tolist())))
@@ -337,7 +341,7 @@ while True:
                 # upload button routine startup
                 if cursorBoxHit(mouse_x, mouse_y, 450, 574, 335, 459, active_tab_bools[0]) and active_map_path is None:
 #                    active_map_path_tmp = fileDialogPath()
-                    active_map_path_tmp = "map2.png"
+                    active_map_path_tmp = "map1.png"
                     if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
                         # reset state.
