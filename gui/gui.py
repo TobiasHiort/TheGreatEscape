@@ -228,7 +228,7 @@ while True:
                 elif event.key == K_m and paused:
                     # read stdout through pipe TEST
                     #popen = subprocess.call('./hello') # just a call
-                    child = Popen('./gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+                    child = Popen('../simulation/gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
                     child.stdout.flush()
                     child.stdin.flush()
                     #print(getsizeof(json.dumps(mapMatrix.tolist())))
@@ -373,7 +373,7 @@ while True:
 
                         player_pos, player_count = populateMap(mapMatrix, pop_percent)
                         players_movement = []
-                        
+
                         playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
                 # upload button routine rmenu
                 if cursorBoxHit(mouse_x, mouse_y, 937, 999, 685, 747, active_tab_bools[0]) and active_map_path is not None:
@@ -439,7 +439,7 @@ while True:
         else:
             # all right menu below. warning, move most of this out of the render logic to events/semi-static surfaces
             rmenuSurface.blit(MENU_RIGHT, (0, 0))
-            
+
             if current_frame == 0:
                 if counter_seconds % 2 == 0: # even
                     rmenuSurface.blit(TIMER_BACKGROUND, (2, 228))
@@ -495,7 +495,7 @@ while True:
                 rmenuSurface.blit(BUTTON_UPLOAD_SMALL, (28, 640))
             else:
                 rmenuSurface.blit(BUTTON_UPLOAD_SMALL0, (28, 640))
-            
+
 
             # timer
             rmenuSurface.blit(BUTTON_TIME_SPEED, (82+3, 311-23))
