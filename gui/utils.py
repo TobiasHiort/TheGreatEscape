@@ -12,11 +12,16 @@ import subprocess
 import doctest # read from txt, read docs
 import random
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.backends.backend_agg as agg
+import pylab
+import matplotlib.pylab as plt
+plt.rcParams["font.family"] = "Roboto"
+plt.rcParams["font.weight"] = "medium"
+
 from sys import getsizeof
-
 from pygame.locals import *
-
-
 from PIL import Image
 from pygame import gfxdraw # use later, AA
 
@@ -47,7 +52,7 @@ COLOR_GREY2 = (145, 145, 145) # darker, org: 221
 colors = {
                 0 : COLOR_WHITE,        # floor
                 1 : COLOR_BLACK,        # wall
-                2 : COLOR_BLUE,        # door
+                2 : COLOR_WHITE,        # door
                 3 : COLOR_BACKGROUND    # out of bounds
           }
 
@@ -85,12 +90,66 @@ def buildMap(path, mapSurface):
             elif mapRGBA[column, row] == COLOR_KEY + (255,): # warning: mapRGBA has [column, row]. RGBA
                 mapMatrix[row][column] = 3
             else:
-                raise ValueError('Invalid RGB value(s) in map: ' + '(x: ' + str(column+1) + ', y: ' + str(row+1) + '), ' + 'wrong RGBA: ' +  str(mapRGBA[column, row]))
+                raise ValueError('Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]))
 
     # for formula
     t = tilesize
     sh = 713 # map surface height
     sw = 907 # map surface width
+    p = PADDING_MAP
+    h = mapheight
+    w = mapwidth
+
+    # create the map with draw.rect on mapSurface
+    for row in range(mapheight):
+        for column in range(mapwidth):
+            # black magic
+            pygame.draw.rect(mapSurface, colors[mapMatrix[row][column]],
+                             (math.floor(0.5 * (sw - w * t + 2 * t * column)),
+                                math.floor((sh - p)/2 - (h * t)/2 + t * row),
+                             tilesize, tilesize))
+    return mapSurface, mapMatrix, tilesize, mapwidth, mapheight
+
+def buildMiniMap(path, mapSurface): # ~duplicate^
+    """Returns mapSurface, mapMatrix, tilesize,
+   mapwidth, mapheight after building map
+   from png.
+
+    More...
+    """
+
+    # read image to matrix
+    mapImage = Image.open(os.path.join('maps', path))
+    mapRGBA = mapImage.load()
+    mapMatrix = numpy.zeros((mapImage.size[1], mapImage.size[0])) # (rows, column)
+
+    # game dimensions
+    if mapImage.size[0] < mapImage.size[1]:
+        tilesize = math.floor((344)/mapImage.size[1])
+    else:
+        tilesize = math.floor((495)/mapImage.size[0])
+
+    mapwidth = mapImage.size[0] # number of columns in matrix
+    mapheight = mapImage.size[1] # number of rows in matrix
+
+    # create map matrix dependent on tile type
+    for row in range(mapheight):
+        for column in range(mapwidth):
+            if mapRGBA[column, row] == COLOR_WHITE + (255,): # warning: mapRGBA has [column, row]. RGBA
+                mapMatrix[row][column] = 0
+            elif mapRGBA[column, row] == COLOR_BLACK + (255,): # warning: mapRGBA has [column, row]. RGBA
+                mapMatrix[row][column] = 1 # expand for more than floor and wall...
+            elif mapRGBA[column, row] == COLOR_RED_PNG + (255,): # warning: mapRGBA has [column, row]. RGBA
+                mapMatrix[row][column] = 2 # expand for more than floor and wall...
+            #elif mapRGBA[column, row] == COLOR_KEY + (255,): # warning: mapRGBA has [column, row]. RGBA
+            #    mapMatrix[row][column] = 3
+            #else:
+            #    raise ValueError('Invalid RGB value(s) in map: ' + '(x: ' + str(column+1) + ', y: ' + str(row+1) + '), ' + 'wrong RGBA: ' +  str(mapRGBA[column, row]))
+
+    # for formula
+    t = tilesize
+    sh = 344 # map surface height
+    sw = 495 # map surface width
     p = PADDING_MAP
     h = mapheight
     w = mapwidth
@@ -121,19 +180,19 @@ def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord
 
     More...
     """
-    playerSurface.fill((0, 0, 0, 0), None, BLEND_RGBA_MULT) # remove last frame. Also black magic for AA gfxdraw blitting of players.
+    playerSurface.fill((0, 0, 0, 0)) # remove last frame. Also black magic for AA gfxdraw blitting of players.
 
     for player in range(len(player_pos)):
         # black magic
         pygame.gfxdraw.aacircle(playerSurface,
-                              coord_x + tilesize * player_pos[player][0],
-                               coord_y + tilesize * player_pos[player][1],
-                           math.floor(radius_scale*player_scale), COLOR_GREEN) # round()?
+                            coord_x + tilesize * player_pos[player][0],
+                            coord_y + tilesize * player_pos[player][1],
+                            math.floor(radius_scale*player_scale), COLOR_GREEN) # round()?
 
         pygame.gfxdraw.filled_circle(playerSurface,
-                              coord_x + tilesize * player_pos[player][0],
-                               coord_y + tilesize * player_pos[player][1],
-                           math.floor(radius_scale*player_scale), COLOR_GREEN) # round()?
+                            coord_x + tilesize * player_pos[player][0],
+                            coord_y + tilesize * player_pos[player][1],
+                            math.floor(radius_scale*player_scale), COLOR_GREEN) # round()?
         
 
     return playerSurface
@@ -192,8 +251,8 @@ def placeClockText(rmenuSurface, minutes, seconds):
     More...
     """
     if len(minutes) == 2 and len(seconds) == 2:
-        placeText(rmenuSurface, minutes, 'digital-7-mono.ttf', 45, COLOR_YELLOW, 8, 249)
-        placeText(rmenuSurface, seconds, 'digital-7-mono.ttf', 45, COLOR_YELLOW, 71, 249)
+        placeText(rmenuSurface, minutes, 'digital-7-mono.ttf', 45, COLOR_YELLOW, 8, 249-17)
+        placeText(rmenuSurface, seconds, 'digital-7-mono.ttf', 45, COLOR_YELLOW, 71, 249-17)
     else:
         raise ValueError('Seconds and minutes must be of length 2')
 
@@ -269,7 +328,7 @@ def cursorBoxHit(mouse_x, mouse_y, x1, x2, y1, y2, tab):
 
     More...
     """
-    if (mouse_x > x1) and (mouse_x <= x2) and (mouse_y >= y1) and (mouse_y <= y2) and tab:
+    if (mouse_x >= x1) and (mouse_x <= x2) and (mouse_y >= y1) and (mouse_y <= y2) and tab:
         return True
     else:
         return False
@@ -295,8 +354,14 @@ def createSurface(x, y):
 
     More...
     """
-    surface = pygame.Surface((x, y), SRCALPHA)
-    surface = surface.convert_alpha()
+    #if alpha:
+    #    surface = pygame.Surface((x, y), SRCALPHA)
+        #surface = surface.convert_alpha() #?
+    #elif not alpha:
+    surface = pygame.Surface((x, y))
+    #else:
+    #    raise ValueError('Argument alpha must be Bool')
+    surface = surface.convert_alpha() #?
     surface.fill(COLOR_KEY) # COLOR_BACKGROUND?
     surface.set_colorkey(COLOR_KEY)
     return surface
@@ -361,3 +426,168 @@ def splitPipeData(byte_limit, str1):
             tmp_str.append(str1[idx:idx+byte_limit])
             idx += byte_limit
         return tmp_str
+
+def rawPlot():
+    """Description.
+
+    More...
+    """
+    def f(t):
+        return numpy.exp(-t) * numpy.cos(2*numpy.pi*-t)
+
+    plot_x = 495
+    plot_y = 344
+    fig = plt.figure(figsize=[plot_x * 0.01, plot_y * 0.01], # Inches.
+                       dpi=100,        # 100 dots per inch, so the resulting buffer is 395x344 pixels
+                       )
+
+    fig.set_size_inches(plot_x * 0.01, plot_y * 0.01)
+
+    ax = fig.gca()
+
+    plt.xlabel('xlabel')
+    plt.ylabel('ylabel')
+    plt.title("Title")
+    plt.gcf().subplots_adjust(bottom=0.15, top=0.90, left=0.14, right=0.95)
+
+
+    #l1, = ax.plot([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [1, 2, 4, 8, 15, 17, 18, 22, 23, 23, 24, 24, 25, 25])
+    #l1, = ax.plot(numpy.sin(numpy.linspace(0, 2 * numpy.pi)), 'r-o')
+    t1 = numpy.arange(0.0, 5.0, 0.10)
+    t2 = numpy.arange(0.0, 5.0, 0.02)
+    #l1, = ax.plot(t1, f(t1), 'bo', t2, f(t2), 'k')
+
+    plt.figure(1)
+    p1 = plt.subplot(211)
+    l1, = plt.plot(t1, f(t1), 'o')
+    p2 = plt.subplot(212)
+    l2, = plt.plot(t2, numpy.cos(2*numpy.pi*t2), 'r--')
+
+    l1.set_color((162/255, 19/255, 24/255))
+    l2.set_color((0/255, 166/255, 56/255))
+
+    #plt.xlabel('xlabel')
+    #plt.ylabel('ylabel')
+    #plt.title("Title")
+
+    p1.spines['right'].set_visible(False)
+    p1.spines['top'].set_visible(False)
+
+    p2.spines['right'].set_visible(False)
+    p2.spines['top'].set_visible(False)
+    return fig
+
+def rawPlot2():
+    """Description.
+
+    More...
+    """
+    def f(t):
+        return numpy.exp(-t) * numpy.cos(2*numpy.pi*-t)
+
+    plot_x = 495
+    plot_y = 344
+    fig = plt.figure(figsize=[plot_x * 0.01, plot_y * 0.01], # Inches.
+                       dpi=100,        # 100 dots per inch, so the resulting buffer is 495x344 pixels
+                       )
+
+    fig.set_size_inches(plot_x * 0.01, plot_y * 0.01)
+
+    ax = fig.gca()
+    plt.gcf().subplots_adjust(bottom=0.15, top=0.90, left=0.12, right=0.95)
+
+    l1, = ax.plot([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [1, 2, 4, 8, 15, 17, 18, 22, 23, 23, 24, 24, 25, 25], label = 'label1', linestyle = '--')
+    l2, = ax.plot([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [1, 2, 4, 8, 15, 17, 18, 22, 23, 23, 24, 24, 25, 25][::-1], label = 'label2')
+    #l1, = ax.plot(numpy.sin(numpy.linspace(0, 2 * numpy.pi)), 'r-o')
+    #t1 = numpy.arange(0.0, 5.0, 0.10)
+    #t2 = numpy.arange(0.0, 5.0, 0.02)
+    #l1, = ax.plot(t1, f(t1), 'bo', t2, f(t2), 'k')
+    #l1, = ax.plot(t1, f(t1), 'bo')
+
+    #plt.figure(1)
+    #p1 = plt.subplot(211)
+    #l1, = plt.plot(t1, f(t1), 'o')
+    #plt.subplot(212)
+    #l2, = plt.plot(t2, numpy.cos(2*numpy.pi*t2), 'r--')
+
+    l1.set_color((162/255, 19/255, 24/255))
+    l2.set_color((0/255, 166/255, 56/255))
+
+    plt.xlabel('X label', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
+    plt.ylabel('Y label', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
+    plt.title("Title", fontname = "Roboto", fontweight = 'medium', fontsize = 16)
+
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+    plt.legend(bbox_to_anchor=(1.00, 1), loc=1, borderaxespad=0.)
+
+    return fig
+
+def rawPlot3():
+    """Description.
+
+    More...
+    """
+    def f(t):
+        return numpy.exp(-t) * numpy.cos(2*numpy.pi*-t)
+
+    plot_x = 150
+    plot_y = 120
+    fig = plt.figure(figsize=[plot_x * 0.01, plot_y * 0.01], # inches
+                       dpi=100,        # 100 dots per inch, so the resulting buffer is 150x120 pixels
+                       )
+
+    fig.set_size_inches(plot_x * 0.01, plot_y * 0.01)
+
+    ax = fig.gca()
+    plt.gcf().subplots_adjust(bottom=0.15, top=0.90, left=0.12, right=0.95)
+
+    #l1, = ax.plot([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [1, 2, 4, 8, 15, 17, 18, 22, 23, 23, 24, 24, 25, 25])
+    #l2, = ax.plot([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [1, 2, 4, 8, 15, 17, 18, 22, 23, 23, 24, 24, 25, 25][::-1])
+    #l1, = ax.plot(numpy.sin(numpy.linspace(0, 2 * numpy.pi)), 'r-o')
+    #t1 = numpy.arange(0.0, 5.0, 0.10)
+    #t2 = numpy.arange(0.0, 5.0, 0.02)
+    #l1, = ax.plot(t1, f(t1), 'bo', t2, f(t2), 'k')
+    #l1, = ax.plot(t1, f(t1), 'bo')
+
+    #plt.figure(1)
+    #p1 = plt.subplot(211)
+    #l1, = plt.plot(t1, f(t1), 'o')
+    #plt.subplot(212)
+    #l2, = plt.plot(t2, numpy.cos(2*numpy.pi*t2), 'r--')
+
+    #labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
+    #sizes = [15, 30, 45, 10]
+    
+    #explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+    #fig1, ax = plt.subplots()
+    
+    #ax.pie(sizes, labels=labels, autopct='%1.0f%%', shadow=True, startangle=90) # explode=explode
+    #ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+    # Data to plot
+    labels = 'Dead', 'Survived'
+    sizes = [30, 70]
+    colors = [(162/255, 19/255, 24/255), (0/255, 166/255, 56/255)]
+    explode = [0.1, 0]
+
+    # Plot
+    patches, texts, autotexts = plt.pie(sizes, labels=labels, explode=explode, colors=colors, autopct='%1.0f%%', shadow=True, startangle=45, labeldistance=1.25) # pctdistance=1.1
+    texts[0].set_fontsize(9)
+    texts[1].set_fontsize(9)
+
+    plt.axis('equal')
+
+    return fig
+
+def rawPlotRender(fig):
+    """Description.
+
+    More...
+    """
+    canvas = agg.FigureCanvasAgg(fig)
+    canvas.draw()
+    renderer = canvas.get_renderer()
+    raw_data = renderer.tostring_rgb()
+    return raw_data

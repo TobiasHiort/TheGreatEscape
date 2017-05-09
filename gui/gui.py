@@ -12,6 +12,13 @@ import copy
 import json
 import wx
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.backends.backend_agg as agg
+import pylab
+
+import matplotlib.pylab as plt
+
 from sys import getsizeof
 from subprocess import Popen, PIPE
 from utils import *
@@ -19,12 +26,13 @@ from pygame.locals import *
 from PIL import Image
 from pygame import gfxdraw # use later, AA
 
+def restart_program():
+    python = sys.executable
+    os.execl(python, python, * sys.argv)
+
 # file dialog init
 app = wx.App()
 frame_wx = wx.Frame(None, -1, 'win.py')
-
-# REMOVE
-print("splitPipeData: " + str(splitPipeData(5, "abcdefg12345678")))
 
 # init game
 pygame.init()
@@ -40,12 +48,12 @@ TIMER100 = USEREVENT + 2
 TIMER10 = USEREVENT + 3
 pygame.time.set_timer(TIMER1000, 1000)
 pygame.time.set_timer(TIMER100, 100)
+pygame.time.set_timer(TIMER10, 10)
 target_fps = 60
 prev_time = time.time() # for fps
 
 # variables
 counter_seconds = 0 # counter for TIMER1000
-counter_10ms = 0
 current_frame = 0 # which time frame for movement, int
 current_time_float = 0.0 # float time for accurate time frame measurement, right now 0.1s per time frame.
 paused = True
@@ -58,7 +66,10 @@ players_movement = []
 
 opacity = 0
 opacity2 = 0
-opacity3 = 0
+
+plot_rendered = False
+plot_x = 495
+plot_y = 344
 
 # how much data is sent in each pipe
 byte_limit = 5
@@ -80,6 +91,7 @@ displaySurface.set_colorkey(COLOR_KEY, pygame.RLEACCEL) # RLEACCEL unstable?
 
 # create surfaces
 mapSurface = createSurface(907, 713-PADDING_MAP)
+minimapSurface = createSurface(495, 344)
 playerSurface = createSurface(907, 713-PADDING_MAP)
 fireSurface = createSurface(907, 713-PADDING_MAP)
 rmenuSurface = createSurface(115, 723)
@@ -91,6 +103,7 @@ MENU_FADE = loadImage('gui', 'menu_fade.png')
 displaySurface.blit(MENU_FADE, (0, 45)) # blit in game_loop?
 
 MENU_BACKGROUND = loadImage('gui', 'menu_background.png')
+displaySurface.blit(MENU_BACKGROUND, (0, 0))
 
 MENU_RIGHT = loadImage('gui', 'menu_right.png')
 
@@ -99,10 +112,12 @@ BUTTON_SIMULATION_ACTIVE = loadImage('gui', 'simulation_active.png')
 BUTTON_SIMULATION_BLANK = loadImage('gui', 'simulation_blank.png')
 BUTTON_SIMULATION_HOVER = loadImage('gui', 'simulation_hover.png')
 
+BG_SETTINGS = loadImage('gui', 'settings_bg.png')
 BUTTON_SETTINGS_ACTIVE = loadImage('gui', 'settings_active.png')
 BUTTON_SETTINGS_BLANK = loadImage('gui', 'settings_blank.png')
 BUTTON_SETTINGS_HOVER = loadImage('gui', 'settings_hover.png')
 
+BG_STATISTICS = loadImage('gui', 'statistics_bg.png')
 BUTTON_STATISTICS_ACTIVE = loadImage('gui', 'statistics_active.png')
 BUTTON_STATISTICS_BLANK = loadImage('gui', 'statistics_blank.png')
 BUTTON_STATISTICS_HOVER = loadImage('gui', 'statistics_hover.png')
@@ -123,7 +138,9 @@ BUTTON_UPLOAD_SMALL = loadImage('gui', 'upload_small.png')
 BUTTON_UPLOAD_SMALL0 = loadImage('gui', 'upload_small0.png')
 
 BUTTON_UPLOAD_LARGE = loadImage('gui', 'upload_large.png')
+BUTTON_UPLOAD_LARGE.set_alpha(0)
 BUTTON_UPLOAD_LARGE0 = loadImage('gui', 'upload_large0.png')
+BUTTON_UPLOAD_LARGE0.set_alpha(0)
 
 TIMER_BACKGROUND = loadImage('gui', 'timer.png')
 
@@ -134,6 +151,12 @@ BUTTON_SCALE = loadImage('gui', 'scale.png')
 BUTTON_SCALE_PLUS = loadImage('gui', 'scale_plus.png')
 BUTTON_SCALE_MINUS = loadImage('gui', 'scale_minus.png')
 
+BUTTON_TIME_SPEED = loadImage('gui', 'time_speed.png')
+
+BUTTON_INF = loadImage('gui', 'inf.png')
+BUTTON_PEOPLE = loadImage('gui', 'people.png')
+BUTTON_FIRE = loadImage('gui', 'fire.png')
+BUTTON_SMOKE = loadImage('gui', 'smoke.png')
 
 # game loop
 while True:
@@ -143,11 +166,10 @@ while True:
             pygame.quit()
             sys.exit()
         # time events
-        elif event.type == TIMER1000: # just specific for clock animation, 10*100ms below instead?
-            counter_seconds += 1
-        elif event.type == TIMER10:
-            counter_10ms += 1
-        elif event.type == TIMER100: # 100ms per movement (or frame), meaning top speed of ((0.5*(1000/100))/1)*3.6 = 18 km/h
+        TIMER10_bool = False
+        if event.type == TIMER10:
+            TIMER10_bool = True
+        if event.type == TIMER100: # 100ms per movement (or frame), meaning top speed of ((0.5*(1000/100))/1)*3.6 = 18 km/h
             # FETCH PIPE HERE TO VAR, check if same (should never be, then Go sends data to slow)
             # ADD PIPE LOGIC HERE, FETCH EACH TIME FRAME
                 # time check/update, only if new timeframe. Save/update time as "?counter_seconds" (handle float but render int)
@@ -178,8 +200,12 @@ while True:
                             paused = True
 
                         playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+        if event.type == TIMER1000: # just specific for clock animation, 10*100ms below instead?
+            counter_seconds += 1
         # keyboard events, later move to to mouse click event
         elif event.type == KEYDOWN:
+            if event.key == K_r:
+                restart_program()
             if active_tab_bools[0] and active_map_path is not None: # do not add time/pos if no map
                 # these two need to read from _saved_ pipe movement, cant go back otherwise. and only possible when paused
                 # add 'not' for not populated, time runs anyhow for these
@@ -301,6 +327,9 @@ while True:
                 mouse_x, mouse_y = event.pos
                 # simulation button
                 if cursorBoxHit(mouse_x, mouse_y, 0, 202, 0, 45, not(active_tab_bools[0])):
+                    displaySurface.fill(COLOR_BACKGROUND)
+                    displaySurface.blit(MENU_FADE, (0, 45))
+                    displaySurface.blit(MENU_BACKGROUND, (0, 0))
                     displaySurface.blit(BUTTON_SETTINGS_BLANK, (202, 0))
                     displaySurface.blit(BUTTON_STATISTICS_BLANK, (382, 0))
                     displaySurface.blit(BUTTON_SIMULATION_ACTIVE, (0, 0))
@@ -332,8 +361,8 @@ while True:
                         playerSurface.fill(COLOR_KEY)
                         # build new map
                         mapSurface, mapMatrix, tilesize, mapwidth, mapheight = buildMap(active_map_path, mapSurface)
-                        mapSurface.set_alpha(0)
-                        opacity3 = 0
+                        #mapSurface.set_alpha(0)
+                        #opacity3 = 0
 
                         # precalc (better performance) for scaling formula
                         coord_x, coord_y, radius_scale = calcScaling(PADDING_MAP, tilesize, mapheight, mapwidth)
@@ -361,8 +390,8 @@ while True:
                         playerSurface.fill(COLOR_KEY)
                         # build new map
                         mapSurface, mapMatrix, tilesize, mapwidth, mapheight = buildMap(active_map_path, mapSurface)
-                        mapSurface.set_alpha(0)
-                        opacity3 = 0
+                        #mapSurface.set_alpha(0)
+                        #opacity3 = 0
 
                         # precalc (better performance) for scaling formula
                         coord_x, coord_y, radius_scale = calcScaling(PADDING_MAP, tilesize, mapheight, mapwidth)
@@ -376,15 +405,14 @@ while True:
 
                         playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
                 # scale plus/minus
-                if cursorBoxHit(mouse_x, mouse_y, 932, 946, 364, 378, active_tab_bools[0]) and active_map_path is not None:
+                if cursorBoxHit(mouse_x, mouse_y, 918, 932, 364-23, 378-23, active_tab_bools[0]) and active_map_path is not None:
                     if player_scale > 0.5: # crashes if negative radius, keep it > zero
                         player_scale *= 0.8
                         playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
-                if cursorBoxHit(mouse_x, mouse_y, 993, 1008, 364, 378, active_tab_bools[0]) and active_map_path is not None:
+                if cursorBoxHit(mouse_x, mouse_y, 965, 979, 364-23, 378-23, active_tab_bools[0]) and active_map_path is not None:
                     if player_scale < 5: # not to big?
                         player_scale *= 1.25
                         playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
-
 
     # render logic
     if active_tab_bools[0]: # simulation tab
@@ -393,43 +421,59 @@ while True:
             mapSurface.fill(COLOR_BACKGROUND)
 
             # large upload button
+            if TIMER10_bool and opacity2 < 255:
+                opacity2 += 5
+                BUTTON_UPLOAD_LARGE.set_alpha(opacity2)
+
+            if TIMER10_bool and opacity < 255:
+                opacity += 5
+                BUTTON_UPLOAD_LARGE0.set_alpha(opacity)
+
             if cursorBoxHit(mouse_x, mouse_y, 450, 574, 335, 459, active_tab_bools[0]):
                 mapSurface.blit(BUTTON_UPLOAD_LARGE, (450, 280))
             else:
-                if counter_10ms % 2 == 0 and opacity < 255:
-                    opacity += 5
-                    BUTTON_UPLOAD_LARGE0.set_alpha(opacity)
                 mapSurface.blit(BUTTON_UPLOAD_LARGE0, (450, 280))
 
             displaySurface.blit(mapSurface, (0, 55)) # empty here
         # chosen map
         else:
+            # all right menu below. warning, move most of this out of the render logic to events/semi-static surfaces
+            rmenuSurface.blit(MENU_RIGHT, (0, 0))
+            
             if current_frame == 0:
                 if counter_seconds % 2 == 0: # even
-                    rmenuSurface.blit(TIMER_BACKGROUND, (2, 245))
-                    placeText(rmenuSurface, '--', 'digital-7-mono.ttf', 45, COLOR_YELLOW, 71, 249)
-                    placeText(rmenuSurface, '--', 'digital-7-mono.ttf', 45, COLOR_YELLOW, 8, 249)
+                    rmenuSurface.blit(TIMER_BACKGROUND, (2, 228))
+                    placeText(rmenuSurface, '--', 'digital-7-mono.ttf', 45, COLOR_YELLOW, 71, 249-17)
+                    placeText(rmenuSurface, '--', 'digital-7-mono.ttf', 45, COLOR_YELLOW, 8, 249-17)
                 else:
-                    rmenuSurface.blit(TIMER_BACKGROUND, (2, 245))
+                    rmenuSurface.blit(TIMER_BACKGROUND, (2, 228))
 
             # dividers
             #rmenuSurface.blit(DIVIDER_SHORT, (23, y))
             #rmenuSurface.blit(DIVIDER_LONG, (5, y))
             rmenuSurface.blit(DIVIDER_LONG, (5, 33))
-            rmenuSurface.blit(DIVIDER_SHORT, (23, 78))
-            rmenuSurface.blit(DIVIDER_LONG, (5, 350))
-            rmenuSurface.blit(DIVIDER_SHORT, (23, 483))
-            rmenuSurface.blit(DIVIDER_LONG, (5, 620))
+            #rmenuSurface.blit(DIVIDER_SHORT, (23, 103))
+            rmenuSurface.blit(DIVIDER_LONG, (5, 102))
+            rmenuSurface.blit(DIVIDER_LONG, (5, 322))
+            rmenuSurface.blit(DIVIDER_SHORT, (23, 483-47-15-2))
+            rmenuSurface.blit(DIVIDER_LONG, (5, 550-23-7))
+            rmenuSurface.blit(DIVIDER_LONG, (5, 621))
 
             placeCenterText(rmenuSurface, active_map_path[-9:-4], 'Roboto-Regular.ttf', 20, COLOR_BLACK, 116, 19)
 
-            placeText(rmenuSurface, str(round(current_map_sqm)), 'Roboto-Regular.ttf', 18, COLOR_BLACK, 29, 35)
-            placeText(rmenuSurface, str(current_map_exits), 'Roboto-Regular.ttf', 18, COLOR_BLACK, 29, 55)
+            placeText(rmenuSurface, str(format((round(current_map_sqm)), ',d')).replace(',', ' '), 'Roboto-Regular.ttf', 17, COLOR_BLACK, 31, 37)
+            placeText(rmenuSurface, str(round(mapwidth*0.5)) + '×' + str(round(mapheight*0.5)), 'Roboto-Regular.ttf', 17, COLOR_BLACK, 31, 57)
+            placeText(rmenuSurface, str(current_map_exits), 'Roboto-Regular.ttf', 17, COLOR_BLACK, 31, 77)
+            #placeText(rmenuSurface, "str1", 'Roboto-Regular.ttf', 18, COLOR_BLACK, 29, 85)
+            #placeText(rmenuSurface, "str2", 'Roboto-Regular.ttf', 18, COLOR_BLACK, 29, 105)
+            #placeText(rmenuSurface, "str3", 'Roboto-Regular.ttf', 18, COLOR_BLACK, 29, 125)
+            #placeText(rmenuSurface, "str4", 'Roboto-Regular.ttf', 18, COLOR_BLACK, 29, 145)
 
-            placeText(rmenuSurface, "str1", 'Roboto-Regular.ttf', 18, COLOR_BLACK, 29, 85)
-            placeText(rmenuSurface, "str2", 'Roboto-Regular.ttf', 18, COLOR_BLACK, 29, 105)
-            placeText(rmenuSurface, "str3", 'Roboto-Regular.ttf', 18, COLOR_BLACK, 29, 125)
-            placeText(rmenuSurface, "str4", 'Roboto-Regular.ttf', 18, COLOR_BLACK, 29, 145)
+            # inf/people/fire/smoke. Move. Hover/click logic
+            rmenuSurface.blit(BUTTON_INF, (13, 111))
+            rmenuSurface.blit(BUTTON_PEOPLE, (10+3, 140))
+            rmenuSurface.blit(BUTTON_FIRE, (32+3+3+2+4, 140))
+            rmenuSurface.blit(BUTTON_SMOKE, (54+3+3+4+4+2+2+3, 140))
 
             # run button hover/blank
             if current_frame == 0:
@@ -452,22 +496,33 @@ while True:
             else:
                 rmenuSurface.blit(BUTTON_UPLOAD_SMALL0, (28, 640))
             
-            rmenuSurface.blit(BUTTON_SCALE, (49, 313))
-            rmenuSurface.blit(BUTTON_SCALE_MINUS, (34-10, 319))
-            rmenuSurface.blit(BUTTON_SCALE_PLUS, (75+10, 319))
+
+            # timer
+            rmenuSurface.blit(BUTTON_TIME_SPEED, (82+3, 311-23))
+            placeText(rmenuSurface, "2x", 'Roboto-Medium.ttf', 13, COLOR_BLACK, 88+3, 319-23)
+
+            # player scale
+            rmenuSurface.blit(BUTTON_SCALE, (49-21, 313-23))
+            rmenuSurface.blit(BUTTON_SCALE_MINUS, (34-3-21, 319-23))
+            rmenuSurface.blit(BUTTON_SCALE_PLUS, (75+3-21, 319-23))
 
             # rmenu statistics
-            placeCenterText(rmenuSurface, "Total", 'Roboto-Regular.ttf', 18, COLOR_GREY2, 116, 375)
-            placeCenterText(rmenuSurface, str(player_count), 'Roboto-Regular.ttf', 28, COLOR_BLACK, 116, 400)
-            placeCenterText(rmenuSurface, "Left", 'Roboto-Regular.ttf', 18, COLOR_GREY2, 116, 425)
-            placeCenterText(rmenuSurface, "int01", 'Roboto-Regular.ttf', 28, COLOR_BLACK, 116, 450)
-            placeCenterText(rmenuSurface, "Survivors", 'Roboto-Regular.ttf', 18, COLOR_GREY2, 116, 500+10)
-            placeCenterText(rmenuSurface, "int02", 'Roboto-Regular.ttf', 28, COLOR_BLACK, 116, 525+10)
-            placeCenterText(rmenuSurface, "Dead", 'Roboto-Regular.ttf', 18, COLOR_GREY2, 116, 550+10)
-            placeCenterText(rmenuSurface, "int03", 'Roboto-Regular.ttf', 28, COLOR_BLACK, 116, 575+10)
+            placeCenterText(rmenuSurface, "Total", 'Roboto-Regular.ttf', 13, COLOR_GREY2, 116, 338)
+            placeCenterText(rmenuSurface, str(format(player_count, ',d')).replace(',', ' '), 'Roboto-Regular.ttf', 22, COLOR_BLACK, 116, 359)
+            placeCenterText(rmenuSurface, "Left", 'Roboto-Regular.ttf', 13, COLOR_GREY2, 116, 379)
+            placeCenterText(rmenuSurface, str(0), 'Roboto-Regular.ttf', 22, COLOR_BLACK, 116, 400)
+            placeCenterText(rmenuSurface, "Survivors", 'Roboto-Regular.ttf', 13, COLOR_GREY2, 116, 439-3)
+            placeCenterText(rmenuSurface, str(0), 'Roboto-Regular.ttf', 22, COLOR_BLACK, 116, 460-3)
+            placeCenterText(rmenuSurface, "Dead", 'Roboto-Regular.ttf', 13, COLOR_GREY2, 116, 483-3)
+            placeCenterText(rmenuSurface, str(0), 'Roboto-Regular.ttf', 22, COLOR_BLACK, 116, 504-3)
+
+            placeCenterText(rmenuSurface, "Fire", 'Roboto-Regular.ttf', 13, COLOR_GREY2, 116, 539-3)
+            placeCenterText(rmenuSurface, "{:.0%}".format(0.00), 'Roboto-Regular.ttf', 22, COLOR_BLACK, 116, 560-3)
+            placeCenterText(rmenuSurface, "Smoke", 'Roboto-Regular.ttf', 13, COLOR_GREY2, 116, 583-3)
+            placeCenterText(rmenuSurface, "{:.0%}".format(0.00), 'Roboto-Regular.ttf', 22, COLOR_BLACK, 116, 604-3)
 
             if current_frame > 0:
-                rmenuSurface.blit(TIMER_BACKGROUND, (2, 245))
+                rmenuSurface.blit(TIMER_BACKGROUND, (2, 228))
                 setClock(rmenuSurface, math.floor(current_time_float))
 
             # draw players. Removed because it's not necessary to drawplayers each frame! Same for fire and other things.
@@ -478,19 +533,8 @@ while True:
             #fireSurface = drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth)
 
             # important blit order
-            # all right menu above. warning, move most of this out of the render logic
-            if counter_10ms % 2 == 0 and opacity2 < 255:
-                opacity2 += 5
-                rmenuSurface.set_alpha(opacity2)
             displaySurface.blit(rmenuSurface, (909, 45))
-            rmenuSurface.blit(MENU_RIGHT, (0, 0))
-
-            if counter_10ms % 2 == 0 and opacity3 < 255:
-                opacity3 += 5
-                mapSurface.set_alpha(opacity3)
             displaySurface.blit(mapSurface, (0, 55))
-
-            #displaySurface.blit(mapSurface, (0, 55))
             displaySurface.blit(playerSurface, (0, 55))
             #displaySurface.blit(fireSurface, (0, 55))
 
@@ -499,32 +543,79 @@ while True:
         if active_map_path == None or active_map_path == "": # if no active map (init), "" = cancel on choosing map
             settingsSurface.fill(COLOR_BACKGROUND)
             placeText(settingsSurface, "Choose map first [Settings], id01", 'Roboto-Regular.ttf', 24, COLOR_BLACK, 200, 300)
+            minimapSurface.fill(COLOR_BACKGROUND) # wierd1
+            displaySurface.blit(minimapSurface, (517, 60)) # wierd2
         # map chosen
         else:
+
             settingsSurface.fill(COLOR_BACKGROUND)
+
+            settingsSurface.blit(BG_SETTINGS, (6, 1))
+            placeCenterText(settingsSurface, active_map_path[-9:-4], 'Roboto-Regular.ttf', 26, COLOR_BLACK, 530, 30)
+
             if player_pos != []:
-                placeText(settingsSurface, "Populated sim, but paused, id02", 'Roboto-Regular.ttf', 24, COLOR_BLACK, 200, 400)
+                placeText(settingsSurface, "Populated sim, but paused, id02", 'Roboto-Regular.ttf', 14, COLOR_BLACK, 100, 300)
             paused = True
-            placeText(settingsSurface, "Placeholder settingsSurface, id03", 'Roboto-Regular.ttf', 24, COLOR_BLACK, 200, 300)
+            placeText(settingsSurface, "Placeholder settingsSurface, id03", 'Roboto-Regular.ttf', 14, COLOR_BLACK, 100, 200)
+
+            minimapSurface.fill(COLOR_WHITE)
+            minimapSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapSurface)
 
         displaySurface.blit(settingsSurface, (0, 55))
         displaySurface.blit(MENU_FADE, (0, 45))
+        displaySurface.blit(minimapSurface, (517, 60))
 
     elif active_tab_bools[2]: # statistics tab
         # no chosen map
         if active_map_path == None or active_map_path == "": # if no active map (init), "" = cancel on choosing map
             statisticsSurface.fill(COLOR_BACKGROUND)
-            placeText(statisticsSurface, "Choose map first [Stats], id04", 'Roboto-Regular.ttf', 24, COLOR_BLACK, 200, 300)
+            placeText(statisticsSurface, "Choose map first [Stats], id04", 'Roboto-Regular.ttf', 24, COLOR_BLACK, 100, 300)
+            displaySurface.blit(statisticsSurface, (0, 55))
+            minimapSurface.fill(COLOR_BACKGROUND) # wierd1
+            displaySurface.blit(minimapSurface, (517, 60)) # wierd2
         # map chosen
         else:
             statisticsSurface.fill(COLOR_BACKGROUND)
+
+            statisticsSurface.blit(BG_STATISTICS, (6, 1))
+            placeCenterText(statisticsSurface, active_map_path[-9:-4], 'Roboto-Regular.ttf', 26, COLOR_BLACK, 530, 30)
+
+            if not plot_rendered:
+                raw_data = rawPlotRender(rawPlot())
+                raw_data2 = rawPlotRender(rawPlot2())
+                raw_data3 = rawPlotRender(rawPlot3())
+                plot_rendered = True
+
+            # quadrant 1
+            #surf = pygame.image.fromstring(raw_data, (plot_x, plot_y), "RGB")
+            #statisticsSurface.blit(surf, (10, 5))
+
+            # quadrant 2
+            surf = pygame.image.fromstring(raw_data3, (150, 120), "RGB")
+            statisticsSurface.blit(surf, (345, 60))
+
+            surf = pygame.image.fromstring(raw_data3, (150, 120), "RGB")
+            statisticsSurface.blit(surf, (345, 200))
+
+            # quadrant 3
+            surf = pygame.image.fromstring(raw_data2, (plot_x, plot_y), "RGB")
+            statisticsSurface.blit(surf, (10, 361))
+
+            # quadrant 4
+            surf = pygame.image.fromstring(raw_data, (plot_x, plot_y), "RGB")
+            statisticsSurface.blit(surf, (517, 361))
+
+            minimapSurface.fill(COLOR_WHITE)
+            minimapSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapSurface)
+
             if player_pos != []:
-                placeText(statisticsSurface, "Populated sim, but paused, id05", 'Roboto-Regular.ttf', 24, COLOR_BLACK, 200, 400)
+                placeText(statisticsSurface, "Populated sim, but paused, id05", 'Roboto-Regular.ttf', 14, COLOR_BLACK, 100, 200)
             paused = True
-            placeText(statisticsSurface, "Placeholder statisticsSurface, id06", 'Roboto-Regular.ttf', 24, COLOR_BLACK, 200, 300)
+            placeText(statisticsSurface, "Placeholder statisticsSurface, id06", 'Roboto-Regular.ttf', 14, COLOR_BLACK, 100, 270)
 
         displaySurface.blit(statisticsSurface, (0, 55))
         displaySurface.blit(MENU_FADE, (0, 45))
+        displaySurface.blit(minimapSurface, (517, 60))
     else:
         raise NameError('No active tab')
 
@@ -579,5 +670,3 @@ while True:
 
     # update displaySurface
     pygame.display.flip() # .update(<surface_args>) instead?
-
-
