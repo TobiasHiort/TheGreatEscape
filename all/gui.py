@@ -337,7 +337,7 @@ while True:
                 # upload button routine startup
                 if cursorBoxHit(mouse_x, mouse_y, 450, 574, 335, 459, active_tab_bools[0]) and active_map_path is None:
 #                    active_map_path_tmp = fileDialogPath()
-                    active_map_path_tmp = "map2.png"
+                    active_map_path_tmp = "map11.png"
                     if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
                         # reset state.

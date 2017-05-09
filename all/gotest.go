@@ -59,15 +59,17 @@ func main() {
         panic(err)
     }
 
-	m[8][1] = 2
-	m[13][0] = 2
+//	m[8][1] = 2
+//	m[13][0] = 2
+
+  
 	testmap := TileConvert(m)
 	if testmap == nil {}
 
 	list := [][]int{
 		{1,1},
 	//	{1,2},
-		{2,2}}
+		{1,4}}
 	ppl := PeopleInit(testmap, list)
 
 
