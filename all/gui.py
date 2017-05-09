@@ -170,6 +170,7 @@ while True:
                             current_frame += 1
                             current_time_float += 0.1
                             for player in range(len(player_pos)):
+                        #    for player in range():
                                 player_pos[player] = players_movement[player][current_frame]
 
                 elif event.key == K_f and paused and player_pos != []: # backwards player movement from players_movement, move later to timed game event
@@ -204,12 +205,18 @@ while True:
  #                   print(getsizeof(fromgo_json))
 #
                     print(fromgo_json)
-                   # player_pos = json.loads(fromgo_json)
+                    player_pos = json.loads(fromgo_json)
+                    for pos in player_pos:
+                        players_movement.append([pos])
                     #data1 = json.loads(fromgo_json)                                   
-                   
+
+                    print(player_pos)
+                    print(players_movement)
+    
                     players_movement_tmp = []
-                    player_pos.append([0,0])
-                    player_pos.append([0,0])
+                    #player_pos.append([0,0])
+                    #player_pos.append([0,0])
+                    #"print(player_pos)
                     while len(fromgo_json) > 5: #fromgo_json != []:
                         
                         json_temp = json.loads(fromgo_json)     
@@ -217,19 +224,28 @@ while True:
                         players_movement_tmp.append(json_temp)
                         print(fromgo_json)
                         fromgo_json = child.stdout.readline().rstrip('\n')
-                    #print(players_movement_tmp) 
-
-                    tmp1 = [[0,0]]
-                    tmp2 = [[0,0]]
-                    for people in (players_movement_tmp):
-                        tmp1.append(people[0])
-                        tmp2.append(people[1])
+                        for i in range(len(json_temp)):
+                            players_movement[i].append(json_temp[i])
+                        
+                    print(players_movement) 
+                    
+                    
+                   # for coords in players_movement_tmp:
+                    #    for i in range(coords):
+                     #       players_movement
+                    
+                #    tmp1 = [[]]
+                 #   tmp2 = [[]]
+                 #   for people in (players_movement_tmp):
+                  #      tmp1.append(people[0])
+                   #     tmp2.append(people[1])
                        #  paused = False 
 
-                    players_movement.append(tmp1) 
-                    players_movement.append(tmp2)
-                    print(players_movement[0][0]) 
-                    print(players_movement[1]) 
+                    #players_movement.append(tmp1) 
+                    #players_movement.append(tmp2)
+                    #print(players_movement[0][0])
+                    #print(players_movement[0]) 
+                    #print(players_movement[1])               
 
                 elif event.key == K_s and paused and player_pos != []:
                     #print(len(players_movement[0][0]))
