@@ -185,19 +185,30 @@ while True:
                     print(getsizeof(json.dumps(mapMatrix.tolist())))
 
 
+                    #converts stuff to into int
+                    map_matrixInt = copy.deepcopy(mapMatrix).astype(int)
+
                     #pipes length of pipe data
                     print(makeItr(byte_limit, json.dumps(mapMatrix.tolist())), file=child.stdin)
+                    print("itrprint: ")
+                    print(makeItr(byte_limit, json.dumps(mapMatrix.tolist())))
 
+                    map_list = splitPipeData(byte_limit, json.dumps(mapMatrix.tolist()))
                     #wait for inpput from go
                     #
                     #the real deal pipe mother
-                    print(splitPipeData(byte_limit, json.dumps(mapMatrix.tolist())), file=child.stdin)
+                    for map_part in range(map_list)
+                        #get input from go
+
+                        #send stuff to go
+                        print
+                    #print(splitPipeData(byte_limit, json.dumps(mapMatrix.tolist())), file=child.stdin)
                     fromgo_json = child.stdout.readline().rstrip('\n')
 
                     print(getsizeof(fromgo_json))
 
                     data1 = json.loads(fromgo_json)
-                    print(getsizeof(data1))
+                    print(type(data1))
 
                     #child.stdin.close()
                     #child.stdout.close()
