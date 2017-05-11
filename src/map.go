@@ -366,7 +366,7 @@ func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 	}
 }
 
-func CompileStats(peopleArray []*Person) []int {
+func PeopleStats(peopleArray []*Person) []int {
 
 	aliveAmount := 0
 	deadAmount := 0
@@ -383,4 +383,16 @@ func CompileStats(peopleArray []*Person) []int {
 	}
 
 	return []int{aliveAmount, deadAmount, injuredAmount}
+}
+
+func MapStats(inMap [][]tile) []int{
+	fireTiles := 0
+	for i := range inMap {
+		for j := range inMap[i] {
+			if inMap[i][j].fireLevel > MINHEAT {
+					fireTiles ++
+				}
+			}
+		}
+	return []int{fireTiles}
 }

@@ -1,4 +1,4 @@
-package main 
+package main
 
 import (
   "fmt"
@@ -8,19 +8,23 @@ import (
 )
 
 func readStats(peopleArray []*Person) {
-  
+
   file, err := os.Create("stats.txt")
   if err != nil {
     log.Fatal("Cannot create file")
   }
   defer file.Close()
 
-  stats := CompileStats(peopleArray);
-  fmt.Fprintf(file, strconv.Itoa(stats[0]) + strconv.Itoa(stats[1]) + strconv.Itoa(stats[2]))
+  pplStats := PeopleStats(peopleArray)
+  fmt.Fprintf(file, strconv.Itoa(pplStats[0]) + strconv.Itoa(pplStats[1]) + strconv.Itoa(pplStats[2]))
 
-} 
+	mapStats := MapStats(testmap)
+	fmt.Fprintf(file, strconv.Itoa(mapStats[0]))
+
+}
+
 func main() {
-  
+
 	matrix := [][]int{
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
