@@ -7,11 +7,14 @@ import sys
 import os
 import numpy
 import math
-import wx
+#import wx
 import time
 import subprocess
 import doctest # read from txt, read docs
 import random
+
+import tkinter as tk
+from tkinter import filedialog
 
 import matplotlib
 matplotlib.use("Agg")
@@ -592,3 +595,37 @@ def rawPlotRender(fig):
     renderer = canvas.get_renderer()
     raw_data = renderer.tostring_rgb()
     return raw_data
+
+def fileDialogInit():
+
+    """Description.
+
+    More...
+
+    """
+
+    # for opening map file in tkinter
+
+    file_opt = options = {}
+    options['defaultextension'] = '.png'
+    options['filetypes'] = [('PNG Map Files', '.png')]
+    options['initialdir'] = os.getcwd() + '\maps'
+    options['initialfile'] = 'mapXX.png'
+    options['title'] = 'Select Map'
+    return file_opt
+
+def fileDialogPath():
+
+    """Description.
+
+    More...
+
+    """
+
+    file_opt = {}
+    root = tk.Tk()
+    root.withdraw()
+    file_path = filedialog.askopenfilename(**file_opt)
+    filename_pos = file_path.rfind('/')+1 # position for filename
+    active_map_path_tmp = file_path[filename_pos:]
+    return active_map_path_tmp
