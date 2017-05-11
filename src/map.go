@@ -372,14 +372,6 @@ func CompileStats(peopleArray []*Person) []int {
 	deadAmount := 0
 	injuredAmount := 0
 
-	/*
-	statSlice := make([][]int, len(peopleArray))
-	//movement := make([]*tile, len(peopleArray))
-	for i = 0; i < len(peopleArray); i++ {
-		[i]statSlice := make([]int, )
-	}
-	*/
-
 	for i := 0; i < len(peopleArray); i++ {
 		if ((peopleArray[i]).alive) && ((peopleArray[i]).hp < 70) {
 			injuredAmount++
@@ -392,9 +384,3 @@ func CompileStats(peopleArray []*Person) []int {
 
 	return []int{aliveAmount, deadAmount, injuredAmount}
 }
-/*
-func main() {
-	//compileStats()
-	fmt.Print("hej")
-}
-*/
