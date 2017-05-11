@@ -244,9 +244,9 @@ func main() {
 //      testRedirect()
 //	testDiagPpl()
 //	testDiag()
-//	testDiagonally()
+	testDiagonally()
 //	testMovePeople()
-	Whut()
+//	Whut()
 //	testJP()
 	//	GLoop()
 }
@@ -368,7 +368,7 @@ func testJP() {
 	testmap := TileConvert(matrix)
 	pplArray := PeopleInit(testmap, list)
 
-	MovePeople2(&testmap, pplArray)
+	MovePeople(&testmap, pplArray)
 
 	for i, p := range pplArray {
 		fmt.Println("Person", i, "time:  ", p.time, "\n         health:", p.hp)

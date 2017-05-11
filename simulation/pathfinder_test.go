@@ -289,11 +289,17 @@ func TestTwo(t *testing.T) {
 
 //	if !ok {t.Errorf("Expected a valid path, buut got a invalid one")}	
 } */
+
 /*
+--- PASS: TestLargeMap (45.73s)
+=== RUN   TestLargeMap2
+--- PASS: TestLargeMap2 (26.45s)
+*/
+
 func TestLargeMap(t *testing.T) {
 	matrix := [][]int{}
-	xS := 200
-	yS := 200
+	xS := 10
+	yS := 10
 
 	for x := 0; x < xS; x++ {
 		row := []int{}
@@ -315,13 +321,13 @@ func inNbrs(nbrs []*tile, t *tile) bool{
 	}
 	return false
 }
-*/
-/*
+
+
 // 100*100 took 1.48 s
 func TestLargeMap2(t *testing.T) {
 	matrix := [][]int{}
-	xS := 100
-	yS := 100
+	xS := 200
+	yS := 200
 
 	for x := 0; x < xS; x++ {
 		row := []int{}
@@ -336,7 +342,7 @@ func TestLargeMap2(t *testing.T) {
 
 	if !ok {t.Errorf("Expected a valid path, but got a invalid one")}
 }
-*/
+
 
 // 200*200 ended after 10min: took to long!
 // 100*100 took 71.66 s
