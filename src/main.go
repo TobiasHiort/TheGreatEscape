@@ -1,18 +1,11 @@
 package main
 
-<<<<<<< HEAD
-=======
-
->>>>>>> master
 /*
 
 -- Paste Python communication stuff here
 
 */
 
-<<<<<<< HEAD
-[][]int, peopleList []*Person, fireStartPos []int
-=======
 //[][]int, peopleList []*Person, fireStartPos []int
 
 //TODO func for input from pipe
@@ -57,5 +50,3 @@ func singleSimulation(mapList [][]int, peopleList [][]int, fireStartPos[]int) {
   
 
 }
-
->>>>>>> master
