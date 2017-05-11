@@ -1,12 +1,13 @@
 package main
 
 import (
-		"io/ioutil"
+    //"fmt"
     "os"
     "bufio"
     "fmt"
 	"encoding/json"
-	"time"
+	//"time"
+    "io/ioutil"
     //"log"
 )
 
@@ -44,50 +45,80 @@ func toPipe(stats [][]int) {
 
 
 func main() {
-	//fmt.Println("GO STARTED2")
-
-	/*
+    /*
 	bio := bufio.NewReader(os.Stdin)
 
-	line, _, _ := bio.ReadLine()
+    line, _, _ := bio.ReadLine()
+
 	if line == nil {}
 
+
     var m = [][]int{}
+
     err := json.Unmarshal(line, &m)
     if err != nil {
         panic(err)
     }
-		*/
+    */
+	//m[8][1] = 2
+	//m[13][0] = 2
 
-		b, _ := ioutil.ReadFile("mapfile.txt")
+
+    b, err3 := ioutil.ReadFile("../src/mapfile.txt")
+    if err3 != nil{
+        panic(err3)
+    }
+
     var m = [][]int{}
+    err := json.Unmarshal(b, &m)
+    if err != nil{
+        panic(err)
+    }
+    //m[8][1] = 2
+    //m[13][0] = 2
 
-		err := json.Unmarshal(b, &m)
-		if err != nil{
-			fmt.Print("fugg :D")
-		}
-
-	m[8][1] = 2
-	m[13][0] = 2
 	testmap := TileConvert(m)
 	if testmap == nil {}
 
+    c, err4 := ioutil.ReadFile("../src/playerfile.txt")
+    if err4 != nil{
+        panic(err4)
+    }
+
+    var mm = [][]int{}
+    err5 := json.Unmarshal(c, &mm)
+    if err5 != nil{
+        panic(err5)
+    }
+
+    /*
 	list := [][]int{
 		{1,1},
-	//	{1,2},
-		{2,2}}
-	ppl := PeopleInit(testmap, list)
+		{5,1},
+        {7,1},
+        {8,1},
+        {9,2},
+        {10,3},
+        {11,50},
+		{22,90},
+        {25,105},
+        {25,125}}
+		//{3,3}}
+    */
+
+    ppl := PeopleInit(testmap, mm)
 
 
-	stats := [][]int{}
-	Run(&testmap, ppl, &stats) // startstats!
+//	stats := [][]int{}
+	stats := StartStats(ppl)
+	//	Run(&testmap, ppl, &stats) // startstats!
 	//fmt.Println(len(stats))
 
 	//	check := 0
 
 	for !CheckFinish(ppl) {
 		toPipe(stats)
-		time.Sleep(10 * time.Millisecond)
+		//time.Sleep(10 * time.Millisecond)
 		Run(&testmap, ppl, &stats)
 		/*
 		for check == 0 {
@@ -115,5 +146,3 @@ func fromPipe() int{
 
 	return m
 }
-
-

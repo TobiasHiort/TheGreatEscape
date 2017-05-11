@@ -284,6 +284,7 @@ func TestTwo(t *testing.T) {
 
 	if !ok1 {t.Errorf("Expected a valid path, but got a invalid one")}
 	if !ok2 {t.Errorf("Expected a valid path, but got a invalid one")}
+<<<<<<< HEAD:simulation/pathfinder_test.go
 
 //	_, ok := getPath(&testmap, &testmap[0][0])
 
@@ -295,6 +296,18 @@ func TestTwo(t *testing.T) {
 === RUN   TestLargeMap2
 --- PASS: TestLargeMap2 (26.45s)
 */
+
+	
+	/*	ppl := &testmap[0][0], &testmap[1][1]
+	for pers := range ppl {
+		go func(p *Tile) {
+			getPath(&testmap, p)	
+		}(pers)
+	}*/
+//	_, ok := getPath(&testmap, &testmap[0][0])
+
+//	if !ok {t.Errorf("Expected a valid path, buut got a invalid one")}	
+//}
 
 func TestLargeMap(t *testing.T) {
 	matrix := [][]int{}
@@ -488,6 +501,7 @@ func TestSneJP(t *testing.T) {
 
 }
 /*
+<<<<<<< HEAD:simulation/pathfinder_test.go
 func TestGetPath2(t *testing.T) {
 	matrix := [][]int {
 		{0,0,0,0,0},
@@ -500,4 +514,30 @@ func TestGetPath2(t *testing.T) {
 	path, ok := getPath2(&testmap, &testmap[0][0])
 	if !ok {t.Errorf("Expected a valid path, but got an invalid one")}
 	if !(*path[0] == testmap[2][2]) {t.Errorf("Expected jp: 2 2, but got jp: %d %d", path[0].xCoord, path[0].yCoord)}
+=======
+func TestThis(t *testing.T) {
+	matrix := [][]int{}
+	xS := 100
+	yS := 100
+
+	for x := 0; x < xS; x++ {
+		row := []int{}
+		for y := 0; y < yS; y++ {
+			row = append(row, 0)
+		}		
+		matrix = append(matrix, row)
+	}
+	matrix[xS - 1][yS - 1] = 2
+	testmap := TileConvert(matrix)
+
+	list := [][]int{matrix[0]}
+	nrOfPpl := yS
+	for x := 0; x < nrOfPpl; x++ {
+		list = append(list, )
+	}
+
+
+	ppl := PeopleInit(testmap, list)
+	MovePeople(&testmap, ppl)
+>>>>>>> master:src/pathfinder_test.go
 }*/

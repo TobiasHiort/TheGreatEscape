@@ -183,30 +183,39 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 	return peopleArray
 }
 
-
-func Run(m *[][]tile, ppl []*Person) []Stats{
-	sList := []Stats{}
+func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
+	//sList := []Stats{}
 
 	var wg sync.WaitGroup	
 
 	wg.Add(len(ppl))
-	for _, pers := range ppl {			
-		go func(p *Person){
+	*statsList = [][]int{}
+	for _, pers := range ppl {
+		
+		go func(p *Person){//, ind int){
+			//	ind := i
+			//p := pers
 			defer wg.Done()
+			
+			//	sList :=  []int{}// append(sList, p.getStats())
 			p.MovePerson(m)
-			sList = append(sList, p.getStats())
-		}(pers)
+			sList := &[]int{}
+			p.getStats(sList)//(statsList[ind])
+			*statsList = append(*statsList, *sList)
+			//	fmt.Println(len(statsList))
+
+		}(pers)//, i)
 	}
 	step++
 	wg.Wait()
 	FireSpread(*m)
 	//	}
-	
-	/*	// go run ruitnes for concurrency
+
+/*	// go run ruitnes for concurrency
 	for _, person := range peopleArray {
 		person.MovePerson(&inMap)
 	}*/
-	return sList
+//	return sList
 }
 
 func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{   // OBS: not working
@@ -238,17 +247,22 @@ func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{   // OBS: not workin
  	return true
  }
 
-func main() {
+func mainMap() {
 //	mainPath() 
 //	MainPeople()
 //      testRedirect()
 //	testDiagPpl()
 //	testDiag()
+<<<<<<< HEAD:simulation/map.go
 	testDiagonally()
 //	testMovePeople()
 //	Whut()
 //	testJP()
 	//	GLoop()
+=======
+//	testDiagonally()
+	testMovePeople()
+>>>>>>> master:src/map.go
 }
 
 func testRedirect() {
