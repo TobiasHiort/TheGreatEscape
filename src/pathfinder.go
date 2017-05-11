@@ -902,22 +902,6 @@ func Whut() {
 
 	path, _ := getPath2(&testmap, &testmap[0][6])
 	printPath(path)
-	
-/*	pt := Jp(&testmap[4][1], e)
-
-	
-	
-	if len(pt) > 0 {
-		fmt.Println("jp path:")
-		for _,t := range pt {		
-			if t.jp != nil {fmt.Println(t.jp.xCoord, t.jp.yCoord)}
-			fmt.Println("fns:")
-			for _, fn := range t.fn {
-				if fn != nil {fmt.Println(fn.xCoord, fn.yCoord)}
-			}
-			
-		}
-	}*/
 }
 
 
@@ -959,41 +943,39 @@ func getPath2(m *[][]tile, from *tile) ([]*tile, bool) {
 			currentDir = getDir(parentOf[current.tile], current.tile)
 		} else {currentDir = Direction{0,0}}
 		neighbors := /*getNeighbors(current.tile, cq)*/ getNeighborsPruned(current.tile, currentDir)
-	//.	var wg sync.WaitGroup
-	//.	wg.Add(len(neighbors))
-	//.	var mutex = &sync.Mutex{}
+
+		var wg sync.WaitGroup
+		wg.Add(len(neighbors))
+		var mutex = &sync.Mutex{}
 		for _, neighbor := range neighbors {
-		//	fmt.Println("neighbor",neighbor.xCoord, neighbor.yCoord)
-	//.		go func(n *tile) {
-			//.			defer wg.Done()
-			n := neighbor
-			if n.xCoord == 2 && n.yCoord == 1 {
-			//	fmt.Println("dir", getDir(current.tile, n))
-			}
-				
+			//	fmt.Println("neighbor",neighbor.xCoord, neighbor.yCoord)
+			go func(n *tile) {
+				defer wg.Done()
+			//	n := neighbor
+
 				jps := Jp(n, getDir(current.tile, n))
 				for _, jp := range jps {
-				//	if n == GetTile(*m, 0, 5) {
-				//		fmt.Println("CHECK:", jp.jp)
-				//		fmt.Println("??", len(jp.fn))
-				//		for _, test := range jp.fn {
-				//			fmt.Println("this:", test)
-				//		}
-				//	}
+					//	if n == GetTile(*m, 0, 5) {
+					//		fmt.Println("CHECK:", jp.jp)
+					//		fmt.Println("??", len(jp.fn))
+					//		for _, test := range jp.fn {
+					//			fmt.Println("this:", test)
+					//		}
+					//	}
 					
-				/*	if jp.jp == GetTile(*m, 5, 0) {
+					/*	if jp.jp == GetTile(*m, 5, 0) {
 						fmt.Println("HERE IT IS!! \n\n ")
 						fmt.Println("cur:", *current.cost)
 						fmt.Println("??:", *current.cost + smplCost(current.tile, jp.jp), "\n\n stop") //TODO:!)
 					}*/
 
 					if jp.jp != nil {
-					
-						//.					mutex.Lock()
-					//	if cq.costOf(current.tile) < 0 {fmt.Println("wtf?", current.tile, cq.costOf(current.tile))}
+						
+						mutex.Lock()
+						//	if cq.costOf(current.tile) < 0 {fmt.Println("wtf?", current.tile, cq.costOf(current.tile))}
 						//cost := cq.costOf(current.tile) + smplCost(current.tile, jp.jp) //TODO:!
 						cost := *current.cost + smplCost(current.tile, jp.jp) //TODO:!
-					//	if jp.jp == GetTile(*m, 5, 0) {fmt.Println("\nCOST: ",cost)}
+						//	if jp.jp == GetTile(*m, 5, 0) {fmt.Println("\nCOST: ",cost)}
 						//	if cost < 0 {fmt.Println("neg cost?:",cost)}
 					//	fmt.Println("jp", jp.jp)
 					//	fmt.Println("jpcost?", cost)
@@ -1022,14 +1004,14 @@ func getPath2(m *[][]tile, from *tile) ([]*tile, bool) {
 							//	fmt.Println("updated", cost)}
 							
 						}
-	//.					mutex.Unlock()	
+						mutex.Unlock()	
 					}
 				}
-	//.		}(neighbor)						
+			}(neighbor)						
 
 		
 		}
-	//.	wg.Wait()		
+		wg.Wait()		
 	}
 //	fmt.Println("len:", len(parentOf))
 //	fmt.Println("check:", parentOf[GetTile(*m,5,6)])

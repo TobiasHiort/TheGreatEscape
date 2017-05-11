@@ -117,7 +117,7 @@ func (p *Person) nextTile() *tile{
 }
 
 func (p *Person) followPlan() {
-	fmt.Println("dir:", p.dir)
+//	fmt.Println("dir:", p.dir)
 	if p.path[len(p.path) - 1] == nil { return} // TODO updatestats
 	if len(p.plan) > 0 { // follow tha plan!		
 	//	if p.moveTo(p.plan[0]) {   // next step in plan is available -> move		

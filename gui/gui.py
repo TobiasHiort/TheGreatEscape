@@ -61,7 +61,7 @@ current_time_float = 0.0 # float time for accurate time frame measurement, right
 paused = True
 player_scale = 1.0
 player_count = 0
-pop_percent = 0.5 # init as this later?
+pop_percent = 0.01 # init as this later?
 
 player_pos = [] # might use this as indicator to not populate instead of players_movement?
 players_movement = []
@@ -232,6 +232,10 @@ while True:
                                 player_pos[player] = players_movement[player][current_frame]
                             playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
 
+                elif event.key == K_2 and paused:
+                    current_frame = 0
+                    current_time_float = 0.0
+                    playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
                 elif event.key == K_m and paused:
                     # read stdout through pipe TEST
                     #popen = subprocess.call('./hello') # just a call
@@ -245,7 +249,7 @@ while True:
                     #print(map_matrixInt)
                     #map_jsons = json.dumps(mapMatrix.tolist())
                     map_jsons = json.dumps(map_matrixInt.tolist())
-                    print(map_jsons)
+                   # print(map_jsons)
                     ##print(map_jsons, file=child.stdin)
 
                     #Saving stuff to file, axel3
@@ -263,14 +267,17 @@ while True:
                     # temp player pos
 
                     #player_pos_tmp = [[1,1], [3,4], [5,1],[1,8],[2,8],[2,7]]
-                    player_pos_str = json.dumps(player_pos_tmp)
+                    #player_pos_tmp3 = []
+                    #for i in range(len(player_pos)):
+                    #   player_pos_tmp3.append(player_pos[i][::-1]) # [::-1]
+                    player_pos_str = json.dumps(player_pos)#_tmp)
 
                     tofile3 = open('../src/playerfile.txt', 'w+')
                     tofile3.write(player_pos_str)
                     tofile3.close()
 
                     fromgo_json = child.stdout.readline().rstrip('\n')
-                    print(fromgo_json)
+                    #print(fromgo_json)
                     player_pos = json.loads(fromgo_json)
                     for pos in player_pos:
                         players_movement.append([pos])
@@ -284,10 +291,11 @@ while True:
                     #player_pos.append([0,0])
                     #"print(player_pos)
                     json_temp = json.loads(fromgo_json)
-                    print(type(json_temp))
+                    #print(type(json_temp))
                     counter_lol = 0
                     while len(fromgo_json) > 5: #fromgo_json != []:
 
+                        print(fromgo_json)
                         json_temp = json.loads(fromgo_json)
                         #players_movement_tmp.append(json_temp[0])
                         #players_movement_tmp.append(json_temp)
@@ -330,21 +338,21 @@ while True:
                         # remove, for testing. creates a 1 frame movement (players_movement from player_pos).
                         # MUST BE DONE BEFORE TIMER100 EVENT/K_s, not current players_movement otherwise
                         #print(player_pos)
-                        player_pos_test1 = copy.deepcopy(player_pos)
-                        player_pos_test2 = copy.deepcopy(player_pos)
-                        player_pos_test3 = [["foo" for i in range(1)] for j in range(player_count)]
-                        for x in range(player_count):
+                        #player_pos_test1 = copy.deepcopy(player_pos)
+                        #player_pos_test2 = copy.deepcopy(player_pos)
+                        #player_pos_test3 = [["foo" for i in range(1)] for j in range(player_count)]
+                        #for x in range(player_count):
                             #player_pos_test3 = [[],[]]
-                            player_pos_test3[x] = [player_pos_test1[x], player_pos_test2[x]]
+                        #    player_pos_test3[x] = [player_pos_test1[x], player_pos_test2[x]]
                         #print(player_pos_test3[0][0][0])
-                        for player in range( player_count ):
-                            for frame in range(1):
-                                 player_pos_test3[player][1][1] += 1
+                        #for player in range( player_count ):
+                        #    for frame in range(1):
+                        #         player_pos_test3[player][1][1] += 1
                                  #player_pos_test3[player][frame][0] += 1
                         #print(player_pos_test3)
                         #print(player_pos_test2)
                         #print(player_pos_test2[0])
-                        players_movement = copy.deepcopy(player_pos_test3)
+                       # players_movement = copy.deepcopy(player_pos_test3)
                         playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
                     else:
                         print('Depop first')
@@ -355,17 +363,26 @@ while True:
                 elif event.key == K_c: # cheat button, remove
                     _, current_frame, current_time_float, paused, _, player_count = resetState()
                     players_movement = []
-                    player_pos_tmp = [[1, 1],
+                    player_pos_tmp2 = [[1, 2],
                                       [1, 2],
                                       [2, 1],
                                       [2, 2],
                                       [1, 7],
-                                      [2, 7]]
+                                      [2, 7],
+                                      [100, 10],
+                                      [100, 11],
+                                      [112, 10],
+                                      [103, 10],
+                                      [100, 11],
+                                      [101, 12],
+                                      [115, 40],
+                                      [115, 39],
+                                      [116, 39]]
                                       # x, y
                     #print(player_pos_tmp)
-                    player_pos_tmp2 = []
-                    for i in range(len(player_pos_tmp)):
-                        player_pos_tmp2.append(player_pos_tmp[i][::-1]) # [::-1]
+                    #player_pos_tmp2 = []
+                    #for i in range(len(player_pos_tmp)):
+                    #    player_pos_tmp2.append(player_pos_tmp[i][::-1]) # [::-1]
                     #print(player_pos_tmp[1][::-1])
                     #print(player_pos_tmp2)
                     playerSurface = drawPlayer(playerSurface, player_pos_tmp2, tilesize, player_scale, coord_x, coord_y, radius_scale)

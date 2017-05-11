@@ -177,7 +177,8 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 	size := len(peopleList)
 	peopleArray := make([]*Person, size)
 	for i, person := range peopleList {
-		tile := GetTile(inMap, person[0], person[1])
+	//	tile := GetTile(inMap, person[0], person[1])  // inverted! 
+		tile := GetTile(inMap, person[1], person[0])
 		peopleArray[i] = makePerson(tile)
 	}
 	return peopleArray
@@ -187,21 +188,24 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	//sList := []Stats{}
 
 	var wg sync.WaitGroup	
-
+	var mutex = &sync.Mutex{}
+	
 	wg.Add(len(ppl))
 	*statsList = [][]int{}
 	for _, pers := range ppl {
 		
 		go func(p *Person){//, ind int){
 			//	ind := i
-			//p := pers
+		//	p := pers
 			defer wg.Done()
 			
 			//	sList :=  []int{}// append(sList, p.getStats())
 			p.MovePerson(m)
 			sList := &[]int{}
 			p.getStats(sList)//(statsList[ind])
+			mutex.Lock()
 			*statsList = append(*statsList, *sList)
+			mutex.Unlock()
 			//	fmt.Println(len(statsList))
 
 		}(pers)//, i)
@@ -253,16 +257,16 @@ func mainMap() {
 //      testRedirect()
 //	testDiagPpl()
 //	testDiag()
-<<<<<<< HEAD:simulation/map.go
+
 	testDiagonally()
 //	testMovePeople()
 //	Whut()
 //	testJP()
 	//	GLoop()
-=======
+
 //	testDiagonally()
 	testMovePeople()
->>>>>>> master:src/map.go
+
 }
 
 func testRedirect() {
