@@ -90,15 +90,15 @@ func assignNeighbor(thisTile *tile, x int, y int, maxX int, maxY int, tileMap []
 	if y < maxY-1 {
 		thisTile.neighborEast = &tileMap[x][y+1]
 	}
-	
+
 	if x > 0 && y > 0 {
 		thisTile.neighborNW = &tileMap[x-1][y-1]
-	}	
+	}
 	if x > 0 && y < maxY-1 {
 		thisTile.neighborNE = &tileMap[x-1][y+1]
-	}	
+	}
 	if x < maxX-1 && y < maxY-1 {
-		thisTile.neighborSE = &tileMap[x+1][y+1]		
+		thisTile.neighborSE = &tileMap[x+1][y+1]
 	}
 	if x < maxX-1 && y > 0 {
 		thisTile.neighborSW = &tileMap[x+1][y-1]
@@ -186,17 +186,17 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	//sList := []Stats{}
 
-	var wg sync.WaitGroup	
+	var wg sync.WaitGroup
 
 	wg.Add(len(ppl))
 	*statsList = [][]int{}
 	for _, pers := range ppl {
-		
+
 		go func(p *Person){//, ind int){
 			//	ind := i
 			//p := pers
 			defer wg.Done()
-			
+
 			//	sList :=  []int{}// append(sList, p.getStats())
 			p.MovePerson(m)
 			sList := &[]int{}
@@ -228,10 +228,10 @@ func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{   // OBS: not workin
 			defer wg.Done()
 			if (!currentPerson.DiagonalStep()) {
 				fmt.Println("not diagonal move!")
-				currentPerson.MovePerson(inMap)}		
-			if currentPerson.IsWaiting() {			
+				currentPerson.MovePerson(inMap)}
+			if currentPerson.IsWaiting() {
 				movement[ind] = nil
-			} else {			
+			} else {
 				movement[ind] = currentPerson.path[len(currentPerson.path) - 1]}
 		}(person, i)
 	}
@@ -239,12 +239,12 @@ func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{   // OBS: not workin
 }
 
  func CheckFinish (peopleArray []*Person) bool {
- 	for i := 0; i < len(peopleArray); i++ {
- 		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {
- 			return false
- 		}  
- 	}
- 	return true
+	for i := 0; i < len(peopleArray); i++ {
+		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {
+			return false
+		}
+	}
+	return true
  }
 
 func mainMap() {
@@ -332,7 +332,7 @@ func testDiagonally() {
 		{0, 6},
 		{2, 4}}
 
-	tryThis(matrix, list, 1, 2)	
+	tryThis(matrix, list, 1, 2)
 }
 
 func testMovePeople() {
@@ -347,7 +347,7 @@ func testMovePeople() {
 
 	list := [][]int{
 		{0, 0},
-		{0, 6},		
+		{0, 6},
 		{2, 4}}
 
 	tryThis(matrix, list, -1, -1)
@@ -365,3 +365,36 @@ func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 		fmt.Println("Person", i, "time:  ", p.time, "\n         health:", p.hp)
 	}
 }
+
+func CompileStats(peopleArray []*Person) []int {
+
+	aliveAmount := 0
+	deadAmount := 0
+	injuredAmount := 0
+
+	/*
+	statSlice := make([][]int, len(peopleArray))
+	//movement := make([]*tile, len(peopleArray))
+	for i = 0; i < len(peopleArray); i++ {
+		[i]statSlice := make([]int, )
+	}
+	*/
+
+	for i := 0; i < len(peopleArray); i++ {
+		if ((peopleArray[i]).alive) && ((peopleArray[i]).hp < 70) {
+			injuredAmount++
+		} else if (peopleArray[i].alive) {
+			aliveAmount++
+		} else {
+			deadAmount++
+		}
+	}
+
+	return []int{aliveAmount, deadAmount, injuredAmount}
+}
+/*
+func main() {
+	//compileStats()
+	fmt.Print("hej")
+}
+*/
