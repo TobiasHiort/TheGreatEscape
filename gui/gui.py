@@ -10,7 +10,9 @@ import tkinter as tk # replace
 import subprocess
 import copy
 import json
-import wx
+#import wx
+
+from tkinter import filedialog
 
 import matplotlib
 matplotlib.use("Agg")
@@ -31,8 +33,8 @@ def restart_program():
     os.execl(python, python, * sys.argv)
 
 # file dialog init
-app = wx.App()
-frame_wx = wx.Frame(None, -1, 'win.py')
+#app = wx.App()
+#frame_wx = wx.Frame(None, -1, 'win.py')
 
 # init game
 pygame.init()
@@ -59,7 +61,7 @@ current_time_float = 0.0 # float time for accurate time frame measurement, right
 paused = True
 player_scale = 1.0
 player_count = 0
-pop_percent = 0.1 # init as this later?
+pop_percent = 0.5 # init as this later?
 
 player_pos = [] # might use this as indicator to not populate instead of players_movement?
 players_movement = []
@@ -158,6 +160,9 @@ BUTTON_PEOPLE = loadImage('gui', 'people.png')
 BUTTON_FIRE = loadImage('gui', 'fire.png')
 BUTTON_SMOKE = loadImage('gui', 'smoke.png')
 
+file_opt = fileDialogInit()
+
+
 # game loop
 while True:
     # event logic
@@ -206,6 +211,9 @@ while True:
         elif event.type == KEYDOWN:
             if event.key == K_r:
                 restart_program()
+            elif event.key == K_1: # depopulate
+                    pygame.quit()
+                    sys.exit()
             if active_tab_bools[0] and active_map_path is not None: # do not add time/pos if no map
                 # these two need to read from _saved_ pipe movement, cant go back otherwise. and only possible when paused
                 # add 'not' for not populated, time runs anyhow for these
@@ -216,7 +224,6 @@ while True:
                             for player in range(len(player_pos)):
                                 player_pos[player] = players_movement[player][current_frame]
                             playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
-
                 elif event.key == K_f and paused and player_pos != []: # backwards player movement from players_movement, move later to timed game event
                         if current_frame > 0: # no (more) movement tuples
                             current_frame -= 1
@@ -228,6 +235,7 @@ while True:
                 elif event.key == K_m and paused:
                     # read stdout through pipe TEST
                     #popen = subprocess.call('./hello') # just a call
+                    # WINDOZE
                     child = Popen('../src/gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
                     child.stdout.flush()
                     child.stdin.flush()
@@ -236,10 +244,12 @@ while True:
                     #map_matrixInt.astype(int)
                     #print(map_matrixInt)
                     #map_jsons = json.dumps(mapMatrix.tolist())
-                    #map_jsons = json.dumps(map_matrixInt.tolist())
+                    map_jsons = json.dumps(map_matrixInt.tolist())
+                    print(map_jsons)
+                    ##print(map_jsons, file=child.stdin)
 
-                    #Saving stuff to file
-                    tofile = open('mapfile.txt', 'w+')
+                    #Saving stuff to file, axel3
+                    tofile = open('../src/mapfile.txt', 'w+')
                     tofile.write(map_jsons)
                     tofile.close()
                     #print(map_jsons, file=child.stdin)
@@ -248,7 +258,16 @@ while True:
                     #                 print(getsizeof(json.dumps(mapMatrix.tolist())))
                     #print(json.dumps(mapMatrix.tolist()), file=child.stdin)
 
+                    #child = Popen('../src/gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
 
+                    # temp player pos
+
+                    #player_pos_tmp = [[1,1], [3,4], [5,1],[1,8],[2,8],[2,7]]
+                    player_pos_str = json.dumps(player_pos_tmp)
+
+                    tofile3 = open('../src/playerfile.txt', 'w+')
+                    tofile3.write(player_pos_str)
+                    tofile3.close()
 
                     fromgo_json = child.stdout.readline().rstrip('\n')
                     print(fromgo_json)
@@ -257,24 +276,29 @@ while True:
                         players_movement.append([pos])
                     #data1 = json.loads(fromgo_json)
 
-                    print(player_pos)
-                    print(players_movement)
+                    ##print(player_pos)
+                    ##print(players_movement)
 
-                    players_movement_tmp = []
+                    #players_movement_tmp = []
                     #player_pos.append([0,0])
                     #player_pos.append([0,0])
                     #"print(player_pos)
+                    json_temp = json.loads(fromgo_json)
+                    print(type(json_temp))
+                    counter_lol = 0
                     while len(fromgo_json) > 5: #fromgo_json != []:
 
                         json_temp = json.loads(fromgo_json)
                         #players_movement_tmp.append(json_temp[0])
-                        players_movement_tmp.append(json_temp)
-                        print(fromgo_json)
+                        #players_movement_tmp.append(json_temp)
+                        #print(fromgo_json)
                         fromgo_json = child.stdout.readline().rstrip('\n')
+                        #print('test2: ' + str(fromgo_json))
                         for i in range(len(json_temp)):
                             players_movement[i].append(json_temp[i])
+                        counter_lol += 1
+                        #print(counter_lol)
 
-                    print(players_movement)
                 elif event.key == K_s and paused and player_pos != []:
                     #print(len(players_movement[0][0]))
                     #print(current_frame)
@@ -285,6 +309,12 @@ while True:
                         paused = False
                 elif event.key == K_p: # for use with cursorHitBox
                     paused = True # if paused == True -> False?
+                elif event.key == K_o: # for use with cursorHitBox
+                    if pop_percent < 0.9:
+                        pop_percent *= 1.25
+                elif event.key == K_l: # for use with cursorHitBox
+                    if pop_percent > 0.1:
+                        pop_percent *= 0.8
 
                 elif event.key == K_a: # populate, warning. use after randomizing init pos
                     paused = True
@@ -318,9 +348,58 @@ while True:
                         playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
                     else:
                         print('Depop first')
-                elif event.key == K_z: # depopulate
+                elif event.key == K_z: # depopulateg
                     _, current_frame, current_time_float, paused, player_pos, player_count = resetState()
                     playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+
+                elif event.key == K_c: # cheat button, remove
+                    _, current_frame, current_time_float, paused, _, player_count = resetState()
+                    players_movement = []
+                    player_pos_tmp = [[1, 1],
+                                      [1, 2],
+                                      [2, 1],
+                                      [2, 2],
+                                      [1, 7],
+                                      [2, 7]]
+                                      # x, y
+                    #print(player_pos_tmp)
+                    player_pos_tmp2 = []
+                    for i in range(len(player_pos_tmp)):
+                        player_pos_tmp2.append(player_pos_tmp[i][::-1]) # [::-1]
+                    #print(player_pos_tmp[1][::-1])
+                    #print(player_pos_tmp2)
+                    playerSurface = drawPlayer(playerSurface, player_pos_tmp2, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                elif event.key == K_x: # cheat button2, remove
+                    _, current_frame, current_time_float, paused, player_pos, player_count = resetState()
+                    players_movement = []
+                    player_pos = [[1, 1],
+                                      [1, 2],
+                                      [2, 1],
+                                      [2, 2],
+                                      [1, 7],
+                                      [2, 7]]
+                                      # x, y
+                    #print(player_pos_tmp)
+
+                    player_pos_tmp3 = []
+                    for i in range(len(player_pos)):
+                        player_pos_tmp3.append(player_pos[i][::-1]) # [::-1]
+
+                    #print(player_pos_tmp[1][::-1])
+                    #print(player_pos_tmp3)
+                    playerSurface = drawPlayer(playerSurface, player_pos_tmp3, tilesize, player_scale, coord_x, coord_y, radius_scale)
+
+                    #for pos in player_pos_tmp3:
+                    #    players_movement.append([pos])
+
+                    tofile4 = open('../gui/player_pos_seminar.txt', 'r+')
+                    players_movement_tmp2 = tofile4.read()
+                    tofile4.close()
+                    #player_pos = [[0,0],[0,1]]
+                    #playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                    #players_movement = [[[1,1],[1,2]],[[2,2],[2,3]]]
+                    players_movement = json.loads(players_movement_tmp2)
+                    #print(players_movement[6])
         # mouse motion events (hovers), only for tab buttons on displaySurface. Blit in render logic for others.
         elif event.type == MOUSEMOTION:
             mouse_x, mouse_y = event.pos
@@ -373,10 +452,12 @@ while True:
                     active_tab_bools = [False, False, True]
                 # upload button routine startup
                 if cursorBoxHit(mouse_x, mouse_y, 450, 574, 335, 459, active_tab_bools[0]) and active_map_path is None:
-                    openFileDialog = wx.FileDialog(frame_wx, "Open", "", "", "PNG Maps (*.png)|*.png", wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-                    openFileDialog.ShowModal()
-                    active_map_path_tmp = openFileDialog.GetPath()
-                    openFileDialog.Destroy()
+                    #openFileDialog = wx.FileDialog(frame_wx, "Open", "", "", "PNG Maps (*.png)|*.png", wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+                    #openFileDialog.ShowModal()
+                    #active_map_path_tmp = openFileDialog.GetPath()
+                    #openFileDialog.Destroy()
+                    active_map_path_tmp = fileDialogPath()
+
                     if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
                         # reset state.
@@ -397,15 +478,16 @@ while True:
                         current_map_exits = mapExits(mapMatrix)
 
                         player_pos, player_count = populateMap(mapMatrix, pop_percent)
-                        players_movement = []
+                        #players_movement = []
 
                         playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
                 # upload button routine rmenu
                 if cursorBoxHit(mouse_x, mouse_y, 937, 999, 685, 747, active_tab_bools[0]) and active_map_path is not None:
-                    openFileDialog = wx.FileDialog(frame_wx, "Open", "", "", "PNG Maps (*.png)|*.png", wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-                    openFileDialog.ShowModal()
-                    active_map_path_tmp = openFileDialog.GetPath()
-                    openFileDialog.Destroy()
+            #        openFileDialog = wx.FileDialog(frame_wx, "Open", "", "", "PNG Maps (*.png)|*.png", wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+             #       openFileDialog.ShowModal()
+             #       active_map_path_tmp = openFileDialog.GetPath()
+             #       openFileDialog.Destroy()
+                    active_map_path_tmp = fileDialogPath()
                     if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
                         # reset state.
@@ -426,7 +508,7 @@ while True:
                         current_map_exits = mapExits(mapMatrix)
 
                         player_pos, player_count = populateMap(mapMatrix, pop_percent)
-                        players_movement = []
+                        #players_movement = []
 
                         playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
                 # scale plus/minus
@@ -665,20 +747,21 @@ while True:
     # (debugger) check out of bounds.
     # crashes the fuck out if there are players outside mapMatrix's bounds,
     # as long as Go provides correct data this should not happen
-    p_oob = None
-    p_oob_id = []
-    if player_pos != []:
-        for player in range(len(players_movement)):
-            if mapMatrix[player_pos[player][1]][player_pos[player][0]] == 1 or mapMatrix[player_pos[player][1]][player_pos[player][0]] == 3:
-                p_oob_id.append(player)
-    if p_oob_id == []:
-        p_oob = False
-    else:
-        p_oob = True
+    #p_oob = None
+    #p_oob_id = []
+    #if player_pos != []:
+    #    for player in range(len(players_movement)):
+    #        if mapMatrix[player_pos[player][1]][player_pos[player][0]] == 1 or mapMatrix[player_pos[player][1]][player_pos[player][0]] == 3:
+    #            p_oob_id.append(player)
+    #if p_oob_id == []:
+    #    p_oob = False
+    #else:
+    #    p_oob = True
 
     #placeText(displaySurface, "+p_pos: " + str(player_pos), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 810, 31)
-    placeText(displaySurface, "+p_oob: " + str(p_oob), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 31)
+    #placeText(displaySurface, "+p_oob: " + str(p_oob), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 31)
     #placeText(displaySurface, "+oob_id: " + str(p_oob_id), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 43)
+    placeText(displaySurface, "+pop_%: " + str(round(pop_percent, 2)), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 31)
     placeText(displaySurface, "+paused: " + str(paused), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 0)
     placeText(displaySurface, "+elapsed: " + str(counter_seconds), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 11)
     placeText(displaySurface, "+frame_float: " + str(round(current_time_float, 2)), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 21)
@@ -695,6 +778,3 @@ while True:
 
     # update displaySurface
     pygame.display.flip() # .update(<surface_args>) instead?
-
-
-

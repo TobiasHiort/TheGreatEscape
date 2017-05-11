@@ -6,7 +6,8 @@ import (
     "bufio"
     "fmt"
 	"encoding/json"
-	"time"
+	//"time"
+    "io/ioutil"
     //"log"
 )
 
@@ -38,19 +39,19 @@ func toPipe(stats [][]int) {
 	if err2 != nil {
 		panic(err2)
 	}
-	s := string(bytes2[:]) 
-	fmt.Println(s)	
+	s := string(bytes2[:])
+	fmt.Println(s)
 }
 
 
 func main() {
-	//fmt.Println("GO STARTED2")
-
+    /*
 	bio := bufio.NewReader(os.Stdin)
-	line, _, _ := bio.ReadLine()
+
+    line, _, _ := bio.ReadLine()
 
 	if line == nil {}
-		
+
 
     var m = [][]int{}
 
@@ -58,21 +59,54 @@ func main() {
     if err != nil {
         panic(err)
     }
+    */
+	//m[8][1] = 2
+	//m[13][0] = 2
 
-	//	m[8][1] = 2
-	//	m[13][0] = 2
 
-	
+    b, err3 := ioutil.ReadFile("../src/mapfile.txt")
+    if err3 != nil{
+        panic(err3)
+    }
+
+    var m = [][]int{}
+    err := json.Unmarshal(b, &m)
+    if err != nil{
+        panic(err)
+    }
+    //m[8][1] = 2
+    //m[13][0] = 2
+
 	testmap := TileConvert(m)
 	if testmap == nil {}
 
+    c, err4 := ioutil.ReadFile("../src/playerfile.txt")
+    if err4 != nil{
+        panic(err4)
+    }
+
+    var mm = [][]int{}
+    err5 := json.Unmarshal(c, &mm)
+    if err5 != nil{
+        panic(err5)
+    }
+
+    /*
 	list := [][]int{
 		{1,1},
-		{1,3},
-		{1,8},
-		{3,3}}
+		{5,1},
+        {7,1},
+        {8,1},
+        {9,2},
+        {10,3},
+        {11,50},
+		{22,90},
+        {25,105},
+        {25,125}}
+		//{3,3}}
+    */
 
-	ppl := PeopleInit(testmap, list)
+    ppl := PeopleInit(testmap, mm)
 
 
 //	stats := [][]int{}
@@ -81,22 +115,22 @@ func main() {
 	//fmt.Println(len(stats))
 
 	//	check := 0
-	
+
 	for !CheckFinish(ppl) {
 		toPipe(stats)
-		time.Sleep(10 * time.Millisecond)
-		Run(&testmap, ppl, &stats)		
-		/*		
-		for check == 0 {			
+		//time.Sleep(10 * time.Millisecond)
+		Run(&testmap, ppl, &stats)
+		/*
+		for check == 0 {
 			check = fromPipe()
 		} */
 	}
 
-	
-	//	go func() {		
+
+	//	go func() {
 	//		SingleSimulation(m, ppl)
 	//	}()
-	//	if timeToSend {toPipe(stats)}		
+	//	if timeToSend {toPipe(stats)}
 }
 
 func fromPipe() int{

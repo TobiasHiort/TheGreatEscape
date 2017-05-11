@@ -1,5 +1,5 @@
-
-from tkinter import *
+#!/usr/bin/python3
+#from tkinter import *
 
 # remove some of these?
 import pygame
@@ -7,6 +7,7 @@ import sys
 import os
 import numpy
 import math
+import wx
 import time
 import subprocess
 import doctest # read from txt, read docs
