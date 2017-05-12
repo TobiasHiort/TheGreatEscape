@@ -44,6 +44,10 @@ func toPipe(stats [][]int) {
 }
 
 
+func main11() {
+	mainMap()
+}
+
 func main() {
     /*
 	bio := bufio.NewReader(os.Stdin)
@@ -106,20 +110,30 @@ func main() {
 		//{3,3}}
     */
 
-    ppl := PeopleInit(testmap, mm)
+	ppl := PeopleInit(testmap, mm)
+	InitPlans(&testmap)
 
 
 //	stats := [][]int{}
 	stats := StartStats(ppl)
+//	toPipe(stats)
+	//fmt.Println(stats)
 	//	Run(&testmap, ppl, &stats) // startstats!
 	//fmt.Println(len(stats))
 
-	//	check := 0
+
 
 	for !CheckFinish(ppl) {
 		toPipe(stats)
+	
 		//time.Sleep(10 * time.Millisecond)
 		Run(&testmap, ppl, &stats)
+
+		/*ok := true
+		for _, pers := range ppl {
+			if !pers.safe && !pers.wasDiag() && !pers.IsWaiting() {ok = false}
+		}*/
+
 		/*
 		for check == 0 {
 			check = fromPipe()

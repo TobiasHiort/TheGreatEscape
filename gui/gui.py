@@ -249,7 +249,7 @@ while True:
                     #print(map_matrixInt)
                     #map_jsons = json.dumps(mapMatrix.tolist())
                     map_jsons = json.dumps(map_matrixInt.tolist())
-                   # print(map_jsons)
+                    print(map_jsons)
                     ##print(map_jsons, file=child.stdin)
 
                     #Saving stuff to file, axel3
@@ -277,7 +277,7 @@ while True:
                     tofile3.close()
 
                     fromgo_json = child.stdout.readline().rstrip('\n')
-                    #print(fromgo_json)
+                    print(fromgo_json)
                     player_pos = json.loads(fromgo_json)
                     for pos in player_pos:
                         players_movement.append([pos])
@@ -295,7 +295,7 @@ while True:
                     counter_lol = 0
                     while len(fromgo_json) > 5: #fromgo_json != []:
 
-                        print(fromgo_json)
+                        print((fromgo_json))
                         json_temp = json.loads(fromgo_json)
                         #players_movement_tmp.append(json_temp[0])
                         #players_movement_tmp.append(json_temp)
@@ -306,7 +306,7 @@ while True:
                             players_movement[i].append(json_temp[i])
                         counter_lol += 1
                         #print(counter_lol)
-
+                    print(len(fromgo_json))
                 elif event.key == K_s and paused and player_pos != []:
                     #print(len(players_movement[0][0]))
                     #print(current_frame)

@@ -2,6 +2,16 @@ package main
 
 import "fmt"
 import "sync"
+//import "math"
+
+
+import(
+  //  "os"
+    //"bufio"
+	"encoding/json"
+	//"time"
+    "io/ioutil"
+)
 //import "time"
 
 const MINHEAT = 10
@@ -213,33 +223,8 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	step++
 	wg.Wait()
 	FireSpread(*m)
-	//	}
 
-/*	// go run ruitnes for concurrency
-	for _, person := range peopleArray {
-		person.MovePerson(&inMap)
-	}*/
-//	return sList
-}
-
-func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{   // OBS: not working
-	movement := make([]*tile, len(peopleArray))
-	var wg sync.WaitGroup
-
-	wg.Add(len(peopleArray))
-	for i, person := range peopleArray {
-		go func(currentPerson *Person, ind int) {
-			defer wg.Done()
-			if (!currentPerson.DiagonalStep()) {
-				fmt.Println("not diagonal move!")
-				currentPerson.MovePerson(inMap)}		
-			if currentPerson.IsWaiting() {			
-				movement[ind] = nil
-			} else {			
-				movement[ind] = currentPerson.path[len(currentPerson.path) - 1]}
-		}(person, i)
-	}
-	return movement
+	//if math.Mod(float64(step), 5) == 0 {InitPlans(m)}
 }
 
  func CheckFinish (peopleArray []*Person) bool {
@@ -257,15 +242,16 @@ func mainMap() {
 //      testRedirect()
 //	testDiagPpl()
 //	testDiag()
-
-	testDiagonally()
+	debugging()
+//	testSame()
+//	testDiagonally()
 //	testMovePeople()
 //	Whut()
 //	testJP()
 	//	GLoop()
 
 //	testDiagonally()
-	testMovePeople()
+//	testMovePeople()
 
 }
 
@@ -372,13 +358,13 @@ func testJP() {
 		{0, 0, 0, 1, 0, 0, 0},
 		{0, 0, 0, 1, 0, 0, 0},
 		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
+		{2, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{1, 1, 0, 0, 0, 0, 0},
-		{1, 1, 0, 0, 0, 0, 2}}
+		{1, 1, 0, 0, 0, 0, 1}}
 
 	list := [][]int{
-		{0, 0}}
+		{0, 2}}
 	//	{0, 6},		
 	//	{2, 4}}
 
@@ -399,6 +385,19 @@ func testJP() {
 func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 	testmap := TileConvert(matrix)
 	pplArray := PeopleInit(testmap, ppl)
+	InitPlans(&testmap)
+
+	printPath((GetTile(testmap,32,86)).occupied.plan)
+	printPath((GetTile(testmap,32,86)).occupied.path)
+	fmt.Println("wall?", GetTile(testmap, 33, 89).wall)
+	fmt.Println("wall?", GetTile(testmap, 33, 90).wall)
+	fmt.Println("wall?", GetTile(testmap, 33, 91).wall)
+	
+//	for _, pers := range pplArray{
+	//	fmt.Println(pers.currentTile())
+	//	fmt.Println(pers.plan[1])
+	//	if len(pers.plan) < 1 {fmt.Println(pers.currentTile())}
+//	}
 
 	if x >= 0 && y >= 0 {SetFire(&testmap[x][y])}
 	MovePeople(&testmap, pplArray)
@@ -406,4 +405,58 @@ func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 	for i, p := range pplArray {
 		fmt.Println("Person", i, "time:  ", p.time, "\n         health:", p.hp)
 	}
+}
+
+
+func testSame() {
+	matrix := [][]int {
+		{1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,0,0,0,0,1,0,0,0,0,0,1},
+		{1,0,0,0,0,0,1,0,0,1,0,0,1},
+		{1,0,0,0,0,0,1,1,1,1,0,0,1},
+		{1,1,1,0,0,0,1,0,0,0,0,0,1},
+		{2,0,0,0,0,0,0,0,0,0,0,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1}}
+
+	list := [][]int{{3,2}, {5,5}}
+
+	tryThis(matrix, list, -1, -1)
+}
+
+
+
+func debugging() {
+
+	b, err3 := ioutil.ReadFile("../src/mapfile.txt")
+	if err3 != nil{
+		panic(err3)
+	}
+
+	var m = [][]int{}
+	err := json.Unmarshal(b, &m)
+	if err != nil{
+		panic(err)
+	}
+	//m[8][1] = 2
+	//m[13][0] = 2
+
+	//	testmap := TileConvert(m)
+
+
+	c, err4 := ioutil.ReadFile("../src/playerfile.txt")
+	if err4 != nil{
+		panic(err4)
+	}
+
+	var mm = [][]int{}
+	err5 := json.Unmarshal(c, &mm)
+	if err5 != nil{
+		panic(err5)
+	}
+
+//	ppl := PeopleInit(testmap, mm)
+
+
+//	list := [][]int{{89,33}}//{104, 28}, {105, 29}}  // lr tvärtom?
+	tryThis(m, mm, -1, -1)
 }
