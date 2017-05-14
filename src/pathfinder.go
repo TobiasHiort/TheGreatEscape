@@ -1450,5 +1450,242 @@ func northJPInit(current *tile) jp{
 
 
 
-//func UpdateParentOf(m *[][]*tile, parentOf map[*tile]*tile) {	
-//}
+func (p *Person) redirect() bool {
+	if p.dir == se {return p.reDirSE()}
+	if p.dir == sw {return p.reDirSW()}
+	if p.dir == nw {return p.reDirNW()}
+	if p.dir == ne {return p.reDirNE()}
+	return false
+	
+}
+
+func (p *Person) reDirSE() bool{
+	//TODO: continuieieie!!
+//	if p.dir != se {return false}
+	current := p.currentTile()
+	//	if current.neighborNorth.occupied == nil { }
+	if p.moveTo(current.neighborSouth) {
+		next := current.followDir(p.dir)
+		if next != nil {
+			p.plan = append([]*tile{next}, p.plan...)
+			for next != nil && next.xCoord != p.plan[1].xCoord{
+				p.plan[0] = next
+				next = next.followDir(p.dir)
+			}
+			tmp := p.plan[0]
+		//	p.plan = append(p.plan[1:0])
+			p.plan[0] = tmp.neighborEast
+//			p.plan = append([]*tile{tmp}, p.plan...)
+			p.plan = append([]*tile{p.plan[0].neighborWest}, p.plan[1:]...) //west??
+
+
+			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
+			
+		} else {
+			p.plan = append([]*tile{p.currentTile().neighborEast}, p.plan...)
+		}
+		
+		return true
+	} else 	if p.moveTo(current.neighborEast) {
+		next := current.followDir(p.dir)
+		if next != nil {
+			p.plan = append([]*tile{next}, p.plan...)
+			for next != nil && next.xCoord != p.plan[1].xCoord {
+				p.plan[0] = next
+				next = next.followDir(p.dir)
+			}
+			tmp := p.plan[0]
+			//	p.plan = append(p.plan[1:0])
+			p.plan[0] = tmp.neighborSouth
+			//			p.plan = append([]*tile{tmp}, p.plan...)
+			p.plan = append([]*tile{p.plan[0].neighborNorth}, p.plan[1:]...)
+
+
+			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
+			
+		} else {
+			p.plan = append([]*tile{p.currentTile().neighborSouth}, p.plan...)
+		}
+		return true
+	}
+	return false
+}
+
+
+func (p *Person) reDirSW() bool{
+	//TODO: continuieieie!!
+//	if p.dir != sw {return false}
+	current := p.currentTile()
+	//	if current.neighborNorth.occupied == nil { }
+	if p.moveTo(current.neighborSouth) {
+		next := current.followDir(p.dir)
+		if next != nil {
+			p.plan = append([]*tile{next}, p.plan...)
+			for next != nil && next.xCoord != p.plan[1].xCoord {
+				p.plan[0] = next
+				next = next.followDir(p.dir)
+			}
+			tmp := p.plan[0]
+		//	p.plan = append(p.plan[1:0])
+			p.plan[0] = tmp.neighborWest
+//			p.plan = append([]*tile{tmp}, p.plan...)
+			p.plan = append([]*tile{p.plan[0].neighborEast}, p.plan[1:]...) 
+
+
+			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
+			
+		} else {
+			p.plan = append([]*tile{p.currentTile().neighborWest}, p.plan...)
+		}
+		
+		return true
+	} else 	if p.moveTo(current.neighborWest) {
+		next := current.followDir(p.dir)
+		if next != nil {
+			p.plan = append([]*tile{next}, p.plan...)
+			for next != nil && next.xCoord != p.plan[1].xCoord {
+				p.plan[0] = next
+				next = next.followDir(p.dir)
+			}
+			tmp := p.plan[0]
+			//	p.plan = append(p.plan[1:0])
+			p.plan[0] = tmp.neighborSouth
+			//			p.plan = append([]*tile{tmp}, p.plan...)
+			p.plan = append([]*tile{p.plan[0].neighborNorth}, p.plan[1:]...)
+
+
+			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
+			
+		} else {
+			p.plan = append([]*tile{p.currentTile().neighborSouth}, p.plan...)
+		}
+		return true
+	}
+	return false
+}
+
+
+func (p *Person) reDirNW() bool{
+	//TODO: continuieieie!!
+//	if p.dir != se {return false}
+	current := p.currentTile()
+	//	if current.neighborNorth.occupied == nil { }
+	if p.moveTo(current.neighborNorth) {
+		next := current.followDir(p.dir)
+		if next != nil {
+			p.plan = append([]*tile{next}, p.plan...)
+			for next != nil && next.xCoord != p.plan[1].xCoord{
+				p.plan[0] = next
+				next = next.followDir(p.dir)
+			}
+			tmp := p.plan[0]
+		//	p.plan = append(p.plan[1:0])
+			p.plan[0] = tmp.neighborWest
+//			p.plan = append([]*tile{tmp}, p.plan...)
+			p.plan = append([]*tile{p.plan[0].neighborEast}, p.plan[1:]...) //west??
+
+
+			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
+			
+		} else {
+			p.plan = append([]*tile{p.currentTile().neighborWest}, p.plan...)
+		}
+		
+		return true
+	} else 	if p.moveTo(current.neighborWest) {
+		next := current.followDir(p.dir)
+		if next != nil {
+			p.plan = append([]*tile{next}, p.plan...)
+			for next != nil && next.xCoord != p.plan[1].xCoord {
+				p.plan[0] = next
+				next = next.followDir(p.dir)
+			}
+			tmp := p.plan[0]
+			//	p.plan = append(p.plan[1:0])
+			p.plan[0] = tmp.neighborNorth
+			//			p.plan = append([]*tile{tmp}, p.plan...)
+			p.plan = append([]*tile{p.plan[0].neighborSouth}, p.plan[1:]...)
+
+
+			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
+			
+		} else {
+			p.plan = append([]*tile{p.currentTile().neighborNorth}, p.plan...)
+		}
+		return true
+	}
+	return false
+}
+
+func (p *Person) reDirNE() bool{
+	//TODO: continuieieie!!
+//	if p.dir != se {return false}
+	current := p.currentTile()
+	//	if current.neighborNorth.occupied == nil { }
+	if p.moveTo(current.neighborNorth) {
+		next := current.followDir(p.dir)
+		if next != nil {
+			p.plan = append([]*tile{next}, p.plan...)
+			for next != nil && next.xCoord != p.plan[1].xCoord {
+				p.plan[0] = next
+				next = next.followDir(p.dir)
+			}
+			tmp := p.plan[0]
+		//	p.plan = append(p.plan[1:0])
+			p.plan[0] = tmp.neighborEast
+//			p.plan = append([]*tile{tmp}, p.plan...)
+			p.plan = append([]*tile{p.plan[0].neighborWest}, p.plan[1:]...) //west??
+
+
+			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
+			
+		} else {
+			p.plan = append([]*tile{p.currentTile().neighborEast}, p.plan...)
+		}
+		
+		return true
+	} else 	if p.moveTo(current.neighborEast) {
+		next := current.followDir(p.dir)
+		if next != nil {
+			p.plan = append([]*tile{next}, p.plan...)
+			for next != nil && next.xCoord != p.plan[1].xCoord {
+				p.plan[0] = next
+				next = next.followDir(p.dir)
+			}
+			tmp := p.plan[0]
+			//	p.plan = append(p.plan[1:0])
+			p.plan[0] = tmp.neighborNorth
+			//			p.plan = append([]*tile{tmp}, p.plan...)
+			p.plan = append([]*tile{p.plan[0].neighborSouth}, p.plan[1:]...)
+
+
+			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
+			
+		} else {
+			p.plan = append([]*tile{p.currentTile().neighborNorth}, p.plan...)
+		}
+		return true
+	}
+	return false
+}
+
+
+
+// In Progress!!!!
+func UpdateParentOf(m *[][]*tile, parentOf map[*tile]*tile, newBad []*tile) {
+	for k, v := range parentOf {
+		for _, bad := range newBad {
+			if inBetween(k, v, bad) {
+				
+			}
+		}
+	}
+}
+
+func inBetween(t1 *tile, t2 *tile, between *tile) bool{
+	dir1 := getDir(t1, between)
+	dir2 := getDir(between, t2)
+//	dir3 := getDir(t1, t2)
+	return dir1 == dir2 
+}
+

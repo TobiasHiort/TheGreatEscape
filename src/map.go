@@ -387,11 +387,11 @@ func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 	pplArray := PeopleInit(testmap, ppl)
 	InitPlans(&testmap)
 
-	printPath((GetTile(testmap,32,86)).occupied.plan)
+/*	printPath((GetTile(testmap,32,86)).occupied.plan)
 	printPath((GetTile(testmap,32,86)).occupied.path)
 	fmt.Println("wall?", GetTile(testmap, 33, 89).wall)
 	fmt.Println("wall?", GetTile(testmap, 33, 90).wall)
-	fmt.Println("wall?", GetTile(testmap, 33, 91).wall)
+	fmt.Println("wall?", GetTile(testmap, 33, 91).wall)*/
 	
 //	for _, pers := range pplArray{
 	//	fmt.Println(pers.currentTile())

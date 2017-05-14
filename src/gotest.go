@@ -44,7 +44,7 @@ func toPipe(stats [][]int) {
 }
 
 
-func main11() {
+func mains() {
 	mainMap()
 }
 

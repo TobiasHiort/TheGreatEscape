@@ -151,7 +151,7 @@ func (p *Person) followPlan() {
 			p.w8ed = 0 // testing testing
 			p.updateTime()  
 		} else {                   // next step in plan is occupied -> w8
-			p.wait()
+			if !p.redirect() {p.wait()}
 			p.updateTime()	
 		}
 	}else {
@@ -193,13 +193,13 @@ func (p *Person) updatePlan(m *[][]tile) {
 	//plan, ok := getPath(m, p.path[len(p.path)-1])
 	
 	
-	if !p.currentTile().door && (p.foo() || len(p.plan) < 1) {plan, ok := getPath2(m, p.path[len(p.path)-1])  //changed!
-		if ok {			
-			p.plan = plan[1:]
-			p.w8ed = 0
-		}
-		if len(p.plan) > 0 {p.dir = getDir(p.currentTile(), p.plan[0])} //TODO: fixa till!
-	} 
+	if !p.currentTile().door && (p.foo() || len(p.plan) < 1) {
+		plan, _ := getPath2(m, p.path[len(p.path)-1])  //changed!		if ok {			
+		p.plan = plan[1:]
+		//	p.w8ed = 0
+	}
+	if len(p.plan) > 0 {p.dir = getDir(p.currentTile(), p.plan[0])} //TODO: fixa till!
+} 
 /*	ret := p.foo()
 	if !p.currentTile().door && (ret || len(p.plan) < 1) {
 		p.redirect(m)
@@ -207,7 +207,7 @@ func (p *Person) updatePlan(m *[][]tile) {
 		if len(p.plan) > 0 {p.dir = getDir(p.currentTile(), p.plan[0])} //TODO: fixa till!
 	}
 	return ret*/
-}
+//}
 
 func (p *Person) foo() bool{  //TODO!! checka om planen bör updates lr ej
 	return false //p.w8ed > 7
@@ -347,7 +347,7 @@ func InitPlans(m *[][]tile) {
 	getPath3(m, doors)	
 }
 
-func (p *Person) redirect(m *[][]tile) {
+func (p *Person) redirectOld(m *[][]tile) {
 	//	newPlan, ok := getPPath(m, p.currentTile(), p.plan[0])
 	current := p.currentTile()
 	//----
