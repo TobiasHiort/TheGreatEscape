@@ -1,6 +1,5 @@
 package main
 
-
 //import "fmt"
 
 //toppen av stupröret, yttersta lagret av löken
@@ -40,48 +39,47 @@ func timeStamp(inMap [][]tile, currentTime int) Event{
 //grabs data from map
 //returns an Event
 
-func MapInit(peopleList [][]int, newMap [][]int) [][]tile{
+func MapInit(peopleList [][]int, newMap [][]int) [][]tile {
 	//gets map data from GM and inits the map
 	var currentMap ([][]tile)
 	currentMap = TileConvert(newMap)
 
 	///peopleArray = PeopleInit(currentMap, peopleList)
 
-	//gets ppl data from GM and calls the initpppl function in map 
+	//gets ppl data from GM and calls the initpppl function in map
 	return currentMap
 }
 
-
-func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos []int, statsList[][]int, a *int, b *int, exitStatus *int) {
+func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos []int, statsList [][]int, a *int, b *int, exitStatus *int) {
 	//newMap := MapInit(foo, bar)
 	//do all the Inits
 
 	/*
-	inMap := [][]int{
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{1, 0, 1, 1, 1, 1, 1},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 2, 0, 0, 0}}
+		inMap := [][]int{
+			{0, 0, 0, 1, 0, 0, 0},
+			{0, 0, 0, 1, 0, 0, 0},
+			{1, 0, 1, 1, 1, 1, 1},
+			{0, 0, 0, 1, 0, 0, 0},
+			{0, 0, 0, 1, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 2, 0, 0, 0}}
 
-		peopleList := [][]int{
-			{1, 2},
-			{0, 2},
-			{3, 0}}
-			*/
+			peopleList := [][]int{
+				{1, 2},
+				{0, 2},
+				{3, 0}}
+	*/
 
-			currentMap := MapInit(peopleList, inMap)
-			peopleArray := PeopleInit(currentMap, peopleList)
+	currentMap := MapInit(peopleList, inMap)
+	peopleArray := PeopleInit(currentMap, peopleList)
 
-			for !CheckFinish(peopleArray) {
-        if *a == *b {
-				Run(&currentMap, peopleArray, statsList)
-        *a++
-      }//PrintTileMapP(aMap)
-		  *exitStatus++
-    }
+	for !CheckFinish(peopleArray) {
+		if *a == *b {
+			Run(&currentMap, peopleArray, statsList)
+			*a++
+		} //PrintTileMapP(aMap)
+		*exitStatus++
+	}
 }
 
 /*
