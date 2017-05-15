@@ -3,7 +3,8 @@ package main
 import (
   "fmt"
   "log"
-  "strconv"
+  //"strconv"
+  "encoding/json"
   "os"
 )
 
@@ -15,10 +16,16 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
   }
   defer pplfile.Close()
 
-
   pplStats := PeopleStats(peopleArray)
+
+  bytes2, err2 := json.Marshal(pplStats)
+  if err2 != nil {
+    panic(err2)
+  }
+  s := string(bytes2[:])
   //alive dead injured
-	fmt.Fprintf(pplfile, json.Marshal(pplStats))
+  fmt.Fprintf(pplfile, s)
+
 
   mapfile, err2 := os.Create("mapStats.txt")
   if err2 != nil {
@@ -26,15 +33,17 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
   }
   defer mapfile.Close()
 
-	//fmt.Fprintf(file, "YAY")
-	//burning tiles
-	mapStats := MapStats(inmap)
-	fmt.Fprintf(mapfile, json.Marshal(mapStats))
-	//mapfile.Close()
+  //burning tiles
+  mapStats := MapStats(inmap)
 
-	//exit statserino
+  bytes2, err2 = json.Marshal(mapStats)
+  if err2 != nil {
+    panic(err2)
+  }
+  str := string(bytes2[:])
+  fmt.Fprintf(mapfile, str)
 
-
+  //mapfile.Close()
 }
 
 //TODO most used door
@@ -57,6 +66,22 @@ func exitStats(peopleArray []*Person, inmap [][]tile) []int {
 
 
 //TODO average escape time
+//TODO write average escapetime to file
+//TODO call this func at end of simuation
+func averageExitTime(peopleArray[] *Person) float32 {
+
+  var totalTime float32
+  size := len(peopleArray)
+  for i := 0; i < size; i++ {
+    totalTime += peopleArray[i].time 
+  }
+  if size != 0 {
+    fmt.Print(totalTime/float32(size))
+    return (totalTime/float32(size))
+  }else {return 0}
+}
+
+
 //TODO average health impact
 //TODO total time for people to get out
 //TODO average time spent waiting
@@ -82,5 +107,6 @@ func main() {
   testmap := TileConvert(matrix)
   pplArray:= PeopleInit(testmap,ppl)
   readStats(pplArray, testmap)
+  //averageExitTime(pplArray)
 
 }
