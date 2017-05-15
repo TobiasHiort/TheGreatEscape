@@ -1,6 +1,7 @@
 package main
 
 import "testing"
+
 import "fmt"
 
 func TestCurrentTile(t *testing.T) {

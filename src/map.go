@@ -177,7 +177,8 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 	size := len(peopleList)
 	peopleArray := make([]*Person, size)
 	for i, person := range peopleList {
-		tile := GetTile(inMap, person[0], person[1])
+	//	tile := GetTile(inMap, person[0], person[1])  // inverted! 
+		tile := GetTile(inMap, person[1], person[0])
 		peopleArray[i] = makePerson(tile)
 	}
 	return peopleArray
@@ -187,6 +188,7 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	//sList := []Stats{}
 
 	var wg sync.WaitGroup
+	var mutex = &sync.Mutex{}
 
 	wg.Add(len(ppl))
 	*statsList = [][]int{}
@@ -194,14 +196,16 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 
 		go func(p *Person){//, ind int){
 			//	ind := i
-			//p := pers
+		//	p := pers
 			defer wg.Done()
 
 			//	sList :=  []int{}// append(sList, p.getStats())
 			p.MovePerson(m)
 			sList := &[]int{}
 			p.getStats(sList)//(statsList[ind])
+			mutex.Lock()
 			*statsList = append(*statsList, *sList)
+			mutex.Unlock()
 			//	fmt.Println(len(statsList))
 
 		}(pers)//, i)
@@ -253,8 +257,16 @@ func mainMap() {
 //      testRedirect()
 //	testDiagPpl()
 //	testDiag()
+
+	testDiagonally()
+//	testMovePeople()
+//	Whut()
+//	testJP()
+	//	GLoop()
+
 //	testDiagonally()
 	testMovePeople()
+
 }
 
 func testRedirect() {
@@ -338,8 +350,8 @@ func testDiagonally() {
 func testMovePeople() {
 	matrix := [][]int{
 		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 1, 0, 0, 0, 0},
+		{1, 0, 1, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0},
@@ -353,6 +365,38 @@ func testMovePeople() {
 	tryThis(matrix, list, -1, -1)
 	// Note: it takes 1 timeunit to take a step from the door and away
 }
+
+
+func testJP() {
+	matrix := [][]int{
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{1, 1, 0, 0, 0, 0, 0},
+		{1, 1, 0, 0, 0, 0, 2}}
+
+		/*
+	list := [][]int{
+		{0, 0}}
+	//	{0, 6},		
+	//	{2, 4}}
+	*/
+
+
+	testmap := TileConvert(matrix)
+	pplArray := PeopleInit(testmap, list)
+
+	MovePeople(&testmap, pplArray)
+
+	for i, p := range pplArray {
+		fmt.Println("Person", i, "time:  ", p.time, "\n         health:", p.hp)
+	}
+
+}
+
+
 
 func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 	testmap := TileConvert(matrix)
@@ -398,7 +442,7 @@ func MapStats(inMap [][]tile) []int{
 }
 
 func doorCoord(inMap [][]tile) [][]int {
- 
+
   var door [][]int
 	for i := range inMap {
 		for j := range inMap[i] {
@@ -408,7 +452,4 @@ func doorCoord(inMap [][]tile) [][]int {
 			}
 		}
 	return door
- 
-
-
 }

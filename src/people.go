@@ -14,7 +14,9 @@ type Person struct {
 	safe  bool
 	hp    int
 	path  []*tile
-	plan  []*tile
+	plan  []*tile  // plan of jps
+	//	pPlan []*tile  // partial plan
+	dir Direction
 	time float32
 }
 
@@ -90,11 +92,37 @@ func (p *Person) moveTo(t *tile) bool {
 	}
 }
 
+func (p *Person) followDir() bool{
+	if p.currentTile() == p.plan[0] {
+		if len(p.plan) > 1 {p.dir = getDir(p.plan[0], p.plan[1])}
+		p.plan = p.plan[1:]
+	//	return 
+		// new jp
+	}
+	return p.moveTo(p.nextTile())   
+}
+
+func (p *Person) nextTile() *tile{
+	if p.dir == n {return p.currentTile().neighborNorth}
+	if p.dir == e {return p.currentTile().neighborEast}
+	if p.dir == s {return p.currentTile().neighborSouth}
+	if p.dir == w {return p.currentTile().neighborWest}
+
+	if p.dir == nw {return p.currentTile().neighborNW}
+	if p.dir == ne {return p.currentTile().neighborNE}
+	if p.dir == se {return p.currentTile().neighborSE}
+	if p.dir == sw {return p.currentTile().neighborSW}
+
+	return nil // default?
+}
+
 func (p *Person) followPlan() {
+//	fmt.Println("dir:", p.dir)
 	if p.path[len(p.path) - 1] == nil { return} // TODO updatestats
 	if len(p.plan) > 0 { // follow tha plan!		
-		if p.moveTo(p.plan[0]) {   // next step in plan is available -> move		
-			p.plan = p.plan[1:]
+	//	if p.moveTo(p.plan[0]) {   // next step in plan is available -> move		
+		if p.followDir() {
+			//p.plan = p.plan[1:]
 			p.updateTime()  
 		} else {                   // next step in plan is occupied -> w8
 			p.wait()
@@ -136,13 +164,23 @@ func (p *Person) save() {
 }
 
 func (p *Person) updatePlan(m *[][]tile) {
-	plan, ok := getPath(m, p.path[len(p.path)-1])
-	if ok {
-		p.plan = plan[1:]
+	//plan, ok := getPath(m, p.path[len(p.path)-1])
+
+	if p.foo() || len(p.plan) < 1 {plan, ok := getPath2(m, p.path[len(p.path)-1])  //changed!
+	//	fmt.Println()
+		if ok {			
+			p.plan = plan[1:]
+		}
+		if len(p.plan) > 0 {p.dir = getDir(p.currentTile(), p.plan[0])} //TODO: fixa till!
 	}
+	
 }
 
-func (p *Person) MovePerson(m *[][]tile) {
+func (p *Person) foo() bool{  //TODO!! checka om planen bör updates lr ej
+	return false
+}
+
+func (p *Person) MovePerson(m *[][]tile) {	
 	if p == nil {return}
 	if p.safe || !p.alive {
 		return
@@ -156,13 +194,16 @@ func (p *Person) MovePerson(m *[][]tile) {
 
 func MovePeople(m *[][]tile, ppl []*Person) {
 	var wg sync.WaitGroup
-	
+
 	for !CheckFinish(ppl) {
 		wg.Add(len(ppl))
 		print("\033[H\033[2J")
 		PrintTileMapP(*m)
-		fmt.Print("\n")
-		time.Sleep(1000 * time.Millisecond)
+		fmt.Print("\n", step)
+		fmt.Println("\n", len(ppl[0].plan))
+		for _, p := range ppl[0].plan {
+			fmt.Println(p.xCoord, p.yCoord)}
+	//	time.Sleep(1000 * time.Millisecond)
 		for _, pers := range ppl {			
 			go func(p *Person){
 				defer wg.Done()
@@ -172,6 +213,7 @@ func MovePeople(m *[][]tile, ppl []*Person) {
 		step++
 		wg.Wait()
 		FireSpread(*m)
+			time.Sleep(1000 * time.Millisecond)
 	}
 }
 
@@ -248,3 +290,88 @@ func MainPeople() {
 	fmt.Println("p2")
 	printPath(p2.path)
 }
+
+
+// new funcs
+/*
+func (p *Person)MovePerson2(m *[][]tile) {
+	if p == nil {return}
+	if p.safe || !p.alive {return}
+	if p.time <= step {
+		p.updatePlan2(m)
+		p.followPlan2()	
+	}
+}
+
+func printPlan(plan []*tile) {
+	for _, t := range plan {
+		fmt.Println(t.xCoord, t.yCoord)
+	}
+}
+
+
+func (p *Person)updatePlan2(m *[][]tile) {   // TODO update plan if nexttile's invalid!
+	if len(p.plan) == 0 {  // no jps
+		plan, ok := getPath2(m, p.currentTile())
+		if !ok {
+			fmt.Println("nope1")
+			return}  // Screwed!
+		p.plan = plan[1:]
+	}
+	printPlan(p.plan)
+	if len(p.pPlan) == 0 { // no plan for next jp
+	//	fmt.Println("cur:", p.currentTile())
+	//	fmt.Println("plan:", p.plan[0])
+		pPlan, ok := getPPath(m, p.currentTile(), p.plan[0])
+		if !ok {
+			fmt.Println("nope2")
+			return}  // Screwed!
+		p.pPlan = pPlan[1:]
+	}	
+}
+
+func (p *Person)followPlan2() {
+	if p.currentTile().door {  // freeeedom!
+		(p.currentTile().occupied) = nil
+		p.updateTime()
+		p.save()
+	} else if len(p.pPlan) == 0 {
+		fmt.Println("you're screwed!")
+		p.kill()
+	} else {
+		if p.moveTo(p.pPlan[0]) {   // next step in pPlan is available -> move		
+			p.pPlan = p.pPlan[1:]
+			p.updateTime()  
+		} else {                   // next step in pPlan is occupied -> w8
+			p.wait()
+			p.updateTime()
+		} 
+	}
+}
+*/
+
+/*
+func MovePeople2(m *[][]tile, ppl []*Person) {
+
+
+	ppl[0].MovePerson2(m)
+	printPlan(ppl[0].plan)
+	
+	var wg sync.WaitGroup
+	for !CheckFinish(ppl) {
+		wg.Add(len(ppl))
+		print("\033[H\033[2J")
+		PrintTileMapP(*m)
+		fmt.Print("\n")
+		time.Sleep(1000 * time.Millisecond)
+		for _, pers := range ppl {			
+			go func(p *Person){
+				defer wg.Done()
+				p.MovePerson2(m)
+			}(pers)
+		}
+		step++
+		wg.Wait()
+		FireSpread(*m)
+	}
+} */

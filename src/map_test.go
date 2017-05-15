@@ -3,9 +3,15 @@ package main
 import (
 	"fmt"
 	"testing"
+<<<<<<< HEAD
+  "github.com/stretchr/testify/assert"
+)
+
+=======
   //"github.com/stretchr/testify/assert"
 )
 /*
+>>>>>>> master
 func TestSizeOfTileConvert(t *testing.T) {
 
 	testMatrix := [][]int{
@@ -172,7 +178,11 @@ func TestAMovement(t *testing.T) {
 		{X, 0, 0, 0 },
     {0, 0, 2, 0}}
     */
+<<<<<<< HEAD
+
+=======
 /*
+>>>>>>> master
   testmap := TileConvert(testMatrix)
   peoplecordinates := [][]int{
     {0,1},
@@ -325,6 +335,8 @@ func printNeighbors(atile tile) {
 		fmt.Print("South: nil\n")
 	}
 }
+<<<<<<< HEAD
+=======
 */
 func Test_10 (t *testing.T) {
 	testMatrix := [][]int {
@@ -1060,6 +1072,7 @@ func Test_90 (t *testing.T) {
     	fmt.Print("\nfinished")
 
   }*/ 
+>>>>>>> master
 
 /*
 func main() {

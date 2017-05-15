@@ -1,6 +1,5 @@
 package main
 
-
 /*
 
 -- Paste Python communication stuff here
@@ -51,4 +50,3 @@ func singleSimulation(mapList [][]int, peopleList [][]int, fireStartPos[]int) {
   
 
 }
-
