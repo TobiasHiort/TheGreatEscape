@@ -9,18 +9,31 @@ import (
 
 func readStats(peopleArray []*Person, inmap [][]tile) {
 
-  file, err := os.Create("stats.txt")
+  pplfile, err := os.Create("peopleStats.txt")
   if err != nil {
-    log.Fatal("Cannot create file")
+    log.Fatal("Cannot create file, ppl")
   }
-  defer file.Close()
+  defer pplfile.Close()
+
 
   pplStats := PeopleStats(peopleArray)
   //alive dead injured
-  fmt.Fprintf(file, strconv.Itoa(pplStats[0]) + strconv.Itoa(pplStats[1]) + strconv.Itoa(pplStats[2]))
+	fmt.Fprintf(pplfile, json.Marshal(pplStats))
 
+  mapfile, err2 := os.Create("mapStats.txt")
+  if err2 != nil {
+    log.Fatal("Cannot create file, map")
+  }
+  defer mapfile.Close()
+
+	//fmt.Fprintf(file, "YAY")
+	//burning tiles
 	mapStats := MapStats(inmap)
-	fmt.Fprintf(file, strconv.Itoa(mapStats[0]))
+	fmt.Fprintf(mapfile, json.Marshal(mapStats))
+	//mapfile.Close()
+
+	//exit statserino
+
 
 }
 
@@ -34,8 +47,8 @@ func exitStats(peopleArray []*Person, inmap [][]tile) []int {
   for  i := 0; i < (len(peopleArray)); i++ {
     tmp := []int {peopleArray[i].path[index].xCoord, peopleArray[i].path[index].yCoord}
     for j := 0; j < (len(doors)); j++ {
-      if tmp == doors[j]   {
-        doorStats[j] += 1
+      if tmp[0] == doors[j][0] && tmp[1] == doors[j][1] {
+        doorStats[j] ++
       }
     }
   }
