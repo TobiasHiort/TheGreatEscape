@@ -54,7 +54,8 @@ func FireSpread(tileMap [][]tile) {
 	for x := 0; x < len(tileMap); x++ {
 		for y := 0; y < len(tileMap[0]); y++ {
 			tl := &(tileMap[x][y])
-			if tl.heat < 30 {fireSpreadTile(tl)}
+			// tl.heat < 30 {fireSpreadTile(tl)}
+			fireSpreadTile(tl)
 		}
 	}
 
@@ -223,7 +224,7 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	}
 	step++
 	wg.Wait()
-	FireSpread(*m)
+	FireSpread(*m) // MOVED!
 
 //	if math.Mod(float64(step), 40) == 0 {InitPlans(m)}
 	// TODO: takes up tiiime!!1 fixy-changy
@@ -392,18 +393,6 @@ func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 	pplArray := PeopleInit(testmap, ppl)
 	InitPlans(&testmap)
 
-/*	printPath((GetTile(testmap,32,86)).occupied.plan)
-	printPath((GetTile(testmap,32,86)).occupied.path)
-	fmt.Println("wall?", GetTile(testmap, 33, 89).wall)
-	fmt.Println("wall?", GetTile(testmap, 33, 90).wall)
-	fmt.Println("wall?", GetTile(testmap, 33, 91).wall)*/
-	
-//	for _, pers := range pplArray{
-	//	fmt.Println(pers.currentTile())
-	//	fmt.Println(pers.plan[1])
-	//	if len(pers.plan) < 1 {fmt.Println(pers.currentTile())}
-//	}
-
 	if x >= 0 && y >= 0 {SetFire(&testmap[x][y])}
 	MovePeople(&testmap, pplArray)
 
@@ -461,96 +450,23 @@ func debugging() {
 
 //	ppl := PeopleInit(testmap, mm)
 
-
 //	list := [][]int{{89,33}}//{104, 28}, {105, 29}}  // lr tvärtom?
-	tryThis(m, mm, 1, 1)
+	tryThis(m, mm, 20, 20)
 }
 
 
 
 //send heat
-/*
-func (t *tile) getFS() [][]int {
-
-}*/
-
-
-func isIn(lst [][]int, elem []int) bool{
-	for _, e := range lst {
-		if e[0] == elem[0] && e[1] == elem[1] && e[2] == elem[2] {return true}
-		//for i, val := range e {
-		//	if elem[i] == val {return true}
-		//}
-	}
-	return false
-}
-
-func (t *tile) thisOne() []int{
-	return []int{t.yCoord, t.xCoord, t.fireLevel}
-}
-
-
-func FireStats2(start *tile) [][]int{
-//	fire := [][]int{} //[][]int{start.thisOne()}
-
-//	n := fireStatsDir(start.neighborNorth, n)
-
-	return fireStatsDir(start, Direction{0,0}, [][]int{})
-}
-
-func fireStatsDir(start *tile, dir Direction, lst [][]int) [][]int{
-	fire := lst//][]int{}
-
-	//
-
-	if isIn(lst, start.thisOne()) {	
-		return lst}
-	//
-	
-	if start.heat > 0 {
-		fire = append(fire, start.thisOne())
-		nbrs := getNeighborsPruned(start, dir)
-		for _, nbr := range nbrs {
-			if nbr.heat > 0 {fire = append(fire, fireStatsDir(nbr, getDir(start, nbr), fire)...)}
-		}
-	}
-	return fire
-}
-
 func FireStats(m *[][]tile) [][]int{
 	//func FireStats(start []*tile, dir Direction) [][]int{
 	fire := [][]int{}
 	
 	for i, list := range *m {
 		for j, _ := range list {
-			tl := GetTile(*m, i, j)
+			//tl := GetTile(*m, i, j)
+			tl := &(*m)[i][j]
 			if tl.heat  > 0 {fire = append(fire, []int{tl.yCoord, tl.xCoord, tl.fireLevel})}
 		}
 	}
 	return fire
 }
-
-/*
-
-func FireStats3(start *tile) [][]int{
-	//func FireStats(start []*tile, dir Direction) [][]int{
-	fire := [][]int{}
-	if start.heat < 1 {return fire}
-	
-	fire = append(fire, start)
-	
-	nbrs := getNeighbors(start)
-
-	for _, nbr := range nbrs {
-		
-	}
-
-	
-	for i, list := range *m {
-		for j, _ := range list {
-			tl := GetTile(*m, i, j)
-			if tl.heat  > 0 {fire = append(fire, []int{tl.yCoord, tl.xCoord, tl.fireLevel})}
-		}
-	}
-	return fire
-}*/

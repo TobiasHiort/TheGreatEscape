@@ -357,7 +357,7 @@ while True:
                         fromgo_json_fire = child.stdout.readline().rstrip('\n')
                         
                         #fromgo_json_fire = json.loads(child.stdout.readline().rstrip('\n'))
-                        print(json_fire)
+                        print(len(json_fire))
                         fire_movement.append(json_fire)
                         
                         #for i in range(len(json_fire)):
