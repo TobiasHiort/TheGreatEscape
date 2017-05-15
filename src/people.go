@@ -155,11 +155,11 @@ func (p *Person) followPlan() {
 			p.updateTime()	
 		}
 	}else {
-		fmt.Println(p.path)
+	/*	fmt.Println(p.path)
 		fmt.Println(p.currentTile())
 		fmt.Println("door?", p.currentTile().door)
 		fmt.Println("wall?", p.currentTile().wall)
-		fmt.Println("you're screwed!")
+		fmt.Println("you're screwed!")*/
 		p.kill()
 		// TODO: no valid path! panic behavior? lay down and w8 for death?
 		// idea: don't update last plan-path, follow it despite fire etc?
@@ -252,8 +252,13 @@ func MovePeople(m *[][]tile, ppl []*Person) {
 		step++
 		wg.Wait()
 		FireSpread(*m)
-			time.Sleep(1000 * time.Millisecond)
+
+fmt.Println("\nfire:", FireStats(m))
+		time.Sleep(100 * time.Millisecond)
+
+	
 	}
+	
 }
 
 func (p *Person)currentTile() *tile{

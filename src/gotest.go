@@ -64,8 +64,6 @@ func main() {
         panic(err)
     }
     */
-	//m[8][1] = 2
-	//m[13][0] = 2
 
 
     b, err3 := ioutil.ReadFile("../src/mapfile.txt")
@@ -78,9 +76,6 @@ func main() {
     if err != nil{
         panic(err)
     }
-    //m[8][1] = 2
-    //m[13][0] = 2
-
 	testmap := TileConvert(m)
 	if testmap == nil {}
 
@@ -95,27 +90,21 @@ func main() {
         panic(err5)
     }
 
-    /*
-	list := [][]int{
-		{1,1},
-		{5,1},
-        {7,1},
-        {8,1},
-        {9,2},
-        {10,3},
-        {11,50},
-		{22,90},
-        {25,105},
-        {25,125}}
-		//{3,3}}
-    */
-
 	ppl := PeopleInit(testmap, mm)
 	InitPlans(&testmap)
 
 
+	//fire := GetTile(testmap, 20, 20)
+	
 //	stats := [][]int{}
 	stats := StartStats(ppl)
+	SetFire(GetTile(testmap, 20, 20))
+	fireStats := FireStats(&testmap) //FireStats2(fire)
+
+	//	SetFire(GetTile(testmap, 2, 2))
+	
+	
+	//FireSpread(testmap)
 //	toPipe(stats)
 	//fmt.Println(stats)
 	//	Run(&testmap, ppl, &stats) // startstats!
@@ -125,26 +114,13 @@ func main() {
 
 	for !CheckFinish(ppl) {
 		toPipe(stats)
-	
+		toPipe(fireStats)//FireStats(&testmap))
+		fireStats = FireStats(&testmap)//2(fire) //fire.getFS()
 		//time.Sleep(10 * time.Millisecond)
 		Run(&testmap, ppl, &stats)
 
-		/*ok := true
-		for _, pers := range ppl {
-			if !pers.safe && !pers.wasDiag() && !pers.IsWaiting() {ok = false}
-		}*/
-
-		/*
-		for check == 0 {
-			check = fromPipe()
-		} */
 	}
 
-
-	//	go func() {
-	//		SingleSimulation(m, ppl)
-	//	}()
-	//	if timeToSend {toPipe(stats)}
 }
 
 func fromPipe() int{

@@ -11,6 +11,7 @@ import subprocess
 import copy
 import json
 #import wx
+import signal
 
 from tkinter import filedialog
 
@@ -65,6 +66,8 @@ pop_percent = 0.01 # init as this later?
 
 player_pos = [] # might use this as indicator to not populate instead of players_movement?
 players_movement = []
+fire_pos = []
+fire_movement = []
 
 opacity = 0
 opacity2 = 0
@@ -96,6 +99,7 @@ mapSurface = createSurface(907, 713-PADDING_MAP)
 minimapSurface = createSurface(495, 344)
 playerSurface = createSurface(907, 713-PADDING_MAP)
 fireSurface = createSurface(907, 713-PADDING_MAP)
+fireSurface.fill((0,0,0,0))
 rmenuSurface = createSurface(115, 723)
 statisticsSurface = createSurface(1024, 713)
 settingsSurface = createSurface(1024, 713)
@@ -195,6 +199,9 @@ while True:
 
                         for player in range(len(player_pos)):
                             player_pos[player] = players_movement[player][current_frame]
+
+                        if len(fire_movement) > current_frame: fire_pos = fire_movement[current_frame]
+                                       
                         #for player in range(len(player_pos)):
                         #    player_pos[player] = players_movement[player][current_frame]   # change this to pipe var later.
                                                                                             # handle empty or let Go fill it
@@ -205,6 +212,7 @@ while True:
                             paused = True
 
                         playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                        fireSurface = drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth)
         if event.type == TIMER1000: # just specific for clock animation, 10*100ms below instead?
             counter_seconds += 1
         # keyboard events, later move to to mouse click event
@@ -223,7 +231,14 @@ while True:
                             current_time_float += 0.1
                             for player in range(len(player_pos)):
                                 player_pos[player] = players_movement[player][current_frame]
+                           # for tile in range(len(fire_pos)):
+                            #    fire_pos[tile] = fire_movement[tile][current_frame]
+                            if len(fire_movement) > current_frame: fire_pos = fire_movement[current_frame]
                             playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                            fireSurface = drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth)
+                           # displaySurface.blit(fireSurface, (0, 55))
+
+                            
                 elif event.key == K_f and paused and player_pos != []: # backwards player movement from players_movement, move later to timed game event
                         if current_frame > 0: # no (more) movement tuples
                             current_frame -= 1
@@ -240,9 +255,9 @@ while True:
                     # read stdout through pipe TEST
                     #popen = subprocess.call('./hello') # just a call
                     # WINDOZE
-                    child = Popen('../src/gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
-                    child.stdout.flush()
-                    child.stdin.flush()
+                   # child = Popen('../src/gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+                   # child.stdout.flush()
+                   # child.stdin.flush()
 
                     map_matrixInt = copy.deepcopy(mapMatrix).astype(int)
                     #map_matrixInt.astype(int)
@@ -276,9 +291,15 @@ while True:
                     tofile3.write(player_pos_str)
                     tofile3.close()
 
-                    fromgo_json = child.stdout.readline().rstrip('\n')
-                    print(fromgo_json)
-                    player_pos = json.loads(fromgo_json)
+                    child = Popen('../src/gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+                    child.stdout.flush()
+                    child.stdin.flush()
+
+                    
+                    # first ppl
+                    json_ppl_bytes = child.stdout.readline().rstrip('\n')
+                    print(json_ppl_bytes)
+                    player_pos = json.loads(json_ppl_bytes)
                     for pos in player_pos:
                         players_movement.append([pos])
                     #data1 = json.loads(fromgo_json)
@@ -290,23 +311,70 @@ while True:
                     #player_pos.append([0,0])
                     #player_pos.append([0,0])
                     #"print(player_pos)
-                    json_temp = json.loads(fromgo_json)
+                    json_ppl = json.loads(json_ppl_bytes)
                     #print(type(json_temp))
                     counter_lol = 0
-                    while len(fromgo_json) > 5: #fromgo_json != []:
 
-                        print((fromgo_json))
-                        json_temp = json.loads(fromgo_json)
+                   # for x in range(mapwidth):
+                   #     for y in range(mapheight):
+                   #         fire_pos.append([0,0,0])
+
+                    #fire_movement.append([fire_pos])
+                    
+                    # first fire
+                    fromgo_json_fire = child.stdout.readline().rstrip('\n')
+                    json_fire = json.loads(fromgo_json_fire)
+                   # print(fromgo_json_fire)
+                   # i = 0
+                    #for pos in json_fire:
+                    #                        fire_movement.append([pos])
+                    
+                   # print(fire_movement)
+                   # print(fire_movement[0][0][0])
+                    #print(json_fire[0])
+                   # for i in range(len(json_fire)):
+                    #    fire_movement[0][0][i] = json_fire[i]
+                      #  i = i+1
+                    print("fire movement")
+                    print(fire_movement)
+                    
+                    while len(json_ppl_bytes) > 5: #fromgo_json != []:
+
+                       # print((json_ppl_bytes))
+                        json_ppl = json.loads(json_ppl_bytes)
+                        json_fire = json.loads(fromgo_json_fire)
+                        
                         #players_movement_tmp.append(json_temp[0])
                         #players_movement_tmp.append(json_temp)
                         #print(fromgo_json)
-                        fromgo_json = child.stdout.readline().rstrip('\n')
+                        json_ppl_bytes = child.stdout.readline().rstrip('\n')
                         #print('test2: ' + str(fromgo_json))
-                        for i in range(len(json_temp)):
-                            players_movement[i].append(json_temp[i])
+                        for i in range(len(json_ppl)):
+                            players_movement[i].append(json_ppl[i])
                         counter_lol += 1
                         #print(counter_lol)
-                    print(len(fromgo_json))
+
+                        fromgo_json_fire = child.stdout.readline().rstrip('\n')
+                        
+                        #fromgo_json_fire = json.loads(child.stdout.readline().rstrip('\n'))
+                        print(json_fire)
+                        fire_movement.append(json_fire)
+                        
+                        #for i in range(len(json_fire)):
+                         #   fire_movement[i].append(json_fire[i])
+                           # fire_movement.append(json_fire[i])
+                        
+                    
+
+                        #fromgo_json_fire = json.loads(child.stdout.readline().rstrip('\n'))
+                        
+                    print("done")
+                    #print(fire_movement)
+                    #print(len(fire_movement))
+
+                    child_pid = child.pid
+                    os.kill(child_pid, signal.SIGTERM)
+                    
                 elif event.key == K_s and paused and player_pos != []:
                     #print(len(players_movement[0][0]))
                     #print(current_frame)
@@ -653,14 +721,16 @@ while True:
             #playerSurface = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale) # add health here? from player_pos
 
             # draw fire
-            fire_pos = [[3,3,1],[3,4,2],[3,5,3]]
+         #   fire_pos = [[3,3,1],[3,4,2],[3,5,3]]
             #fireSurface = drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth)
-
+            
+                        
             # important blit order
             displaySurface.blit(rmenuSurface, (909, 45))
             displaySurface.blit(mapSurface, (0, 55))
             displaySurface.blit(playerSurface, (0, 55))
-            #displaySurface.blit(fireSurface, (0, 55))
+        
+            displaySurface.blit(fireSurface, (0, 55))
 
     elif active_tab_bools[1]: # settings tab
         # no chosen map

@@ -206,8 +206,8 @@ def drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth):
 
     More...
     """
-    fireSurface.fill(COLOR_KEY) # remove last frame. Not needed?
-
+    # fireSurface.fill(COLOR_KEY) # remove last frame. Not needed?
+    fireSurface.fill((0, 0, 0, 0))
     # for formula
     t = tilesize
     sh = 713 # map surface height
@@ -219,17 +219,17 @@ def drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth):
     # create the map with draw.rect on mapSurface
     for idx in range(len(fire_pos)):
             if fire_pos[idx][2] == 1:
-                pygame.draw.rect(fireSurface, COLOR_YELLOW,
+                pygame.draw.rect(fireSurface, COLOR_YELLOW + (150,),
                                  (math.floor(0.5 * (sw - w * t + 2 * t * fire_pos[idx][0])),
                                     math.floor((sh - p)/2 - (h * t)/2 + t * fire_pos[idx][1]),
                                  tilesize, tilesize))
             if fire_pos[idx][2] == 2:
-                pygame.draw.rect(fireSurface, COLOR_RED_PNG,
+                pygame.draw.rect(fireSurface, COLOR_RED_PNG + (150,),
                                  (math.floor(0.5 * (sw - w * t + 2 * t * fire_pos[idx][0])),
                                     math.floor((sh - p)/2 - (h * t)/2 + t * fire_pos[idx][1]),
                                  tilesize, tilesize))
             if fire_pos[idx][2] == 3:
-                pygame.draw.rect(fireSurface, COLOR_RED,
+                pygame.draw.rect(fireSurface, COLOR_RED + (150,),
                                  (math.floor(0.5 * (sw - w * t + 2 * t * fire_pos[idx][0])),
                                     math.floor((sh - p)/2 - (h * t)/2 + t * fire_pos[idx][1]),
                                  tilesize, tilesize))
@@ -366,8 +366,8 @@ def createSurface(x, y):
     #else:
     #    raise ValueError('Argument alpha must be Bool')
     surface = surface.convert_alpha() #?
-    surface.fill(COLOR_KEY) # COLOR_BACKGROUND?
-    surface.set_colorkey(COLOR_KEY)
+    #surface.fill(COLOR_KEY) # COLOR_BACKGROUND?
+    #surface.set_colorkey(COLOR_KEY)
     return surface
 
 def populateMap(mapMatrix, pop_percent):

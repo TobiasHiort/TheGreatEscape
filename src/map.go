@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 import "sync"
-//import "math"
+import "math"
 
 
 import(
@@ -53,13 +53,14 @@ func SetFire(thisTile *tile) {
 func FireSpread(tileMap [][]tile) {
 	for x := 0; x < len(tileMap); x++ {
 		for y := 0; y < len(tileMap[0]); y++ {
-			fireSpreadTile(&(tileMap[x][y]))
+			tl := &(tileMap[x][y])
+			if tl.heat < 30 {fireSpreadTile(tl)}
 		}
 	}
 
 }
 
-func fireSpreadTile(thisTile *tile) {
+func fireSpreadTile(thisTile *tile) { //TODO: fixa tiles på riktigt!!
 	if thisTile.heat >= MINHEAT {
 		thisTile.fireLevel = 1
 	}
@@ -70,16 +71,16 @@ func fireSpreadTile(thisTile *tile) {
 		thisTile.fireLevel = 3
 	}
 
-	if thisTile.neighborNorth != nil && thisTile.fireLevel != 0 {
+	if thisTile.neighborNorth != nil && !thisTile.neighborNorth.wall && thisTile.fireLevel != 0 {
 		(thisTile.neighborNorth.heat) += thisTile.fireLevel
 	}
-	if thisTile.neighborEast != nil && thisTile.fireLevel != 0 {
+	if thisTile.neighborEast != nil && !thisTile.neighborEast.wall && thisTile.fireLevel != 0 {
 		(thisTile.neighborEast.heat) += thisTile.fireLevel
 	}
-	if thisTile.neighborWest != nil && thisTile.fireLevel != 0 {
+	if thisTile.neighborWest != nil && !thisTile.neighborWest.wall && thisTile.fireLevel != 0 {
 		(thisTile.neighborWest.heat) += thisTile.fireLevel
 	}
-	if thisTile.neighborSouth != nil && thisTile.fireLevel != 0 {
+	if thisTile.neighborSouth != nil && !thisTile.neighborSouth.wall && thisTile.fireLevel != 0 {
 		(thisTile.neighborSouth.heat) += thisTile.fireLevel
 	}
 }
@@ -224,6 +225,9 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	wg.Wait()
 	FireSpread(*m)
 
+//	if math.Mod(float64(step), 40) == 0 {InitPlans(m)}
+	// TODO: takes up tiiime!!1 fixy-changy
+
 	//if math.Mod(float64(step), 5) == 0 {InitPlans(m)}
 }
 
@@ -237,6 +241,7 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
  }
 
 func mainMap() {
+	if math.Mod(float64(step), 20) == 0 {}
 //	mainPath() 
 //	MainPeople()
 //      testRedirect()
@@ -458,5 +463,94 @@ func debugging() {
 
 
 //	list := [][]int{{89,33}}//{104, 28}, {105, 29}}  // lr tvärtom?
-	tryThis(m, mm, -1, -1)
+	tryThis(m, mm, 1, 1)
 }
+
+
+
+//send heat
+/*
+func (t *tile) getFS() [][]int {
+
+}*/
+
+
+func isIn(lst [][]int, elem []int) bool{
+	for _, e := range lst {
+		if e[0] == elem[0] && e[1] == elem[1] && e[2] == elem[2] {return true}
+		//for i, val := range e {
+		//	if elem[i] == val {return true}
+		//}
+	}
+	return false
+}
+
+func (t *tile) thisOne() []int{
+	return []int{t.yCoord, t.xCoord, t.fireLevel}
+}
+
+
+func FireStats2(start *tile) [][]int{
+//	fire := [][]int{} //[][]int{start.thisOne()}
+
+//	n := fireStatsDir(start.neighborNorth, n)
+
+	return fireStatsDir(start, Direction{0,0}, [][]int{})
+}
+
+func fireStatsDir(start *tile, dir Direction, lst [][]int) [][]int{
+	fire := lst//][]int{}
+
+	//
+
+	if isIn(lst, start.thisOne()) {	
+		return lst}
+	//
+	
+	if start.heat > 0 {
+		fire = append(fire, start.thisOne())
+		nbrs := getNeighborsPruned(start, dir)
+		for _, nbr := range nbrs {
+			if nbr.heat > 0 {fire = append(fire, fireStatsDir(nbr, getDir(start, nbr), fire)...)}
+		}
+	}
+	return fire
+}
+
+func FireStats(m *[][]tile) [][]int{
+	//func FireStats(start []*tile, dir Direction) [][]int{
+	fire := [][]int{}
+	
+	for i, list := range *m {
+		for j, _ := range list {
+			tl := GetTile(*m, i, j)
+			if tl.heat  > 0 {fire = append(fire, []int{tl.yCoord, tl.xCoord, tl.fireLevel})}
+		}
+	}
+	return fire
+}
+
+/*
+
+func FireStats3(start *tile) [][]int{
+	//func FireStats(start []*tile, dir Direction) [][]int{
+	fire := [][]int{}
+	if start.heat < 1 {return fire}
+	
+	fire = append(fire, start)
+	
+	nbrs := getNeighbors(start)
+
+	for _, nbr := range nbrs {
+		
+	}
+
+	
+	for i, list := range *m {
+		for j, _ := range list {
+			tl := GetTile(*m, i, j)
+			if tl.heat  > 0 {fire = append(fire, []int{tl.yCoord, tl.xCoord, tl.fireLevel})}
+		}
+	}
+	return fire
+}*/
