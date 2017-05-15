@@ -100,12 +100,12 @@ This project is licensed under the MIT License. See the [LICENSE.md](https://git
 ```
 The Great Escape
 │   .gitignore
-|	thegreatescape.py (?)
+|   thegreatescape.py (?)
 │   LICENSE.md
-|	README.md
+|   README.md
 |
 └─── maps
-|	|	...
+|   |   ...
 |
 └─── gui
 │   │   gui.py
@@ -115,25 +115,25 @@ The Great Escape
 │   |   │   ...
 │   |
 │   └─── gui
-|	|	|	...
-|	|
+|   |   |   ...
+|   |
 │   └─── unit_tests
-|		|	...
+|       |   ...
 |
 └─── src
 |   │   fire.go
-|   |	gameMaster.go (camelcase?)
-|   |	gotest.go (replace?)
-|   |	main.go
-|   |	map.go
-|	|	pathfinder.go
-|	|	people.go
-|	|	print.go (needed later?)
-|	|	queue.go
+|   |   gameMaster.go (camelcase?)
+|   |   gotest.go (replace?)
+|   |   main.go
+|   |   map.go
+|   |   pathfinder.go
+|   |   people.go
+|   |   print.go (needed later?)
+|   |   queue.go
 |   |
 |   └─── unit_tests
-|		|	...
+|       |   ...
 |
 └─── tmp
-	|	...
+    |   ...
 ```
