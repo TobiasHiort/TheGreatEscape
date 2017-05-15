@@ -396,3 +396,19 @@ func MapStats(inMap [][]tile) []int{
 		}
 	return []int{fireTiles}
 }
+
+func doorCoord(inMap [][]tile) [][]int {
+ 
+  var door [][]int
+	for i := range inMap {
+		for j := range inMap[i] {
+			if inMap[i][j].door {
+					door = append(door, []int{i, j})
+				}
+			}
+		}
+	return door
+ 
+
+
+}
