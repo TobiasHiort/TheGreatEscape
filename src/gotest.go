@@ -11,7 +11,6 @@ import (
 	//"log"
 )
 
-func main1() {
 	//fmt.Println("GO STARTED2")
 
 	bio := bufio.NewReader(os.Stdin)

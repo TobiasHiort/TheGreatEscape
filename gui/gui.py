@@ -240,7 +240,7 @@ while True:
                     # read stdout through pipe TEST
                     #popen = subprocess.call('./hello') # just a call
                     # WINDOZE
-                    child = Popen('../src/gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+                    child = Popen('../src/main', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
                     child.stdout.flush()
                     child.stdin.flush()
 
@@ -473,8 +473,8 @@ while True:
                     #openFileDialog.ShowModal()
                     #active_map_path_tmp = openFileDialog.GetPath()
                     #openFileDialog.Destroy()
-                    active_map_path_tmp = fileDialogPath()
-
+              	    #active_map_path_tmp = fileDialogPath()
+                    active_map_path_tmp = "maps/Map07.png"
                     if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
                         # reset state.
@@ -504,8 +504,9 @@ while True:
              #       openFileDialog.ShowModal()
              #       active_map_path_tmp = openFileDialog.GetPath()
              #       openFileDialog.Destroy()
-                    active_map_path_tmp = fileDialogPath()
-                    if active_map_path_tmp != "": #and active_map_path != "/":
+                    #active_map_path_tmp = fileDialogPath()
+                     active_map_path_tmp = "maps/Map07"
+                     if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
                         # reset state.
                         player_scale, current_frame, current_time_float, paused, player_pos, player_count = resetState()

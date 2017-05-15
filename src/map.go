@@ -2,6 +2,7 @@ package main
 
 import "fmt"
 import "sync"
+
 //import "time"
 
 const MINHEAT = 10
@@ -90,15 +91,15 @@ func assignNeighbor(thisTile *tile, x int, y int, maxX int, maxY int, tileMap []
 	if y < maxY-1 {
 		thisTile.neighborEast = &tileMap[x][y+1]
 	}
-	
+
 	if x > 0 && y > 0 {
 		thisTile.neighborNW = &tileMap[x-1][y-1]
-	}	
+	}
 	if x > 0 && y < maxY-1 {
 		thisTile.neighborNE = &tileMap[x-1][y+1]
-	}	
+	}
 	if x < maxX-1 && y < maxY-1 {
-		thisTile.neighborSE = &tileMap[x+1][y+1]		
+		thisTile.neighborSE = &tileMap[x+1][y+1]
 	}
 	if x < maxX-1 && y > 0 {
 		thisTile.neighborSW = &tileMap[x+1][y-1]
@@ -177,52 +178,67 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 	size := len(peopleList)
 	peopleArray := make([]*Person, size)
 	for i, person := range peopleList {
-	//	tile := GetTile(inMap, person[0], person[1])  // inverted! 
+		//	tile := GetTile(inMap, person[0], person[1])  // inverted!
 		tile := GetTile(inMap, person[1], person[0])
 		peopleArray[i] = makePerson(tile)
 	}
 	return peopleArray
 }
 
-func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
+func StatsInit(size int) [][]int {
+	statsList := make([][]int, size)
+	for i := range statsList {
+		statsList[i] = make([]int, 3)
+	}
+	return statsList
+}
+
+func statsStart(statsList [][]int, peopleArray []*Person) {
+	for i := range statsList {
+		peopleArray[i].getStats(statsList[i])
+	}
+
+}
+
+func Run(m *[][]tile, ppl []*Person, statsList [][]int) {
 	//sList := []Stats{}
 
-	var wg sync.WaitGroup	
+	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
-	
+
 	wg.Add(len(ppl))
-	*statsList = [][]int{}
-	for _, pers := range ppl {
-		
-		go func(p *Person){//, ind int){
+	//	*statsList = [][]int{}
+	for i, pers := range ppl {
+
+		go func(p *Person) { //, ind int){
 			//	ind := i
-		//	p := pers
+			//	p := pers
 			defer wg.Done()
-			
+
 			//	sList :=  []int{}// append(sList, p.getStats())
 			p.MovePerson(m)
-			sList := &[]int{}
-			p.getStats(sList)//(statsList[ind])
+			//sList := &[]int{}
+			p.getStats(statsList[i]) //(statsList[ind])
 			mutex.Lock()
-			*statsList = append(*statsList, *sList)
+			//statsList = append(*statsList, *sList)
 			mutex.Unlock()
 			//	fmt.Println(len(statsList))
 
-		}(pers)//, i)
+		}(pers) //, i)
 	}
 	step++
 	wg.Wait()
 	FireSpread(*m)
 	//	}
 
-/*	// go run ruitnes for concurrency
-	for _, person := range peopleArray {
-		person.MovePerson(&inMap)
-	}*/
-//	return sList
+	/*	// go run ruitnes for concurrency
+		for _, person := range peopleArray {
+			person.MovePerson(&inMap)
+		}*/
+	//	return sList
 }
 
-func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{   // OBS: not working
+func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile { // OBS: not working
 	movement := make([]*tile, len(peopleArray))
 	var wg sync.WaitGroup
 
@@ -230,41 +246,43 @@ func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile{   // OBS: not workin
 	for i, person := range peopleArray {
 		go func(currentPerson *Person, ind int) {
 			defer wg.Done()
-			if (!currentPerson.DiagonalStep()) {
+			if !currentPerson.DiagonalStep() {
 				fmt.Println("not diagonal move!")
-				currentPerson.MovePerson(inMap)}		
-			if currentPerson.IsWaiting() {			
+				currentPerson.MovePerson(inMap)
+			}
+			if currentPerson.IsWaiting() {
 				movement[ind] = nil
-			} else {			
-				movement[ind] = currentPerson.path[len(currentPerson.path) - 1]}
+			} else {
+				movement[ind] = currentPerson.path[len(currentPerson.path)-1]
+			}
 		}(person, i)
 	}
 	return movement
 }
 
- func CheckFinish (peopleArray []*Person) bool {
- 	for i := 0; i < len(peopleArray); i++ {
- 		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {
- 			return false
- 		}  
- 	}
- 	return true
- }
+func CheckFinish(peopleArray []*Person) bool {
+	for i := 0; i < len(peopleArray); i++ {
+		if peopleArray[i].safe == false && peopleArray[i].alive == true {
+			return false
+		}
+	}
+	return true
+}
 
 func mainMap() {
-//	mainPath() 
-//	MainPeople()
-//      testRedirect()
-//	testDiagPpl()
-//	testDiag()
+	//	mainPath()
+	//	MainPeople()
+	//      testRedirect()
+	//	testDiagPpl()
+	//	testDiag()
 
 	testDiagonally()
-//	testMovePeople()
-//	Whut()
-//	testJP()
+	//	testMovePeople()
+	//	Whut()
+	//	testJP()
 	//	GLoop()
 
-//	testDiagonally()
+	//	testDiagonally()
 	testMovePeople()
 
 }
@@ -307,8 +325,6 @@ func testDiag() {
 	tryThis(matrix, list, -1, -1)
 }
 
-
-
 func testDiagPpl() {
 	matrix := [][]int{
 		{0, 0, 1, 0, 0, 0, 0},
@@ -344,7 +360,7 @@ func testDiagonally() {
 		{0, 6},
 		{2, 4}}
 
-	tryThis(matrix, list, 1, 2)	
+	tryThis(matrix, list, 1, 2)
 }
 
 func testMovePeople() {
@@ -359,13 +375,12 @@ func testMovePeople() {
 
 	list := [][]int{
 		{0, 0}}
-	//	{0, 6},		
+	//	{0, 6},
 	//	{2, 4}}
 
 	tryThis(matrix, list, -1, -1)
 	// Note: it takes 1 timeunit to take a step from the door and away
 }
-
 
 func testJP() {
 	matrix := [][]int{
@@ -379,9 +394,8 @@ func testJP() {
 
 	list := [][]int{
 		{0, 0}}
-	//	{0, 6},		
+	//	{0, 6},
 	//	{2, 4}}
-
 
 	testmap := TileConvert(matrix)
 	pplArray := PeopleInit(testmap, list)
@@ -394,13 +408,13 @@ func testJP() {
 
 }
 
-
-
 func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 	testmap := TileConvert(matrix)
 	pplArray := PeopleInit(testmap, ppl)
 
-	if x >= 0 && y >= 0 {SetFire(&testmap[x][y])}
+	if x >= 0 && y >= 0 {
+		SetFire(&testmap[x][y])
+	}
 	MovePeople(&testmap, pplArray)
 
 	for i, p := range pplArray {
