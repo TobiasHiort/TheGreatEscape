@@ -61,6 +61,12 @@ python3 test.py
 
 ## 4. Authors
 * **Tobias Hiort**
+* **Jenny Olsson**
+* **Linn Löfquist**
+* **Robin Larsson**
+* **Elsa Slättegård**
+* **Sinae Lee**
+* **Axel Hallsenius**
 
 
 ## 6. License
