@@ -18,7 +18,7 @@ people:
 	go build people.go
 
 all: main 
-	go build main.go queue.go people.go map.go pathfinder.go print.go gamemaster.go
+	go build main.go gameMaster.go queue.go people.go map.go pathfinder.go print.go
 
 gameMaster: clock.go gameMaster.go map.go
 	go build clock.go gameMaster.go map.go
