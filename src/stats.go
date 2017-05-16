@@ -10,7 +10,7 @@ import (
 
 func readStats(peopleArray []*Person, inmap [][]tile) {
 
-  pplfile, err := os.Create("peopleStats.txt")
+  pplfile, err := os.Create("peopleStats.txt") //alive deaths injured
   if err != nil {
     log.Fatal("Cannot create file, ppl")
   }
@@ -27,31 +27,45 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
   fmt.Fprintf(pplfile, s)
 
 
-  mapfile, err2 := os.Create("mapStats.txt")
+  mapfile, err2 := os.Create("mapStats.txt") //how many tiles are on fire?, most used exit
   if err2 != nil {
     log.Fatal("Cannot create file, map")
   }
   defer mapfile.Close()
 
   //burning tiles
-  mapStats := MapStats(inmap)
+  burningTiles := MapStats(inmap)
+  //fmt.Print(mapStats)
 
-  bytes2, err2 = json.Marshal(mapStats)
+  bytes2, err2 = json.Marshal(burningTiles)
   if err2 != nil {
     panic(err2)
   }
   str := string(bytes2[:])
   fmt.Fprintf(mapfile, str)
 
+  //most used exitsdoors
+  mostUsedDoors := doorStats(peopleArray, inmap)
+
+  fmt.Print(mostUsedDoors)
+  bytes2, err2 = json.Marshal(mostUsedDoors)
+  if err2 != nil {
+    panic(err2)
+  }
+  str2 := string(bytes2[:])
+  fmt.Fprintf(mapfile, str2)
+  fmt.Print(str2)
+
   //mapfile.Close()
 }
 
-//TODO most used door
-func exitStats(peopleArray []*Person, inmap [][]tile) []int {
+//TODO most used exit door
+//TODO dis function doesnt wörk, no exit is found
+func doorStats(peopleArray []*Person, inmap [][]tile) []int {
 
-  doors := doorCoord(inmap)
+  doors := DoorCoord(inmap)
   var doorStats []int
-  index := (len(peopleArray) - 2)
+  index := (len(peopleArray) - 2) //vi behöver näst sista kordinaten
 
   for  i := 0; i < (len(peopleArray)); i++ {
     tmp := []int {peopleArray[i].path[index].xCoord, peopleArray[i].path[index].yCoord}
@@ -71,19 +85,36 @@ func exitStats(peopleArray []*Person, inmap [][]tile) []int {
 func averageExitTime(peopleArray[] *Person) float32 {
 
   var totalTime float32
+  
   size := len(peopleArray)
-  for i := 0; i < size; i++ {
-    totalTime += peopleArray[i].time 
+	for _, p := range peopleArray {
+    totalTime = totalTime + p.time 
   }
   if size != 0 {
-    fmt.Print(totalTime/float32(size))
+    // fmt.Print(totalTime/float32(size))
     return (totalTime/float32(size))
   }else {return 0}
 }
 
 
 //TODO average health impact
-//TODO total time for people to get out
+//TODO write average healthexit to file
+func averageExitHealth(peopleArray[] *Person) int {
+
+  var totalHealth int
+  
+  size := len(peopleArray)
+	for _, p := range peopleArray {
+    totalHealth = totalHealth + p.hp 
+  }
+  if size != 0 {
+    fmt.Print(totalHealth/size)
+    return (totalHealth/size)
+  }else {return 0}
+}
+
+//TODO death y [....] per time x [....] in file
+//TODO total time for people to get out 
 //TODO average time spent waiting
 //TODO took most damage from smoke/fire
 
@@ -106,7 +137,15 @@ func main() {
 
   testmap := TileConvert(matrix)
   pplArray:= PeopleInit(testmap,ppl)
-  readStats(pplArray, testmap)
-  //averageExitTime(pplArray)
 
+  SetFire(&testmap[1][1])
+  for i := 0 ; i < 100 ; i++ {
+    Run(&testmap, pplArray, &ppl)
+  }
+  readStats(pplArray, testmap)
+  averageExitTime(pplArray)
+
+	for i, p := range pplArray {
+		fmt.Println("Person", i, "time:  ", p.time, "\n         health:", p.hp)
+	}
 }

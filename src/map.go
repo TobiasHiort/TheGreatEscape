@@ -431,7 +431,7 @@ func MapStats(inMap [][]tile) []int{
 	fireTiles := 0
 	for i := range inMap {
 		for j := range inMap[i] {
-			if inMap[i][j].fireLevel > MINHEAT {
+			if inMap[i][j].heat >= MINHEAT {
 					fireTiles ++
 				}
 			}
@@ -439,7 +439,7 @@ func MapStats(inMap [][]tile) []int{
 	return []int{fireTiles}
 }
 
-func doorCoord(inMap [][]tile) [][]int {
+func DoorCoord(inMap [][]tile) [][]int {
 
   var door [][]int
 	for i := range inMap {
