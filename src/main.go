@@ -97,5 +97,8 @@ func singleSimulation(fireStartPos []int) {
 }
 
 func main() {
-	fmt.Println("Bye World!!")
+	var fireStartPos [2]int
+	fireStartPos[0] = 0
+	fireStartPos[1] = 0
+	singleSimulation(fireStartPos)
 }
