@@ -102,15 +102,15 @@ func assignNeighbor(thisTile *tile, x int, y int, maxX int, maxY int, tileMap []
 	if y < maxY-1 {
 		thisTile.neighborEast = &tileMap[x][y+1]
 	}
-	
+
 	if x > 0 && y > 0 {
 		thisTile.neighborNW = &tileMap[x-1][y-1]
-	}	
+	}
 	if x > 0 && y < maxY-1 {
 		thisTile.neighborNE = &tileMap[x-1][y+1]
-	}	
+	}
 	if x < maxX-1 && y < maxY-1 {
-		thisTile.neighborSE = &tileMap[x+1][y+1]		
+		thisTile.neighborSE = &tileMap[x+1][y+1]
 	}
 	if x < maxX-1 && y > 0 {
 		thisTile.neighborSW = &tileMap[x+1][y-1]
@@ -189,7 +189,7 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 	size := len(peopleList)
 	peopleArray := make([]*Person, size)
 	for i, person := range peopleList {
-	//	tile := GetTile(inMap, person[0], person[1])  // inverted! 
+	//	tile := GetTile(inMap, person[0], person[1])  // inverted!
 		tile := GetTile(inMap, person[1], person[0])
 		peopleArray[i] = makePerson(tile)
 	}
@@ -199,18 +199,18 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	//sList := []Stats{}
 
-	var wg sync.WaitGroup	
+	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
-	
+
 	wg.Add(len(ppl))
 	*statsList = [][]int{}
 	for _, pers := range ppl {
-		
+
 		go func(p *Person){//, ind int){
 			//	ind := i
 		//	p := pers
 			defer wg.Done()
-			
+
 			//	sList :=  []int{}// append(sList, p.getStats())
 			p.MovePerson(m)
 			sList := &[]int{}
@@ -236,14 +236,14 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
  	for i := 0; i < len(peopleArray); i++ {
  		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {
  			return false
- 		}  
+ 		}
  	}
  	return true
  }
 
 func mainMap() {
 	if math.Mod(float64(step), 20) == 0 {}
-//	mainPath() 
+//	mainPath()
 //	MainPeople()
 //      testRedirect()
 //	testDiagPpl()
@@ -336,7 +336,7 @@ func testDiagonally() {
 		{0, 6},
 		{2, 4}}
 
-	tryThis(matrix, list, 1, 2)	
+	tryThis(matrix, list, 1, 2)
 }
 
 func testMovePeople() {
@@ -351,7 +351,7 @@ func testMovePeople() {
 
 	list := [][]int{
 		{0, 0}}
-	//	{0, 6},		
+	//	{0, 6},
 	//	{2, 4}}
 
 	tryThis(matrix, list, -1, -1)
@@ -371,7 +371,7 @@ func testJP() {
 
 	list := [][]int{
 		{0, 2}}
-	//	{0, 6},		
+	//	{0, 6},
 	//	{2, 4}}
 
 
@@ -460,12 +460,12 @@ func debugging() {
 func FireStats(m *[][]tile) [][]int{
 	//func FireStats(start []*tile, dir Direction) [][]int{
 	fire := [][]int{}
-	
+
 	for i, list := range *m {
 		for j, _ := range list {
 			//tl := GetTile(*m, i, j)
 			tl := &(*m)[i][j]
-			if tl.heat  > 0 {fire = append(fire, []int{tl.yCoord, tl.xCoord, tl.fireLevel})}
+			if tl.heat  > 0 {fire = append(fire, []int{tl.yCoord, tl.xCoord, tl.heat})}
 		}
 	}
 	return fire
