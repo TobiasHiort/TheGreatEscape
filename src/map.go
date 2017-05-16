@@ -188,14 +188,14 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 func StatsInit(size int) [][]int {
 	statsList := make([][]int, size)
 	for i := range statsList {
-		statsList[i] = make([]int, 3)
+		statsList[i] = make([]int, 2) //change 2 ->3
 	}
 	return statsList
 }
 
-func statsStart(statsList [][]int, peopleArray []*Person) {
+func StatsStart(statsList [][]int, peopleArray []*Person) {
 	for i := range statsList {
-		peopleArray[i].getStats(statsList[i])
+		peopleArray[i].GetStats(statsList[i])
 	}
 
 }
@@ -218,7 +218,7 @@ func Run(m *[][]tile, ppl []*Person, statsList [][]int) {
 			//	sList :=  []int{}// append(sList, p.getStats())
 			p.MovePerson(m)
 			//sList := &[]int{}
-			p.getStats(statsList[i]) //(statsList[ind])
+			p.GetStats(statsList[i]) //(statsList[ind])
 			mutex.Lock()
 			//statsList = append(*statsList, *sList)
 			mutex.Unlock()

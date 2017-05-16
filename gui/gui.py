@@ -278,7 +278,7 @@ while True:
                     tofile3.close()
 
                     fromgo_json = child.stdout.readline().rstrip('\n')
-                    #print(fromgo_json)
+                    print(fromgo_json)
                     player_pos = json.loads(fromgo_json)
                     for pos in player_pos:
                         players_movement.append([pos])

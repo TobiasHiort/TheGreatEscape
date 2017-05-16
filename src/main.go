@@ -1,6 +1,8 @@
 package main
 
 import (
+	//"os"
+	//"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -35,10 +37,10 @@ func sendToPipe(exitStatus *int, posList [][]int, fireList [][]int, a *int, b *i
 		if !(a == b) {
 			//TODO Copy list to pipe
 			posCopy := posList
-			//			fireCopy := fireList
+			fireCopy := fireList
 			*b++
 			toPipe(posCopy)
-			//			toPipe(fireCopy)
+			toPipe(fireCopy)
 		}
 
 	}
@@ -71,7 +73,7 @@ func fromPipe() ([][]int, [][]int) {
 	return m, p
 }
 
-func singleSimulation(fireStartPos []int) {
+func singleSimulation(fireStartPos [2]int) {
 	mapList, peopleList := fromPipe()
 	//TODO: create lsit for positions
 	//TODO: implement spinlock in gameloop
@@ -98,7 +100,7 @@ func singleSimulation(fireStartPos []int) {
 
 func main() {
 	var fireStartPos [2]int
-	fireStartPos[0] = 0
-	fireStartPos[1] = 0
+	fireStartPos[0] = 1
+	fireStartPos[1] = 1
 	singleSimulation(fireStartPos)
 }
