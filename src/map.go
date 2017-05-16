@@ -238,6 +238,7 @@ func Run(m *[][]tile, ppl []*Person, statsList [][]int) {
 	//	return sList
 }
 
+/**
 func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile { // OBS: not working
 	movement := make([]*tile, len(peopleArray))
 	var wg sync.WaitGroup
@@ -259,7 +260,7 @@ func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile { // OBS: not working
 	}
 	return movement
 }
-
+*/
 func CheckFinish(peopleArray []*Person) bool {
 	for i := 0; i < len(peopleArray); i++ {
 		if peopleArray[i].safe == false && peopleArray[i].alive == true {
@@ -269,6 +270,7 @@ func CheckFinish(peopleArray []*Person) bool {
 	return true
 }
 
+/*
 func mainMap() {
 	//	mainPath()
 	//	MainPeople()
@@ -407,7 +409,7 @@ func testJP() {
 	}
 
 }
-
+*/
 func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 	testmap := TileConvert(matrix)
 	pplArray := PeopleInit(testmap, ppl)

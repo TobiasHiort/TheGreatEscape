@@ -35,10 +35,10 @@ func sendToPipe(exitStatus *int, posList [][]int, fireList [][]int, a *int, b *i
 		if !(a == b) {
 			//TODO Copy list to pipe
 			posCopy := posList
-			fireCopy := fireList
+			//			fireCopy := fireList
 			*b++
 			toPipe(posCopy)
-			toPipe(fireCopy)
+			//			toPipe(fireCopy)
 		}
 
 	}
@@ -71,7 +71,7 @@ func fromPipe() ([][]int, [][]int) {
 	return m, p
 }
 
-func singleSimulation(fireStartPos [][]int) {
+func singleSimulation(fireStartPos []int) {
 	mapList, peopleList := fromPipe()
 	//TODO: create lsit for positions
 	//TODO: implement spinlock in gameloop

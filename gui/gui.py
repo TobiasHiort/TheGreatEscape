@@ -40,6 +40,7 @@ def restart_program():
 pygame.init()
 
 # set window icon and program name
+print(pygame.image.get_extended())
 icon = pygame.image.load(os.path.join('gui', 'window_icon.png'))
 pygame.display.set_icon(icon)
 pygame.display.set_caption(GAME_NAME)
@@ -474,7 +475,7 @@ while True:
                     #active_map_path_tmp = openFileDialog.GetPath()
                     #openFileDialog.Destroy()
               	    #active_map_path_tmp = fileDialogPath()
-                    active_map_path_tmp = "maps/Map07.png"
+                    active_map_path_tmp = "Map07.png"
                     if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
                         # reset state.
@@ -505,7 +506,7 @@ while True:
              #       active_map_path_tmp = openFileDialog.GetPath()
              #       openFileDialog.Destroy()
                     #active_map_path_tmp = fileDialogPath()
-                     active_map_path_tmp = "maps/Map07"
+                     active_map_path_tmp = "Map07"
                      if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
                         # reset state.
