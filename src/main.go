@@ -31,25 +31,20 @@ func toPipe(list [][]int) {
 
 }
 
-func sendToPipe(exitStatus *int, posList *[][]int, fireList [][]int, a *int, b *int) {
+func SendToPipe(posList [][]int, fireList [][]int) {
 
-	for *exitStatus == 0 {
-		if !(a == b) {
+	//for *exitStatus == 0 {
+		//if !(a == b) {
 			//TODO Copy list to pipe
-			if(*posList == nil){
-				fmt.Println("NIL")
-			}
-			if(*posList != nil){
-				fmt.Println("NOT NIL")
-			}
-			posCopy := *posList
+		
+			posCopy := posList
 			fireCopy := fireList
-			*b++
+		
 			toPipe(posCopy)
 			toPipe(fireCopy)
-		}
+		//}
 
-	}
+	//}
 
 }
 
@@ -108,9 +103,7 @@ func singleSimulation(fireStartPos [2]int) {
 	mapList, peopleList := fromPipe()
 	//TODO: create lsit for positions
 	//TODO: implement spinlock in gameloop
-	a := 0 //pointers?
-	b := 0
-	exitStatus := 0
+
 	//TODO: create function to copy list and send to python through pipe
 	//TODO: implenet sem lock + spinlock t ensure wait for all people to move
 	//TODO: implement that both gameloop and copy func tries to run concurrently, spinlock continously spins
@@ -124,27 +117,17 @@ func singleSimulation(fireStartPos [2]int) {
 //	posList := StartStats(peopleList)
 	//fireList := StatsInit(10)
 
-	  size := len(peopleList)
-	  	posList := make([][]int, size)
-	for i := range posList {
-		posList[i] = make([]int, 2) //change 2 ->3
-	}
-		fireList := make([][]int, size)
-	for i := range fireList {
-		fireList[i] = make([]int, 2) //change 2 ->3
-	}
-	//
 
-	go GameLoop(mapList, peopleList, fireStartPos, &posList, &a, &b, &exitStatus)
-	go sendToPipe(&exitStatus, &posList, fireList, &a, &b)
+	GameLoop(mapList, peopleList, fireStartPos)
+	//sendToPipe(&exitStatus, &posList, fireList, &a, &b)
 	//
 }
 
 func main() {
-	fmt.Println("Started main")
+	//fmt.Println("Started main")
 	var fireStartPos [2]int
 	fireStartPos[0] = 1
 	fireStartPos[1] = 1
-	fmt.Println("Fire pos started")
+	//fmt.Println("Fire pos started")
 	singleSimulation(fireStartPos)
 }

@@ -213,7 +213,12 @@ func StatsStart(statsList [][]int, peopleArray []*Person) [][]int{
 	return statsList
 }
 
+func fireStart(fireList [][]int, fireStartPos []int) [][]int{
+	fireList = append(fireList, fireStartPos)
+	return fireList
+}
 
+/*
 func StartStats(peopleList [][]int) [][]int {
 	lst := [][]int{}
 	for _, pers := range peopleList {
@@ -225,8 +230,8 @@ func StartStats(peopleList [][]int) [][]int {
 	return lst
 }
 
-
-func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
+*/
+func Run(m *[][]tile, ppl []*Person, statsList [][]int) {
 	//sList := []Stats{}
 
 	var wg sync.WaitGroup
@@ -257,7 +262,7 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 
 	step++
 	wg.Wait()
-	*statsList = StatsStart(*statsList, ppl)
+	statsList = StatsStart(statsList, ppl)
 	FireSpread(*m)
 	//	}
 

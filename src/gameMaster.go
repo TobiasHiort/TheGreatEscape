@@ -50,10 +50,11 @@ func MapInit(peopleList [][]int, newMap [][]int) [][]tile {
 	return currentMap
 }
 
-func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos [2]int, statsList *[][]int, a *int, b *int, exitStatus *int) {
+func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos [2]int) {
 	//newMap := MapInit(foo, bar)
 	//do all the Inits
-
+	statsList := StatsInit(len(peopleList))
+	fireList := StatsInit(1)
 	/*
 		inMap := [][]int{
 			{0, 0, 0, 1, 0, 0, 0},
@@ -72,15 +73,17 @@ func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos [2]int, statsList 
 
 	currentMap := MapInit(peopleList, inMap)
 	peopleArray := PeopleInit(currentMap, peopleList)
-	*statsList = StatsStart(*statsList, peopleArray)
+	statsList = StatsStart(statsList, peopleArray)
 	SetFire(GetTile(currentMap, fireStartPos[0], fireStartPos[1]))
 	for !CheckFinish(peopleArray) {
-		if *a == *b {
+		//if *a == *b {
 			Run(&currentMap, peopleArray, statsList)
-			*a++
-		} //PrintTileMapP(aMap)
-		*exitStatus++
+			fireList = FireStats(&currentMap)
+			SendToPipe(statsList, fireList)
+		//} //PrintTileMapP(aMap)
 	}
+			
+
 }
 
 /*
