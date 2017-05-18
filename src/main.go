@@ -14,8 +14,8 @@ import (
 //TODO runtime multiple simulation
 //TODO firestuff
 
-func toPipe(list [][]int) {
-	bytes, err := json.Marshal(list)
+func toPipe(list *[][]int) {
+	bytes, err := json.Marshal(*list)
 	if err != nil {
 		panic(err)
 	}
@@ -23,12 +23,13 @@ func toPipe(list [][]int) {
 	fmt.Println(s)
 }
 
-func SendToPipe(posList [][]int, fireList [][]int) {
+func SendToPipe(posList *[][]int, fireList *[][]int, smokeList *[][]int) {
 	toPipe(posList)
 	toPipe(fireList)
+	toPipe(smokeList)
 }
 
-func fromPipe() ([][]int, [][]int, []int) {
+func fromPipe() ([][]int, [][]int, [][]int) {
 	//TODO: Get fire start position*/
 	b, err3 := ioutil.ReadFile("../src/mapfile.txt")
 	if err3 != nil {
@@ -56,7 +57,7 @@ func fromPipe() ([][]int, [][]int, []int) {
 		panic(err6)
 	}
 
-	var mmm = []int{}
+	var mmm = [][]int{}
 
 	err7 := json.Unmarshal(d, &mmm)
 	if err7 != nil {

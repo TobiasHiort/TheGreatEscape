@@ -3,12 +3,12 @@ package main
 import "fmt"
 import "sync"
 
-
-import(
-  //  "os"
-    //"bufio"
+import (
+	//  "os"
+	//"bufio"
 	"encoding/json"
-    "io/ioutil"
+	"io/ioutil"
+	"math"
 )
 
 const MINHEAT = 10
@@ -21,6 +21,7 @@ type tile struct {
 
 	heat      int //how hot a tile is before fire
 	fireLevel int //strength of the fire
+	smoke     int
 
 	wall bool
 	door bool
@@ -41,10 +42,26 @@ type tile struct {
 	neighborSW *tile
 }
 
+//TODO: fire init function, add 2->3 array, update heat, update healt for people.
+
+func FireInit(currentMap [][]tile, fireList [][]int) [][]int {
+	fireStats := [][]int{}
+	for _, fire := range fireList {
+		SetFire(GetTile(currentMap, fire[0], fire[1]))
+		tempList := []int{}
+		tempList = append(tempList, fire[0])
+		tempList = append(tempList, fire[1])
+		tempList = append(tempList, MINHEAT)
+		fireStats = append(fireStats, tempList)
+	}
+	return fireStats
+}
+
 //Initializes the fire
 func SetFire(thisTile *tile) {
 	thisTile.heat = MINHEAT
 	thisTile.fireLevel = 1
+	thisTile.smoke = 1
 }
 
 func FireSpread(tileMap [][]tile) {
@@ -54,10 +71,9 @@ func FireSpread(tileMap [][]tile) {
 			fireSpreadTile(tl)
 		}
 	}
-
 }
 
-func fireSpreadTile(thisTile *tile) { 
+func fireSpreadTile(thisTile *tile) {
 	if thisTile.heat >= MINHEAT {
 		thisTile.fireLevel = 1
 	}
@@ -67,18 +83,22 @@ func fireSpreadTile(thisTile *tile) {
 	if thisTile.heat >= MAXHEAT {
 		thisTile.fireLevel = 3
 	}
+	fire := thisTile.fireLevel
+	if fire > 10 {
+		fire = 10
+	}
 
 	if thisTile.neighborNorth != nil && !thisTile.neighborNorth.wall && thisTile.fireLevel != 0 {
-		(thisTile.neighborNorth.heat) += thisTile.fireLevel
+		(thisTile.neighborNorth.heat) += fire //thisTile.fireLevel
 	}
 	if thisTile.neighborEast != nil && !thisTile.neighborEast.wall && thisTile.fireLevel != 0 {
-		(thisTile.neighborEast.heat) += thisTile.fireLevel
+		(thisTile.neighborEast.heat) += fire //thisTile.fireLevel
 	}
 	if thisTile.neighborWest != nil && !thisTile.neighborWest.wall && thisTile.fireLevel != 0 {
-		(thisTile.neighborWest.heat) += thisTile.fireLevel
+		(thisTile.neighborWest.heat) += fire //thisTile.fireLevel
 	}
 	if thisTile.neighborSouth != nil && !thisTile.neighborSouth.wall && thisTile.fireLevel != 0 {
-		(thisTile.neighborSouth.heat) += thisTile.fireLevel
+		(thisTile.neighborSouth.heat) += fire //thisTile.fireLevel
 	}
 }
 
@@ -117,7 +137,7 @@ func makeNewTile(thisPoint int, x int, y int) tile {
 
 	//makes a basic floor tile with no nothin on it
 	//and also no neighbors
-	newTile := tile{x, y, 0, 0, false, false, nil, 0, false, nil, nil, nil, nil, nil, nil, nil, nil}
+	newTile := tile{x, y, 0, 0, 0, false, false, nil, 0, false, nil, nil, nil, nil, nil, nil, nil, nil}
 
 	if thisPoint == 0 {
 		//make normal floor
@@ -195,22 +215,24 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 func StatsInit(size int) [][]int {
 	statsList := make([][]int, size)
 	for i := range statsList {
-		statsList[i] = make([]int, 2) //change 2 ->3
+		statsList[i] = make([]int, 3) //change 2 ->3
 	}
 	return statsList
 }
 
-func StatsStart(statsList [][]int, peopleArray []*Person) [][]int{
-	for i := range statsList {
-		statsList[i] = peopleArray[i].GetStats()
+func StatsStart(peopleArray []*Person) [][]int {
+	statsList := [][]int{}
+	for i := 0; i < len(peopleArray); i++ {
+		statsList = append(statsList, peopleArray[i].GetStats())
 	}
 	return statsList
 }
 
-func fireStart(fireList [][]int, fireStartPos []int) [][]int{
+func fireStart(fireList [][]int, fireStartPos []int) [][]int {
 	fireList = append(fireList, fireStartPos)
 	return fireList
 }
+
 /*
 func StartStats(peopleList [][]int) [][]int {
 	lst := [][]int{}
@@ -222,17 +244,17 @@ func StartStats(peopleList [][]int) [][]int {
 	}
 	return lst
 }*/
-func Run(m *[][]tile, ppl []*Person, statsList [][]int) {
+func Run(m *[][]tile, ppl []*Person, statsList [][]int) []*Person {
 
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
-
 	wg.Add(len(ppl))
-	
+
 	for _, pers := range ppl {
 
-		go func(p *Person) { 
-
+		go func(p *Person) { //, ind int){
+			//	ind := i
+			//	p := pers
 			defer wg.Done()
 
 			p.MovePerson(m)
@@ -240,13 +262,78 @@ func Run(m *[][]tile, ppl []*Person, statsList [][]int) {
 			mutex.Lock()
 			mutex.Unlock()
 
-		}(pers) 
+		}(pers)
 	}
 
 	step++
 	wg.Wait()
-	statsList = StatsStart(statsList, ppl)
-	FireSpread(*m)
+
+	if math.Mod(float64(step), 2) == 0 {
+		FireSpread(*m)
+		SmokeSpread(*m)
+		InitPlans(m)
+	} // MOVED!
+
+	//	if math.Mod(float64(step), 40) == 0 {InitPlans(m)}
+	// TODO: takes up tiiime!!1 fixy-changy
+
+	//if math.Mod(float64(step), 5) == 0 {InitPlans(m)}
+	return ppl
+}
+
+func CheckFinish(peopleArray []*Person) bool {
+	for i := 0; i < len(peopleArray); i++ {
+		if peopleArray[i].safe == false && peopleArray[i].alive == true {
+			return false
+		}
+	}
+	return true
+}
+
+func mainMap() {
+	if math.Mod(float64(step), 20) == 0 {
+	}
+	//	mainPath()
+	//	MainPeople()
+	//      testRedirect()
+	//	testDiagPpl()
+	//	testDiag()
+	debugging()
+	//	testSame()
+	//	testDiagonally()
+	//	testMovePeople()
+	//	Whut()
+	//	testJP()
+	//	GLoop()
+
+	//	testDiagonally()
+	//	testMovePeople()
+
+}
+
+func testRedirect() {
+	matrix := [][]int{
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{1, 0, 1, 1, 1, 0, 1},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 2, 0, 0, 0, 0}}
+
+	list := [][]int{
+		{1, 1},
+		{1, 2},
+		{0, 2},
+		{0, 0},
+		{2, 1},
+		{3, 1},
+		{0, 3},
+		{0, 1},
+		{1, 0},
+		{1, 3}}
+
+	tryThis(matrix, list, -1, -1)
 }
 
 /*
@@ -271,21 +358,13 @@ func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile { // OBS: not working
 	}
 	return movement
 */
-func CheckFinish(peopleArray []*Person) bool {
-	for i := 0; i < len(peopleArray); i++ {
-		if peopleArray[i].safe == false && peopleArray[i].alive == true {
-			return false
-		}
-	}
-	return true
-}
-
 
 func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 	testmap := TileConvert(matrix)
 	pplArray := PeopleInit(testmap, ppl)
-	InitPlans(&testmap)
 
+	InitPlans(&testmap)
+	fmt.Println("init")
 	if x >= 0 && y >= 0 {
 		SetFire(&testmap[x][y])
 	}
@@ -296,55 +375,69 @@ func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 	}
 }
 
-
 func testSame() {
-	matrix := [][]int {
-		{1,1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,0,0,0,0,0,1,0,0,0,0,0,1},
-		{1,0,0,0,0,0,1,0,0,1,0,0,1},
-		{1,0,0,0,0,0,1,1,1,1,0,0,1},
-		{1,1,1,0,0,0,1,0,0,0,0,0,1},
-		{2,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1,1}}
+	matrix := [][]int{
+		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		{1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1},
+		{1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+		{2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}}
 
-	list := [][]int{{3,2}, {5,5}}
+	list := [][]int{{3, 2}, {5, 5}}
 
 	tryThis(matrix, list, -1, -1)
 }
 
-
-
 func debugging() {
 
-	b, err3 := ioutil.ReadFile("../src/mapfile.txt")
-	if err3 != nil{
-		panic(err3)
-	}
+	if true {
+		b, err3 := ioutil.ReadFile("../src/mapfile.txt")
+		if err3 != nil {
+			panic(err3)
+		}
 
-	var m = [][]int{}
-	err := json.Unmarshal(b, &m)
-	if err != nil{
-		panic(err)
-	}
+		var m = [][]int{}
+		err := json.Unmarshal(b, &m)
+		if err != nil {
+			panic(err)
+		}
 
-	c, err4 := ioutil.ReadFile("../src/playerfile.txt")
-	if err4 != nil{
-		panic(err4)
-	}
+		c, err4 := ioutil.ReadFile("../src/playerfile.txt")
+		if err4 != nil {
+			panic(err4)
+		}
 
-	var mm = [][]int{}
-	err5 := json.Unmarshal(c, &mm)
-	if err5 != nil{
-		panic(err5)
-	}
+		var mm = [][]int{}
+		err5 := json.Unmarshal(c, &mm)
+		if err5 != nil {
+			panic(err5)
+		}
 
-	tryThis(m, mm, 20, 20)
+		tryThis(m, mm, 20, 20) // 31, 31)
+	}
+	/*	m := [][]int{
+			{1,1,1,1,1,1},
+			{2,0,0,0,0,1},
+			{1,0,0,0,0,1},
+			{1,0,0,0,0,1},
+			{1,0,0,0,0,1},
+			{1,0,0,0,0,1},
+			{1,0,0,0,0,1},
+			{1,0,0,0,0,1},
+			{1,0,0,0,0,2},
+			{1,1,1,1,1,1}}
+		mm := [][]int{{1,4}}
+	*/
+	//	ppl := PeopleInit(testmap, mm)
+
+	//	list := [][]int{{89,33}}//{104, 28}, {105, 29}}  // lr tvärtom?
+
 }
 
-
-
 //send heat
-func FireStats(m *[][]tile) [][]int{
+func FireStats(m *[][]tile) [][]int {
 	//func FireStats(start []*tile, dir Direction) [][]int{
 	fire := [][]int{}
 
@@ -352,8 +445,92 @@ func FireStats(m *[][]tile) [][]int{
 		for j, _ := range list {
 			//tl := GetTile(*m, i, j)
 			tl := &(*m)[i][j]
-			if tl.heat  > 0 {fire = append(fire, []int{tl.yCoord, tl.xCoord, tl.heat})}
+			if tl.heat > 0 {
+				fire = append(fire, []int{tl.yCoord, tl.xCoord, tl.heat})
+			}
 		}
 	}
 	return fire
+}
+
+// send smoke
+
+func SmokeStats(m *[][]tile) [][]int {
+	//func FireStats(start []*tile, dir Direction) [][]int{
+	smoke := [][]int{}
+
+	for i, list := range *m {
+		for j, _ := range list {
+			//tl := GetTile(*m, i, j)
+			tl := &(*m)[i][j]
+			if tl.smoke > 0 {
+				smoke = append(smoke, []int{tl.yCoord, tl.xCoord, tl.smoke})
+			}
+		}
+	}
+	return smoke
+}
+
+// testing smoke
+
+func SmokeSpread(tileMap [][]tile) {
+	smokeTiles := []*tile{}
+	for x := 0; x < len(tileMap); x++ {
+		for y := 0; y < len(tileMap[0]); y++ {
+			tl := &(tileMap[x][y])
+			// tl.heat < 30 {fireSpreadTile(tl)}
+			if tl.smoke > 0 {
+				smokeTiles = append(smokeTiles, tl)
+			}
+		}
+	}
+	for _, s := range smokeTiles {
+		if s.smoke > 0 {
+			SmokeSpreadTile(s)
+		}
+	}
+
+}
+
+func SmokeSpreadTile(thisTile *tile) { //TODO: fixa tiles på riktigt!!
+	/*	if thisTile.heat >= MINHEAT {
+			thisTile.fireLevel = 1
+		}
+		if thisTile.heat >= MEDIUMHEAT {
+			thisTile.fireLevel = 2
+		}
+		if thisTile.heat >= MAXHEAT {
+			thisTile.fireLevel = 3
+		}*/
+	//	if thisTile.smoke < 1 {return}
+	smoke := thisTile.smoke
+	if smoke >= 1 {
+		smoke = 1
+	}
+
+	if thisTile.neighborNorth != nil && !thisTile.neighborNorth.wall {
+		(thisTile.neighborNorth.smoke) += smoke //thisTile.smoke/30
+	}
+	if thisTile.neighborEast != nil && !thisTile.neighborEast.wall {
+		(thisTile.neighborEast.smoke) += smoke //thisTile.smoke/30
+	}
+	if thisTile.neighborWest != nil && !thisTile.neighborWest.wall {
+		(thisTile.neighborWest.smoke) += smoke //thisTile.smoke/30
+	}
+	if thisTile.neighborSouth != nil && !thisTile.neighborSouth.wall {
+		(thisTile.neighborSouth.smoke) += smoke //thisTile.smoke/30
+	}
+	/*
+		if thisTile.neighborNW != nil && !thisTile.neighborNW.wall {
+			(thisTile.neighborNW.smoke) += 1//thisTile.smoke
+		}
+		if thisTile.neighborNE != nil && !thisTile.neighborNE.wall {
+			(thisTile.neighborNE.smoke) += 1//thisTile.smoke
+		}
+		if thisTile.neighborSE != nil && !thisTile.neighborSE.wall {
+			(thisTile.neighborSE.smoke) += 1//thisTile.smoke
+		}
+		if thisTile.neighborSW != nil && !thisTile.neighborSW.wall {
+			(thisTile.neighborSW.smoke) += 1//thisTile.smoke
+		}*/
 }

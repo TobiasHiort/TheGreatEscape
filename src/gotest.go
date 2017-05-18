@@ -6,9 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+
 	//"time"
 	"io/ioutil"
 	//"log"
+	"math"
 )
 
 func toPipe(stats [][]int) {
@@ -20,54 +22,77 @@ func toPipe(stats [][]int) {
 	fmt.Println(s)
 }
 
-
 func mains() {
 	mainMap()
 }
 
 func main() {
 
-    b, err3 := ioutil.ReadFile("../src/mapfile.txt")
-    if err3 != nil{
-        panic(err3)
-    }
+	b, err3 := ioutil.ReadFile("../src/mapfile.txt")
+	if err3 != nil {
+		panic(err3)
+	}
 
-    var m = [][]int{}
-    err := json.Unmarshal(b, &m)
-    if err != nil{
-        panic(err)
-    }
+	var m = [][]int{}
+	err := json.Unmarshal(b, &m)
+	if err != nil {
+		panic(err)
+	}
 	testmap := TileConvert(m)
-	if testmap == nil {}
+	if testmap == nil {
+	}
 
-    c, err4 := ioutil.ReadFile("../src/playerfile.txt")
-    if err4 != nil{
-        panic(err4)
-    }
+	c, err4 := ioutil.ReadFile("../src/playerfile.txt")
+	if err4 != nil {
+		panic(err4)
+	}
 
-    var mm = [][]int{}
-    err5 := json.Unmarshal(c, &mm)
-    if err5 != nil{
-        panic(err5)
-    }
+	var mm = [][]int{}
+	err5 := json.Unmarshal(c, &mm)
+	if err5 != nil {
+		panic(err5)
+	}
 
 	ppl := PeopleInit(testmap, mm)
+	//InitPlans(&testmap)
+	//plans := InitPlans2(&testmap)
 	InitPlans(&testmap)
-	
-	stats := StartStats(ppl)
-	SetFire(GetTile(testmap, 20, 20))
-	fireStats := FireStats(&testmap) 
 
-	
+	stats := StartStats(ppl)
+	SetFire(GetTile(testmap, 31, 31))
+	fireStats := FireStats(&testmap)
+	smokeStats := SmokeStats(&testmap)
 
 	for !CheckFinish(ppl) {
 		toPipe(stats)
-		toPipe(fireStats)//FireStats(&testmap))
-		fireStats = FireStats(&testmap)//2(fire) //fire.getFS()
+		toPipe(fireStats) //FireStats(&testmap))
+		toPipe(smokeStats)
+
+		if math.Mod(float64(step), 2) == 0 {
+			fireStats = FireStats(&testmap) //2(fire) //fire.getFS()
+			smokeStats = SmokeStats(&testmap)
+		}
 		//time.Sleep(10 * time.Millisecond)
-		
+
+		//UpdateParentOf(&testmap, plans, fireStats)//[]*tile{&(testmap)[20][20]})
+
 		Run(&testmap, ppl, &stats)
-		
+		//	FireSpread2(fireStats)
+	}
+	toPipe(stats)
+	toPipe(fireStats) //FireStats(&testmap))
+
+}
+
+func fromPipe() int {
+	bio := bufio.NewReader(os.Stdin)
+	line, _, _ := bio.ReadLine()
+
+	m := 0
+
+	err := json.Unmarshal(line, &m)
+	if err != nil {
+		panic(err)
 	}
 
 }

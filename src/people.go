@@ -15,26 +15,49 @@ type Person struct {
 	hp    int
 	path  []*tile
 	plan  []*tile // plan of jps
-	dir  Direction
-	time float32
-	w8ed int
+	dir   Direction
+	time  float32
+	w8ed  int
 }
 
 type Stats struct {
 	x int
 	y int
+	//	hp float32
 }
 
-func (p *Person) GetStats()[]int {
-	aslice := make ([]int,0)
+/*
+
+func (p *Person)getStats() []int {
+	//if p == nil || p.currentTile() == nil {return Stats{}}
+	//if len(p.path) < 1 {return []int{0,0}}
+//	return Stats{p.path[len(p.path) - 1].xCoord, p.path[len(p.path) - 1].yCoord}
+//	return []int{p.currentTile().xCoord, p.currentTile().yCoord}//, p.hp}
+	return []int{p.currentTile().yCoord, p.currentTile().xCoord}//, p.hp}
+=======
+func (p *Person)getStats(aslice *[]int) {
+//	aslice[0] = p.currentTile().xCoord
+//	aslice[1] = p.currentTile().yCoord
+	*aslice = append(*aslice, p.currentTile().yCoord)
+	*aslice = append(*aslice, p.currentTile().xCoord)
+	*aslice = append(*aslice, p.hp)
+
+  //aslice[2] = p.hp
+>>>>>>> origin/jump
+}
+*/
+func (p *Person) GetStats() []int {
+	aslice := make([]int, 0)
 	aslice = append(aslice, p.currentTile().yCoord)
 	aslice = append(aslice, p.currentTile().xCoord)
+	aslice = append(aslice, p.hp)
 	//	*aslice = append(*aslice, p.currentTile().yCoord)
 	//	*aslice = append(*aslice, p.currentTile().xCoord)
 	//	*aslice = append(*aslice, p.hp)
 	//aslice[2] = p.hp
 	return aslice
 }
+
 /**
 func StartStats(ppl []*Person) [][]int {
 	lst := [][]int{}
@@ -72,14 +95,18 @@ func (p *Person) updateStats() {
 
 func (t *tile) getDamage() int {
 	damage := int(0)
-	damage = 100 * int(t.fireLevel) // man dör om man kliver i elden, right...
-	damage = damage + int(t.heat)   // TODO: how much does the fire hurt??
+	damage += 10 * int(t.fireLevel) // man dör om man kliver i elden, right...
+	//damage = damage + int(t.heat)   // TODO: how much does the fire hurt??
 	// damage = damage + effect from smoke'n stuff
+	//	smoke := int(t.smoke)
+	//	if smoke > 2 {damage += 2}
+	//damage += smoke //int(t.smoke)
 	return damage
 }
 
 func (p *Person) moveTo(t *tile) bool {
-	if validTile(t) && t.occupied == nil {
+	//if validTile(t) && t.occupied == nil {
+	if canGo(t) && t.occupied == nil {
 		p.path = append(p.path, t)
 		p.updateStats()
 		return true
@@ -126,30 +153,35 @@ func (p *Person) nextTile() *tile {
 		return p.currentTile().neighborSW
 	}
 
-	return nil 
+	return nil
 }
 
 func (p *Person) followPlan() {
 
-
-	if p.path[len(p.path) - 1] == nil { return} // TODO updatestats
-	if p.path[len(p.path) - 1].door {   // standing at the exit -> leave
-		(p.path[len(p.path) - 1].occupied) = nil
-		p.path = append(p.path, nil)  // replace with safezone?
+	if p.path[len(p.path)-1] == nil {
+		return
+	} // TODO updatestats
+	if p.path[len(p.path)-1].door { // standing at the exit -> leave
+		(p.path[len(p.path)-1].occupied) = nil
+		p.path = append(p.path, nil) // replace with safezone?
 		p.updateTime()
 		p.w8ed = 0 // testing testing
 		p.save()
 
 	} else if len(p.plan) > 0 { // follow tha plan!
-		
+
 		if p.followDir() {
 			p.w8ed = 0 // testing testing
-			p.updateTime()  
-		} else {                   // next step in plan is occupied -> w8
-			if !p.redirect() {p.wait()}
-			p.updateTime()	
+			p.updateTime()
+		} else {
+			//fmt.Println("Redir....")// next step in plan is occupied -> w8
+			if !p.redirect() {
+				p.wait()
+			}
+			//fmt.Println("Redired!")
+			p.updateTime()
 		}
-	}else {
+	} else {
 		p.kill()
 		// TODO: no valid path! panic behavior? lay down and w8 for death?
 		// idea: don't update last plan-path, follow it despite fire etc?
@@ -158,8 +190,8 @@ func (p *Person) followPlan() {
 
 func (p *Person) wait() {
 	p.w8ed++
-	p.path = append(p.path, p.path[len(p.path) - 1])
-	p.updateStats()	
+	p.path = append(p.path, p.path[len(p.path)-1])
+	p.updateStats()
 
 }
 
@@ -185,16 +217,27 @@ func (p *Person) save() {
 }
 
 func (p *Person) updatePlan(m *[][]tile) {
-	
-	if !p.currentTile().door && (p.foo() || len(p.plan) < 1) {
-		plan, _ := getPath2(m, p.path[len(p.path)-1])  		
-		p.plan = plan[1:]
-	}
-	if len(p.plan) > 0 {p.dir = getDir(p.currentTile(), p.plan[0])} //TODO: fixa till!
-} 
+	//plan, ok := getPath(m, p.path[len(p.path)-1])
 
-func (p *Person) foo() bool{  //TODO!! checka om planen bör updates lr ej
-	return false 
+	if !p.currentTile().door && (p.foo() || len(p.plan) < 1) {
+		if len(p.plan) < 1 {
+			//	fmt.Println(p.plan) <----------------We changed something here!!1
+		}
+		//plan, _ := getPath2(m, p.path[len(p.path)-1])  //changed!		if ok {
+		//p.plan = plan[1:]
+		//	p.w8ed = 0
+		//p.plan = p.plan[1:]
+	}
+	//	fmt.Println("why??2")
+	if len(p.plan) > 0 {
+		p.dir = getDir(p.currentTile(), p.plan[0])
+	} //TODO: fixa till!
+
+	//	fmt.Println("why??3")
+}
+
+func (p *Person) foo() bool { //TODO!! checka om planen bör updates lr ej
+	return false
 }
 
 func (p *Person) MovePerson(m *[][]tile) {
@@ -206,39 +249,55 @@ func (p *Person) MovePerson(m *[][]tile) {
 	}
 	if p.time <= step {
 
-		p.updatePlan(m) 
-
+		//	if step > 100 &&  p.path[0].yCoord == 9 {fmt.Println("\n path:")
+		//		printPath(p.path)}//{fmt.Println(p.currentTile().xCoord, p.currentTile().yCoord)} //|| !validTile(p.plan[0]) {p.updatePlan(m)}
+		//
+		p.updatePlan(m)
+		//		fmt.Print("1 done")
 		p.followPlan()
-	}
+	} /*else if p.time + 1 <= step{
+	p.updateStats()*/
+
 }
 
 func MovePeople(m *[][]tile, ppl []*Person) {
 	var wg sync.WaitGroup
-
+	fmt.Println("next lap..")
+	//	SmokeSpread(*m)
+	//	SmokeSpread(*m)
 	for !CheckFinish(ppl) {
 		wg.Add(len(ppl))
+
+		//	print("\033[H\033[2J")
+
 		PrintTileMapP(*m)
+		fmt.Print("\n")
+		InitPlans(m)
 
-		fmt.Print("\n ")
+		//	fmt.Println("\n", (ppl[0].plan))
+		//	fmt.Println("\n", (ppl[0].plan[1]))
 
+		//for _, p := range ppl[0].plan {
+		//	fmt.Println(p.xCoord, p.yCoord)}
+		//	time.Sleep(1000 * time.Millisecond)
 
 		for _, pers := range ppl {
-			if pers.path[0].xCoord == 32 && pers.path[0].yCoord == 86 {fmt.Println("buggy's at: ", pers.currentTile())}
-			go func(p *Person){
+			if pers.path[0].xCoord == 32 && pers.path[0].yCoord == 86 {
+				fmt.Println("buggy's at: ", pers.currentTile())
+			}
+			go func(p *Person) {
 				defer wg.Done()
 				p.MovePerson(m)
 			}(pers)
 		}
 		step++
 		wg.Wait()
+		//	if math.Mod(float64(step),2) == 0 {FireSpread(*m)}
+		//if math.Mod(float64(step),2) == 0 {SmokeSpread(*m)}
 		FireSpread(*m)
-
-fmt.Println("\nfire:", FireStats(m))
-		time.Sleep(100 * time.Millisecond)
-
-	
+		SmokeSpread(*m)
+		time.Sleep(70 * time.Millisecond)
 	}
-	
 }
 
 func (p *Person) currentTile() *tile {
@@ -249,14 +308,20 @@ func (p *Person) currentTile() *tile {
 }
 
 func (p *Person) updateTime() {
-	if p.wasDiag() { 
+	if p.wasDiag() { //p.DiagonalStep() {
 		p.time += float32(math.Sqrt(2))
 	} else {
 		p.time += 1
 	}
+
+	if p.currentTile() != nil && p.currentTile().smoke > 0 {
+		smoke := float32(p.currentTile().smoke / 50)
+
+		p.time += smoke
+	}
 }
 
-func (p *Person) DiagonalStep() bool { 
+func (p *Person) DiagonalStep() bool {
 	if p == nil {
 		return false
 	}
@@ -266,7 +331,7 @@ func (p *Person) DiagonalStep() bool {
 	return Diagonal(p.path[len(p.path)-1], p.plan[0])
 }
 
-func (p *Person) wasDiag() bool { 
+func (p *Person) wasDiag() bool {
 	if len(p.path) < 2 {
 		return false
 	}
@@ -341,11 +406,69 @@ func InitPlans(m *[][]tile) {
 	doors := []*tile{}
 	for i, list := range *m {
 		for j, _ := range list {
-		
+
 			if (*m)[i][j].door {
-				doors = append(doors, &(*m)[i][j])}
+				doors = append(doors, &(*m)[i][j])
+			}
 		}
 	}
 
-	getPath3(m, doors)	
+	//for _, d := range doors {
+	//	fmt.Println("??", d)
+	//}
+	//	fmt.Println("got the doors")
+	getPath3(m, doors)
+}
+
+func (p *Person) redirectOld(m *[][]tile) {
+	//	newPlan, ok := getPPath(m, p.currentTile(), p.plan[0])
+	current := p.currentTile()
+	//----
+
+	if p.dir == nw {
+		if p.moveTo(current.neighborNorth) {
+			p.plan = append([]*tile{current.neighborWest}, p.plan...)
+			//p.plan = append( p.plan, current.neighborWest)
+		} else if p.moveTo(current.neighborWest) {
+			p.plan = append([]*tile{current.neighborNorth}, p.plan...)
+			//p.plan = append( p.plan, current.neighborNorth)
+		}
+	}
+	if p.dir == ne {
+		//	if current.neighborNorth.occupied == nil { }
+		if p.moveTo(current.neighborNorth) {
+			p.plan = append([]*tile{current.neighborEast}, p.plan...)
+			//p.plan = append( p.plan, current.neighborEast)
+		} else if p.moveTo(current.neighborEast) {
+			p.plan = append([]*tile{current.neighborNorth}, p.plan...)
+			//p.plan = append( p.plan, current.neighborNorth)
+		}
+	}
+	if p.dir == se {
+		//	if current.neighborNorth.occupied == nil { }
+		if p.moveTo(current.neighborSouth) {
+			p.plan = append([]*tile{current.neighborEast}, p.plan...)
+			//p.plan = append( p.plan, current.neighborEast)
+		} else if p.moveTo(current.neighborEast) {
+			p.plan = append([]*tile{current.neighborSouth}, p.plan...)
+			//p.plan = append( p.plan, current.neighborSouth)
+		}
+	}
+	if p.dir == sw {
+		//	if current.neighborNorth.occupied == nil { }
+		if p.moveTo(current.neighborSouth) {
+			p.plan = append([]*tile{current.neighborWest}, p.plan...)
+			//p.plan = append( p.plan, current.neighborWest)
+		} else if p.moveTo(current.neighborWest) {
+			p.plan = append([]*tile{current.neighborSouth}, p.plan...)
+			//p.plan = append( p.plan, current.neighborSouth)
+		}
+	}
+
+	//----
+	p.w8ed = 0
+	/*	if ok {
+				p.plan = append(newPlan, p.plan[1:]...)
+		//		path = append([]*tile{parentOf[current]}, path...)
+			}*/
 }
