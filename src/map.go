@@ -2,18 +2,14 @@ package main
 
 import "fmt"
 import "sync"
-//import "math"
 
 
 import(
   //  "os"
     //"bufio"
 	"encoding/json"
-	//"time"
     "io/ioutil"
 )
-
-//import "time"
 
 const MINHEAT = 10
 const MEDIUMHEAT = 20
@@ -55,7 +51,6 @@ func FireSpread(tileMap [][]tile) {
 	for x := 0; x < len(tileMap); x++ {
 		for y := 0; y < len(tileMap[0]); y++ {
 			tl := &(tileMap[x][y])
-			// tl.heat < 30 {fireSpreadTile(tl)}
 			fireSpreadTile(tl)
 		}
 	}
@@ -232,45 +227,30 @@ func StartStats(peopleList [][]int) [][]int {
 
 */
 func Run(m *[][]tile, ppl []*Person, statsList [][]int) {
-	//sList := []Stats{}
 
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
 
 	wg.Add(len(ppl))
-	//	*statsList = [][]int{}
+	
 	for _, pers := range ppl {
 
-		go func(p *Person) { //, ind int){
+		go func(p *Person) { 
 
-			//	ind := i
-			//	p := pers
 			defer wg.Done()
 
-			//	sList :=  []int{}// append(sList, p.getStats())
 			p.MovePerson(m)
-			//sList := &[]int{}
-			//p.GetStats(statsList[i]) //(statsList[ind])
-			
-			mutex.Lock()
-			//statsList = append(*statsList, *sList)
-			mutex.Unlock()
-			//	fmt.Println(len(statsList))
 
-		}(pers) //, i)
+			mutex.Lock()
+			mutex.Unlock()
+
+		}(pers) 
 	}
 
 	step++
 	wg.Wait()
 	statsList = StatsStart(statsList, ppl)
 	FireSpread(*m)
-	//	}
-
-	/*	// go run ruitnes for concurrency
-		for _, person := range peopleArray {
-			person.MovePerson(&inMap)
-		}*/
-	//	return sList
 }
 
 /**

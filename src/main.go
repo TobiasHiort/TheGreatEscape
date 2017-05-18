@@ -6,15 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	//	"math"
 )
-
-/*
-
--- Paste Python communication stuff here
-
-*/
-
-//[][]int, peopleList []*Person, fireStartPos []int
 
 //TODO func for input from pipe
 //TODO runtime single simulation
@@ -36,31 +29,7 @@ func SendToPipe(posList [][]int, fireList [][]int) {
 	toPipe(fireList)
 }
 
-func fromPipe() ([][]int, [][]int) {
-	//Import map
-	/**b, err := ioutil.ReadFile("../src/mapfile.txt")
-	if err != nil {
-		panic(err)
-	}
-	var m = [][]int{}
-	err2 := json.Unmarshal(b, &m)
-	if err2 != nil {
-		panic(err2)
-	}
-	fmt.Println("MAP LIST DONE")
-
-	//Import people
-	c, err3 := ioutil.ReadFile("../src/playerfile.txt")
-	if err3 != nil {
-		panic(err3)
-	}
-	fmt.Println("OPEN PEOPLE LIST")
-	var p = [][]int{}
-	err4 := json.Unmarshal(c, &p)
-	if err4 != nil {
-		panic(err4)
-	}
-	fmt.Println("PEOPLE LIST COPIED")
+func fromPipe() ([][]int, [][]int, []int) {
 	//TODO: Get fire start position*/
 	b, err3 := ioutil.ReadFile("../src/mapfile.txt")
 	if err3 != nil {
@@ -83,7 +52,6 @@ func fromPipe() ([][]int, [][]int) {
 	if err5 != nil {
 		panic(err5)
 	}
-
 	d, err6 := ioutil.ReadFile("../src/firefile.txt")
 	if err6 != nil {
 		panic(err6)
@@ -95,11 +63,17 @@ func fromPipe() ([][]int, [][]int) {
 	if err7 != nil {
 		panic(err7)
 	}
-	return m, mm
+
+	if len(mmm) < 2 {
+		//We are gonna do something drastic here!
+	} else if len(mmm)%2 != 0 {
+		mmm = mmm[:len(mmm)-1]
+	}
+	return m, mm, mmm
 }
 
-func singleSimulation() {
-	mapList, peopleList := fromPipe()
+func singleSimulation(fire [2]int) {
+	mapList, peopleList, fireList := fromPipe()
 
 	//TODO: create lsit for positions
 	//TODO: implement spinlock in gameloop
@@ -115,20 +89,16 @@ func singleSimulation() {
 	  }*/
 	//posList := StatsInit(len(peopleList))
 	//	posList := StartStats(peopleList)
+	//posList := StartStats(peopleList)
 	//fireList := StatsInit(10)
-	var fireStartPos [2]int
-	fireStartPos[0] = 1
-	fireStartPos[1] = 1
-	GameLoop(mapList, peopleList, fireStartPos)
+	GameLoop(mapList, peopleList, fireList)
 	//sendToPipe(&exitStatus, &posList, fireList, &a, &b)
-	//
 }
 
 func main() {
-	//fmt.Println("Started main")
-	var fireStartPos [2]int
-	fireStartPos[0] = 1
-	fireStartPos[1] = 1
-	//fmt.Println("Fire pos started")
-	singleSimulation()
+	var fire [2]int
+	fire[0] = 1
+	fire[1] = 1
+
+	singleSimulation(fire)
 }

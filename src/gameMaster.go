@@ -50,7 +50,7 @@ func MapInit(peopleList [][]int, newMap [][]int) [][]tile {
 	return currentMap
 }
 
-func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos [2]int) {
+func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos []int) {
 	//newMap := MapInit(foo, bar)
 	//do all the Inits
 	statsList := StatsInit(len(peopleList))
