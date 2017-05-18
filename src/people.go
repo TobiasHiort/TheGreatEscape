@@ -27,8 +27,8 @@ type Stats struct {
 
 func (p *Person) GetStats()[]int {
 	aslice := make ([]int,0)
-	aslice = append(aslice, p.currentTile().xCoord)
 	aslice = append(aslice, p.currentTile().yCoord)
+	aslice = append(aslice, p.currentTile().xCoord)
 	//	*aslice = append(*aslice, p.currentTile().yCoord)
 	//	*aslice = append(*aslice, p.currentTile().xCoord)
 	//	*aslice = append(*aslice, p.hp)
