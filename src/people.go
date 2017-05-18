@@ -40,6 +40,7 @@ func (p *Person)getStats(aslice *[]int) {
 //	aslice[1] = p.currentTile().yCoord
 	*aslice = append(*aslice, p.currentTile().yCoord)
 	*aslice = append(*aslice, p.currentTile().xCoord)
+	*aslice = append(*aslice, p.hp)
 	
   //aslice[2] = p.hp
 }
@@ -77,9 +78,12 @@ func (p *Person) updateStats() {
 
 func (t *tile) getDamage() int {
 	damage := int(0)
-	damage = 100 * int(t.fireLevel) // man dör om man kliver i elden, right...
-	damage = damage + int(t.heat)   // TODO: how much does the fire hurt??
+	damage += 10*int(t.fireLevel) // man dör om man kliver i elden, right...
+	//damage = damage + int(t.heat)   // TODO: how much does the fire hurt??
 	// damage = damage + effect from smoke'n stuff
+//	smoke := int(t.smoke)
+//	if smoke > 2 {damage += 2}
+	//damage += smoke //int(t.smoke)
 	return damage
 }
 
@@ -234,7 +238,9 @@ func (p *Person) MovePerson(m *[][]tile) {
 		p.updatePlan(m)
 //		fmt.Print("1 done")	
 		p.followPlan()
-	}
+	} /*else if p.time + 1 <= step{
+		p.updateStats()*/
+	
 
 	
 }

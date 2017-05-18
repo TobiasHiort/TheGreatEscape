@@ -115,6 +115,7 @@ current_map_exits = 0
 # create gradients, can not do it in utils...
 #COLOR_FIRE_GRADIENT = linearInterpolationGradient([(255, 255, 0), (107, 14, 14)], 3)
 
+COLOR_PLAYER_GRADIENT = interpolateTuple((46, 127, 0),(66, 181, 0), 100) # 2 steps == len 3
 COLOR_FIRE_GRADIENT = interpolateTuple((253, 207, 88), (128, 9, 9), 100) # 2 steps == len 3
 COLOR_SMOKE_GRADIENT = interpolateTuple((254, 254, 254), (100, 100, 100), 100) # 2 steps == len 3
 
@@ -246,7 +247,7 @@ while True:
                         if current_frame == len(players_movement[0]) - 1:
                             paused = True
 
-                        playerSurface, survived = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                        playerSurface, survived = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
                         fireSurface = drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GRADIENT)
                         smokeSurface = drawSmoke(smokeSurface, smoke_pos, tilesize, mapheight, mapwidth, COLOR_SMOKE_GRADIENT)
                         
@@ -274,7 +275,7 @@ while True:
                             #if len(fire_movement) > current_frame:
                             fire_pos = fire_movement[current_frame]
                             smoke_pos = smoke_movement[current_frame]
-                            playerSurface, survived = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                            playerSurface, survived = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
                             fireSurface = drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GRADIENT)
                             smokeSurface = drawSmoke(smokeSurface, smoke_pos, tilesize, mapheight, mapwidth, COLOR_SMOKE_GRADIENT)
                             #displaySurface.blit(fireSurface, (0, 55))
@@ -290,7 +291,7 @@ while True:
                                 player_pos[player] = players_movement[player][current_frame]
 
                             fire_pos = fire_movement[current_frame]
-                            playerSurface, survived = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                            playerSurface, survived = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
                             fireSurface = drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GRADIENT)
                             smoke_pos = smoke_movement[current_frame]
                             smokeSurface = drawSmoke(smokeSurface, smoke_pos, tilesize, mapheight, mapwidth, COLOR_SMOKE_GRADIENT)
@@ -299,13 +300,11 @@ while True:
                 elif event.key == K_2 and paused:
                     current_frame = 0
                     current_time_float = 0.0
-                    playerSurface, survived = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                    playerSurface, survived = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
                 elif event.key == K_m and paused and current_frame == 0:
                     _thread.start_new_thread(goThread, (mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement) )
 
-                elif event.key == K_s and paused and player_pos != []:
-                    #print(len(players_movement[0][0]))
-                    #print(current_frame)
+                elif event.key == K_s and paused and player_pos != []:                                  
                     if players_movement != [] and current_frame < len(players_movement[0]) - 1:  # do not start time frame clock if not pupulated.
                                                                                                  # problems if we have no people?
                                                                                                  # shaky logic with current frame, can otherwise
@@ -345,12 +344,12 @@ while True:
                                                                        # shitty handling for no respawn (current_frame)?,
                                                                        # if respawn is needed, remove current_frame
                         player_pos, player_count = populateMap(mapMatrix, pop_percent)
-                        playerSurface, survived = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                        playerSurface, survived = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
                     else:
                         print('Depop first')
                 elif event.key == K_z: # depopulate
                     _, current_frame, current_time_float, paused, player_pos, players_movement, player_count, fire_movement, fire_pos, survived, fire_percent, smoke_pos, smoke_movement = resetState()
-                    playerSurface, survived = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                    playerSurface, survived = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
                     fireSurface = drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GRADIENT)
                     smokeSurface = drawFire(smokeSurface, smoke_pos, tilesize, mapheight, mapwidth, COLOR_SMOKE_GRADIENT)
         # mouse motion events (hovers), only for tab buttons on displaySurface. Blit in render logic for others.
@@ -437,7 +436,7 @@ while True:
                             player_pos, player_count = populateMap(mapMatrix, pop_percent)
                             players_movement = []
 
-                            playerSurface, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                            playerSurface, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
                 # upload button map error
                 if cursorBoxHit(mouse_x, mouse_y, 450, 574, 335+250, 459+250, active_tab_bools[0]) and map_error:
                     #openFileDialog = wx.FileDialog(frame_wx, "Open", "", "", "PNG Maps (*.png)|*.png", wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
@@ -473,7 +472,7 @@ while True:
                             player_pos, player_count = populateMap(mapMatrix, pop_percent)
                             players_movement = []
 
-                            playerSurface, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                            playerSurface, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
                 # upload button routine rmenu
                 if cursorBoxHit(mouse_x, mouse_y, 937, 999, 685, 747, active_tab_bools[0]) and active_map_path is not None:
                     #openFileDialog = wx.FileDialog(frame_wx, "Open", "", "", "PNG Maps (*.png)|*.png", wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
@@ -508,16 +507,16 @@ while True:
                             player_pos, player_count = populateMap(mapMatrix, pop_percent)
                             players_movement = []
 
-                            playerSurface, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                            playerSurface, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
                 # scale plus/minus
                 if cursorBoxHit(mouse_x, mouse_y, 918, 932, 364-23, 378-23, active_tab_bools[0]) and active_map_path is not None:
                     if player_scale > 0.5: # crashes if negative radius, keep it > zero
                         player_scale *= 0.8
-                        playerSurface, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                        playerSurface, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
                 if cursorBoxHit(mouse_x, mouse_y, 965, 979, 364-23, 378-23, active_tab_bools[0]) and active_map_path is not None:
                     if player_scale < 5: # not to big?
                         player_scale *= 1.25
-                        playerSurface, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
+                        playerSurface, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
 
     # render logic
     if active_tab_bools[0]: # simulation tab
@@ -655,13 +654,17 @@ while True:
             displaySurface.blit(rmenuSurface, (909, 45))
             displaySurface.blit(mapSurface, (0, 55))
 
-            if surface_toggle[0]:
-                displaySurface.blit(playerSurface, (0, 55))
+#            if surface_toggle[0]:
+#                displaySurface.blit(playerSurface, (0, 55))
             if surface_toggle[2]:
                 displaySurface.blit(smokeSurface, (0, 55))        
             if surface_toggle[1]:
                 displaySurface.blit(fireSurface, (0, 55))
+            if surface_toggle[0]:
+                displaySurface.blit(playerSurface, (0, 55))
 
+
+                
     elif active_tab_bools[1]: # settings tab
         # no chosen map
         if active_map_path == None or active_map_path == "": # if no active map (init), "" = cancel on choosing map

@@ -190,7 +190,7 @@ def calcScaling(PADDING_MAP, tilesize, mapheight, mapwidth):
     return coord_x, coord_y, radius_scale
 
 # create drawPlayer2 for this AA solution. Only for playerSurface (circles). createSurface biggest change!
-def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale):
+def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT):
     """Description.
 
     More...
@@ -201,17 +201,30 @@ def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord
     for player in range(len(player_pos)):
         if player_pos[player][0] == 0 and player_pos[player][1] == 0:
             survived += 1
-        else:
-            # black magic
-            pygame.gfxdraw.aacircle(playerSurface,
+        else:           
+            if player_pos[player][2] < 1:
+                pygame.gfxdraw.aacircle(playerSurface,
                                 coord_x + tilesize * player_pos[player][0],
                                 coord_y + tilesize * player_pos[player][1],
-                                math.floor(radius_scale*player_scale), COLOR_GREEN) # round()?
+                                        math.floor(radius_scale*player_scale), COLOR_RED) # round()?
 
-            pygame.gfxdraw.filled_circle(playerSurface,
+                pygame.gfxdraw.filled_circle(playerSurface,
                                 coord_x + tilesize * player_pos[player][0],
                                 coord_y + tilesize * player_pos[player][1],
-                                math.floor(radius_scale*player_scale), COLOR_GREEN) # round()?
+                                math.floor(radius_scale*player_scale), COLOR_RED) # round()?                
+                
+            # black magic
+            elif player_pos[player][2] > 0:
+                pygame.gfxdraw.aacircle(playerSurface,
+                                        coord_x + tilesize * player_pos[player][0],
+                                        coord_y + tilesize * player_pos[player][1],
+                                        math.floor(radius_scale*player_scale), COLOR_PLAYER_GRADIENT[player_pos[player][2]]) # round()?
+                
+                pygame.gfxdraw.filled_circle(playerSurface,
+                                             coord_x + tilesize * player_pos[player][0],
+                                             coord_y + tilesize * player_pos[player][1],
+                                             math.floor(radius_scale*player_scale), COLOR_PLAYER_GRADIENT[player_pos[player][2]]) # round()?
+        
     return playerSurface, survived
 
 def drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GRADIENT):
@@ -476,6 +489,10 @@ def populateMap(mapMatrix, pop_percent):
         del floor_coords[rand_player] # delete player
         counter -= 1
         player_count = len(floor_coords)
+
+    for idx in range(player_count):
+        floor_coords[idx].append(100, )
+
     return floor_coords, player_count
 
 
@@ -878,6 +895,7 @@ def goThreadold(mapMatrix, player_pos, players_movement, fire_pos, fire_movement
         #print('test2: ' + str(fromgo_json))
         for i in range(len(json_ppl)):
             players_movement[i].append(json_ppl[i])
+            print(json_ppl[i])
             # counter_lol += 1
        
         
@@ -888,7 +906,7 @@ def goThreadold(mapMatrix, player_pos, players_movement, fire_pos, fire_movement
         fire_movement.append(json_fire)
 
         fromgo_json_smoke = child.stdout.readline().rstrip('\n')
-        print(len(json_smoke))
+      #  print(len(json_smoke))
         smoke_movement.append(json_smoke)
         
         #for i in range(len(json_fire)):
