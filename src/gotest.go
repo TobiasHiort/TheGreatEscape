@@ -1,14 +1,15 @@
 package main
 
 import (
-    //"fmt"
-    "os"
-    "bufio"
-    "fmt"
+	//"fmt"
+	"os"
+	"bufio"
+	"fmt"
 	"encoding/json"
 	//"time"
-    "io/ioutil"
-    //"log"
+	"io/ioutil"
+	//"log"
+	"math"
 )
 func toPipe(stats [][]int) {
 	bytes2, err2 := json.Marshal(stats)
@@ -51,6 +52,8 @@ func main() {
     }
 
 	ppl := PeopleInit(testmap, mm)
+	//InitPlans(&testmap)
+	//plans := InitPlans2(&testmap)
 	InitPlans(&testmap)
 
 
@@ -58,8 +61,9 @@ func main() {
 	
 //	stats := [][]int{}
 	stats := StartStats(ppl)
-	SetFire(GetTile(testmap, 20, 20))
-	fireStats := FireStats(&testmap) 
+	SetFire(GetTile(testmap, 31, 31))
+	fireStats := FireStats(&testmap)
+	smokeStats := SmokeStats(&testmap)
 
 	//	SetFire(GetTile(testmap, 2, 2))
 	
@@ -67,12 +71,20 @@ func main() {
 	for !CheckFinish(ppl) {
 		toPipe(stats)
 		toPipe(fireStats)//FireStats(&testmap))
-		fireStats = FireStats(&testmap)//2(fire) //fire.getFS()
+		toPipe(smokeStats)
+
+		if math.Mod(float64(step), 2) == 0 {
+			fireStats = FireStats(&testmap)//2(fire) //fire.getFS()
+			smokeStats = SmokeStats(&testmap)}
 		//time.Sleep(10 * time.Millisecond)
+		
+		//UpdateParentOf(&testmap, plans, fireStats)//[]*tile{&(testmap)[20][20]})
 		
 		Run(&testmap, ppl, &stats)
 	//	FireSpread2(fireStats)
 	}
+	toPipe(stats)
+	toPipe(fireStats)//FireStats(&testmap))
 
 }
 

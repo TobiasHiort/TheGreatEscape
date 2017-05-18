@@ -13,6 +13,11 @@ import subprocess
 import doctest # read from txt, read docs
 import random
 
+#testing thread!
+import copy
+import json
+from subprocess import Popen, PIPE
+
 import tkinter as tk
 from tkinter import filedialog
 
@@ -99,7 +104,7 @@ def buildMap(path, mapSurface):
                 #raise ValueError('Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]))		                raise ValueError('Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]))
                 #placeText(mapSurface, 'Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]), 'Roboto-Regular.ttf', 11, COLOR_RED, 0, 0)
                 #print('hejj')
-                map_error.append([column+1, row+1, mapRGBA[column, row]])
+                map_error.append([column + 1, row + 1, mapRGBA[column, row]])
                 #print(map_error)
     if map_error == []:
         # for formula
@@ -226,15 +231,15 @@ def drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GR
 
     # create the map with draw.rect on mapSurface
     for idx in range(len(fire_pos)):
-            if fire_pos[idx][2] < 30:
+            if fire_pos[idx][2] < 100:
                 print(fire_pos[idx][2])
-                pygame.draw.rect(fireSurface, COLOR_FIRE_GRADIENT[fire_pos[idx][2]] + (200,),
+                pygame.draw.rect(fireSurface, COLOR_FIRE_GRADIENT[fire_pos[idx][2]] + (180,),
                                  (math.floor(0.5 * (sw - w * t + 2 * t * fire_pos[idx][0])),
                                     math.floor((sh - p)/2 - (h * t)/2 + t * fire_pos[idx][1]),
                                  tilesize, tilesize))
-            elif fire_pos[idx][2] >= 29:
+            elif fire_pos[idx][2] >= 99:
                 #if fire_pos[idx][2] == 2:
-                pygame.draw.rect(fireSurface, COLOR_FIRE_GRADIENT[29] + (200,),
+                pygame.draw.rect(fireSurface, COLOR_FIRE_GRADIENT[99] + (180,),
                                  (math.floor(0.5 * (sw - w * t + 2 * t * fire_pos[idx][0])),
                                     math.floor((sh - p)/2 - (h * t)/2 + t * fire_pos[idx][1]),
                                  tilesize, tilesize))
@@ -245,13 +250,14 @@ def drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GR
             #                     tilesize, tilesize))
     return fireSurface
 
-def drawSmoke(smokeSurface, smoke_pos, tilesize, mapheight, mapwidth):
+
+def drawSmoke(smokeSurface, smoke_pos, tilesize, mapheight, mapwidth, COLOR_SMOKE_GRADIENT):
     """Description.
+
     More...
     """
-    #fireSurface.fill(COLOR_KEY) # remove last frame. Not needed?
+    # fireSurface.fill(COLOR_KEY) # remove last frame. Not needed?
     smokeSurface.fill((0, 0, 0, 0))
-    #fireSurface.set_alpha(0.3)
     # for formula
     t = tilesize
     sh = 713 # map surface height
@@ -259,20 +265,19 @@ def drawSmoke(smokeSurface, smoke_pos, tilesize, mapheight, mapwidth):
     p = PADDING_MAP
     h = mapheight
     w = mapwidth
-    # create the map with draw.rect on mapSurface, CHANGE
+
+    # create the map with draw.rect on mapSurface
     for idx in range(len(smoke_pos)):
-            if smoke_pos[idx][2] == 1:
-                pygame.draw.rect(smokeSurface, COLOR_GREY1 + (150,),
+            #if 20 < smoke_pos[idx][2] and smoke_pos[idx][2] <= 100:
+        if smoke_pos[idx][2] <= 100:
+                print(smoke_pos[idx][2])
+                pygame.draw.rect(smokeSurface, COLOR_SMOKE_GRADIENT[smoke_pos[idx][2]] + (100,),
                                  (math.floor(0.5 * (sw - w * t + 2 * t * smoke_pos[idx][0])),
                                     math.floor((sh - p)/2 - (h * t)/2 + t * smoke_pos[idx][1]),
                                  tilesize, tilesize))
-            if smoke_pos[idx][2] == 2:
-                pygame.draw.rect(smokeSurface, COLOR_GREY2 + (150,),
-                                 (math.floor(0.5 * (sw - w * t + 2 * t * smoke_pos[idx][0])),
-                                    math.floor((sh - p)/2 - (h * t)/2 + t * smoke_pos[idx][1]),
-                                 tilesize, tilesize))
-            if smoke_pos[idx][2] == 3:
-                pygame.draw.rect(smokeSurface, COLOR_GREY3 + (150,),
+        elif smoke_pos[idx][2] >= 99:
+                #if fire_pos[idx][2] == 2:
+                pygame.draw.rect(smokeSurface, COLOR_SMOKE_GRADIENT[99] + (100,),
                                  (math.floor(0.5 * (sw - w * t + 2 * t * smoke_pos[idx][0])),
                                     math.floor((sh - p)/2 - (h * t)/2 + t * smoke_pos[idx][1]),
                                  tilesize, tilesize))
@@ -305,7 +310,14 @@ def placeCenterText(surface, text, font, size, color, width, y):
     text_tmp = font.render(text, True, color, COLOR_WHITE)
     text_rect = text_tmp.get_rect(center = (width / 2, y))
     surface.blit(text_tmp, text_rect)
-    return surface, text_rect
+    return text_rect, width, y
+
+def placeCenterTextAlpha(surface, text, font, size, color, width, y):
+    font = pygame.font.Font(font, size)
+    text_tmp = font.render(text, True, color)
+    text_rect = text_tmp.get_rect(center = (width / 2, y))
+    surface.blit(text_tmp, text_rect)
+    return text_rect, width, y
 
 def placeClockText(rmenuSurface, minutes, seconds):
     """Description.
@@ -382,8 +394,15 @@ def resetState():
     current_time_float = 0.0 # for simulation clock, not system
     paused = True
     player_pos = []
+    players_movement = []
     player_count = 0
-    return player_scale, current_frame, current_time_float, paused, player_pos, player_count
+    fire_movement = []
+    fire_pos = []
+    smoke_pos = []
+    smoke_movement = []
+    survived = 0
+    fire_percent = 0
+    return player_scale, current_frame, current_time_float, paused, player_pos, players_movement, player_count, fire_movement, fire_pos, survived, fire_percent, smoke_pos, smoke_movement
 
 def cursorBoxHit(mouse_x, mouse_y, x1, x2, y1, y2, tab):
     """Description.
@@ -714,3 +733,170 @@ def interpolateTuple(startcolor, goalcolor, steps):
 
         gradient_list.append((new_R, new_G, new_B))
     return gradient_list
+
+def pathToName(path):
+    return path[path.rfind('/') + 1:-4]
+
+
+def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement):
+    # export json map matrix
+    print("thread!")
+    map_matrixInt = copy.deepcopy(mapMatrix).astype(int)
+    map_jsons = json.dumps(map_matrixInt.tolist())
+    tofile = open('../src/mapfile.txt', 'w+')
+    tofile.write(map_jsons)
+    tofile.close()
+    print('Wrote mapfile.txt')
+    
+    # export json people position list
+    player_pos_str = json.dumps(player_pos)#_tmp)
+    tofile3 = open('../src/playerfile.txt', 'w+')
+    tofile3.write(player_pos_str)
+    tofile3.close()
+    print('Wrote playerfile.txt')
+    
+    # spawn Go subprocess
+    child = Popen('../src/gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+    child.stdout.flush()
+    child.stdin.flush()
+    print('Go subprocess started')
+    
+    # first people
+    json_ppl_bytes = child.stdout.readline().rstrip('\n')
+    player_pos = json.loads(json_ppl_bytes)
+    for pos in player_pos:
+        players_movement.append([pos])
+        
+    json_ppl = json.loads(json_ppl_bytes)
+    
+    # first fire
+    fromgo_json_fire = child.stdout.readline().rstrip('\n')
+    fire_pos = json.loads(fromgo_json_fire)
+    for pos in fire_pos:
+        fire_movement.append([pos])
+    json_fire = json.loads(fromgo_json_fire)
+
+    # first smoke
+    fromgo_json_smoke = child.stdout.readline().rstrip('\n')
+    smoke_pos = json.loads(fromgo_json_smoke)
+    for pos in smoke_pos:
+        smoke_movement.append([pos])
+    json_smoke = json.loads(fromgo_json_smoke)
+        
+    print('Calculating simulation...')
+    go_time_pre = time.clock()
+    while len(json_ppl_bytes) > 0: #fromgo_json != []:
+        json_ppl = json.loads(json_ppl_bytes)
+        json_fire = json.loads(fromgo_json_fire)
+        json_smoke = json.loads(fromgo_json_smoke)
+        
+        json_ppl_bytes = child.stdout.readline().rstrip('\n')
+        for i in range(len(json_ppl)):
+            players_movement[i].append(json_ppl[i])
+            
+        fromgo_json_fire = child.stdout.readline().rstrip('\n')
+        fire_movement.append(json_fire)
+
+        fromgo_json_smoke = child.stdout.readline().rstrip('\n')
+        smoke_movement.append(json_smoke)      
+        
+    print('Go subprocess done and terminated in ' + str(time.clock() - go_time_pre) + "ms")
+    
+    os.remove('../src/mapfile.txt')
+    print('Removed mapfile.txt')
+    os.remove('../src/playerfile.txt')
+    print('Removed playerfile.txt')
+    
+    child.stdout.flush()
+    child.stdin.flush()    
+
+
+
+def goThreadold(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement):
+    print("thread!")
+    map_matrixInt = copy.deepcopy(mapMatrix).astype(int)
+    #map_matrixInt.astype(int)
+    #print(map_matrixInt)
+    #map_jsons = json.dumps(mapMatrix.tolist())
+    map_jsons = json.dumps(map_matrixInt.tolist())
+    print(map_jsons)
+    ##print(map_jsons, file=child.stdin)
+
+    #Saving stuff to file, axel3
+    tofile = open('../src/mapfile.txt', 'w+')
+    tofile.write(map_jsons)
+    tofile.close()
+
+    player_pos_str = json.dumps(player_pos)#_tmp)
+    
+    tofile3 = open('../src/playerfile.txt', 'w+')
+    tofile3.write(player_pos_str)
+    tofile3.close()
+    
+    child = Popen('../src/gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+    child.stdout.flush()
+    child.stdin.flush()
+    
+    
+    # tmpprint = child.stdout.readline().rstrip('\n')
+    # if len(tmpprint) < 10:
+    #     print(json.loads(tmpprint))
+    #     tmpprint = child.stdout.readline().rstrip('\n')
+    # first ppl
+    json_ppl_bytes = child.stdout.readline().rstrip('\n')
+    print(json_ppl_bytes)
+    player_pos = json.loads(json_ppl_bytes)
+    for pos in player_pos:
+        players_movement.append([pos])
+
+    json_ppl = json.loads(json_ppl_bytes)
+    #print(type(json_temp))
+    counter_lol = 0
+    
+    # first fire
+    fromgo_json_fire = child.stdout.readline().rstrip('\n')
+    json_fire = json.loads(fromgo_json_fire)
+
+
+    fromgo_json_smoke = child.stdout.readline().rstrip('\n')
+    json_smoke = json.loads(fromgo_json_smoke)
+    
+    print("fire movement")
+    print(fire_movement)
+    
+    while len(json_ppl_bytes) > 5: #fromgo_json != []:
+        
+        # print((json_ppl_bytes))
+        json_ppl = json.loads(json_ppl_bytes)
+        json_fire = json.loads(fromgo_json_fire)
+        json_smoke = json.loads(fromgo_json_smoke)
+        
+        #players_movement_tmp.append(json_temp[0])
+        #players_movement_tmp.append(json_temp)
+        #print(fromgo_json)
+        json_ppl_bytes = child.stdout.readline().rstrip('\n')
+        #print('test2: ' + str(fromgo_json))
+        for i in range(len(json_ppl)):
+            players_movement[i].append(json_ppl[i])
+            # counter_lol += 1
+       
+        
+        fromgo_json_fire = child.stdout.readline().rstrip('\n')
+        
+        #fromgo_json_fire = json.loads(child.stdout.readline().rstrip('\n'))
+       # print(len(json_fire))
+        fire_movement.append(json_fire)
+
+        fromgo_json_smoke = child.stdout.readline().rstrip('\n')
+        print(len(json_smoke))
+        smoke_movement.append(json_smoke)
+        
+        #for i in range(len(json_fire)):
+        #   fire_movement[i].append(json_fire[i])
+        # fire_movement.append(json_fire[i])
+        
+        
+        
+        #fromgo_json_fire = json.loads(child.stdout.readline().rstrip('\n'))
+        
+    print("done")

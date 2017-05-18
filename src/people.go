@@ -84,7 +84,8 @@ func (t *tile) getDamage() int {
 }
 
 func (p *Person) moveTo(t *tile) bool {
-	if validTile(t) && t.occupied == nil {
+	//if validTile(t) && t.occupied == nil {
+	if canGo(t) && t.occupied == nil {
 		p.path = append(p.path, t)
 		p.updateStats()
 		return true
@@ -150,8 +151,10 @@ func (p *Person) followPlan() {
 			//p.plan = p.plan[1:]
 			p.w8ed = 0 // testing testing
 			p.updateTime()  
-		} else {                   // next step in plan is occupied -> w8
+		} else {
+			//fmt.Println("Redir....")// next step in plan is occupied -> w8
 			if !p.redirect() {p.wait()}
+			//fmt.Println("Redired!")
 			p.updateTime()	
 		}
 	}else {
@@ -192,13 +195,18 @@ func (p *Person) save() {
 func (p *Person) updatePlan(m *[][]tile) {
 	//plan, ok := getPath(m, p.path[len(p.path)-1])
 	
-	
+
 	if !p.currentTile().door && (p.foo() || len(p.plan) < 1) {
-		plan, _ := getPath2(m, p.path[len(p.path)-1])  //changed!		if ok {			
-		p.plan = plan[1:]
+		if len(p.plan) < 1 {fmt.Println(p.plan)}
+		//plan, _ := getPath2(m, p.path[len(p.path)-1])  //changed!		if ok {			
+		//p.plan = plan[1:]
 		//	p.w8ed = 0
+		//p.plan = p.plan[1:]
 	}
+//	fmt.Println("why??2")
 	if len(p.plan) > 0 {p.dir = getDir(p.currentTile(), p.plan[0])} //TODO: fixa till!
+
+//	fmt.Println("why??3")
 } 
 /*	ret := p.foo()
 	if !p.currentTile().door && (ret || len(p.plan) < 1) {
@@ -219,46 +227,53 @@ func (p *Person) MovePerson(m *[][]tile) {
 		return
 	}
 	if p.time <= step {
-	
-		//if p.plan[0].occupied != nil || !validTile(p.plan[0]) {p.updatePlan(m)}
-		p.updatePlan(m) 
+		
+	//	if step > 100 &&  p.path[0].yCoord == 9 {fmt.Println("\n path:")
+	//		printPath(p.path)}//{fmt.Println(p.currentTile().xCoord, p.currentTile().yCoord)} //|| !validTile(p.plan[0]) {p.updatePlan(m)}
+//
+		p.updatePlan(m)
+//		fmt.Print("1 done")	
 		p.followPlan()
 	}
+
+	
 }
 
 func MovePeople(m *[][]tile, ppl []*Person) {
 	var wg sync.WaitGroup
-
+	fmt.Println("next lap..")
+//	SmokeSpread(*m)
+//	SmokeSpread(*m)
 	for !CheckFinish(ppl) {
 		wg.Add(len(ppl))
-	//	print("\033[H\033[2J")
-		PrintTileMapP(*m)
-		fmt.Print("\n ")
+		//	print("\033[H\033[2J")
 
+		PrintTileMapP(*m)
+		fmt.Print("\n")
+		InitPlans(m)
 
 	//	fmt.Println("\n", (ppl[0].plan))
 	//	fmt.Println("\n", (ppl[0].plan[1]))
 		
 		//for _, p := range ppl[0].plan {
 		//	fmt.Println(p.xCoord, p.yCoord)}
-	//	time.Sleep(1000 * time.Millisecond)
+		//	time.Sleep(1000 * time.Millisecond)
+	
 		for _, pers := range ppl {
 			if pers.path[0].xCoord == 32 && pers.path[0].yCoord == 86 {fmt.Println("buggy's at: ", pers.currentTile())}
 			go func(p *Person){
-				defer wg.Done()
+				defer wg.Done()				
 				p.MovePerson(m)
 			}(pers)
 		}
-		step++
+		step++	
 		wg.Wait()
+	//	if math.Mod(float64(step),2) == 0 {FireSpread(*m)}
+		//if math.Mod(float64(step),2) == 0 {SmokeSpread(*m)}
 		FireSpread(*m)
-
-fmt.Println("\nfire:", FireStats(m))
-		time.Sleep(100 * time.Millisecond)
-
-	
-	}
-	
+		SmokeSpread(*m)
+		time.Sleep(70 * time.Millisecond)
+	}	
 }
 
 func (p *Person)currentTile() *tile{
@@ -270,6 +285,11 @@ func (p *Person)updateTime() {
 	if p.wasDiag() {//p.DiagonalStep() {
 		p.time += float32(math.Sqrt(2))	
 	} else {p.time += 1}
+
+	if p.currentTile() != nil && p.currentTile().smoke > 0 {
+		smoke := float32(p.currentTile().smoke/50)
+		
+		p.time += smoke}
 }
 
 func (p *Person)DiagonalStep() bool{    // Is the next step a diagonal one?
@@ -349,6 +369,7 @@ func InitPlans(m *[][]tile) {
 	//for _, d := range doors {
 	//	fmt.Println("??", d)
 	//}
+//	fmt.Println("got the doors")
 	getPath3(m, doors)	
 }
 
@@ -404,3 +425,7 @@ func (p *Person) redirectOld(m *[][]tile) {
 //		path = append([]*tile{parentOf[current]}, path...)
 	}*/
 }
+
+
+
+
