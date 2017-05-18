@@ -12,6 +12,7 @@ import time
 import subprocess
 import doctest # read from txt, read docs
 import random
+#import psutil
 
 import tkinter as tk
 from tkinter import filedialog
@@ -99,7 +100,7 @@ def buildMap(path, mapSurface):
                 #raise ValueError('Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]))		                raise ValueError('Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]))
                 #placeText(mapSurface, 'Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]), 'Roboto-Regular.ttf', 11, COLOR_RED, 0, 0)
                 #print('hejj')
-                map_error.append([column+1, row+1, mapRGBA[column, row]])
+                map_error.append([column + 1, row + 1, mapRGBA[column, row]])
                 #print(map_error)
     if map_error == []:
         # for formula
@@ -227,7 +228,6 @@ def drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GR
     # create the map with draw.rect on mapSurface
     for idx in range(len(fire_pos)):
             if fire_pos[idx][2] < 30:
-                print(fire_pos[idx][2])
                 pygame.draw.rect(fireSurface, COLOR_FIRE_GRADIENT[fire_pos[idx][2]] + (200,),
                                  (math.floor(0.5 * (sw - w * t + 2 * t * fire_pos[idx][0])),
                                     math.floor((sh - p)/2 - (h * t)/2 + t * fire_pos[idx][1]),
@@ -305,7 +305,14 @@ def placeCenterText(surface, text, font, size, color, width, y):
     text_tmp = font.render(text, True, color, COLOR_WHITE)
     text_rect = text_tmp.get_rect(center = (width / 2, y))
     surface.blit(text_tmp, text_rect)
-    return surface, text_rect
+    return text_rect, width, y
+
+def placeCenterTextAlpha(surface, text, font, size, color, width, y):
+    font = pygame.font.Font(font, size)
+    text_tmp = font.render(text, True, color)
+    text_rect = text_tmp.get_rect(center = (width / 2, y))
+    surface.blit(text_tmp, text_rect)
+    return text_rect, width, y
 
 def placeClockText(rmenuSurface, minutes, seconds):
     """Description.
@@ -382,8 +389,13 @@ def resetState():
     current_time_float = 0.0 # for simulation clock, not system
     paused = True
     player_pos = []
+    players_movement = []
     player_count = 0
-    return player_scale, current_frame, current_time_float, paused, player_pos, player_count
+    fire_movement = []
+    fire_pos = []
+    survived = 0
+    fire_percent = 0
+    return player_scale, current_frame, current_time_float, paused, player_pos, players_movement, player_count, fire_movement, fire_pos, survived, fire_percent
 
 def cursorBoxHit(mouse_x, mouse_y, x1, x2, y1, y2, tab):
     """Description.
@@ -714,3 +726,6 @@ def interpolateTuple(startcolor, goalcolor, steps):
 
         gradient_list.append((new_R, new_G, new_B))
     return gradient_list
+
+def pathToName(path):
+	return path[path.rfind('/') + 1:-4]
