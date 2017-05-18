@@ -21,7 +21,6 @@ func toPipe(list [][]int) {
 	}
 	s := string(bytes[:])
 	fmt.Println(s)
-
 }
 
 func SendToPipe(posList [][]int, fireList [][]int) {
@@ -81,24 +80,9 @@ func singleSimulation(fire [2]int) {
 	//TODO: create function to copy list and send to python through pipe
 	//TODO: implenet sem lock + spinlock t ensure wait for all people to move
 	//TODO: implement that both gameloop and copy func tries to run concurrently, spinlock continously spins
-	/**
-	  size := len(peopleList)
-	  statsList := make([][]int, size)
-	  for i := range statsList {
-	    statsList[i] = make([]int, 3)
-	  }*/
-	//posList := StatsInit(len(peopleList))
-	//	posList := StartStats(peopleList)
-	//posList := StartStats(peopleList)
-	//fireList := StatsInit(10)
 	GameLoop(mapList, peopleList, fireList)
-	//sendToPipe(&exitStatus, &posList, fireList, &a, &b)
 }
 
 func main() {
-	var fire [2]int
-	fire[0] = 1
-	fire[1] = 1
-
 	singleSimulation(fire)
 }
