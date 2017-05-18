@@ -77,12 +77,11 @@ func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos [2]int) {
 	SetFire(GetTile(currentMap, fireStartPos[0], fireStartPos[1]))
 	for !CheckFinish(peopleArray) {
 		//if *a == *b {
-			Run(&currentMap, peopleArray, statsList)
-			fireList = FireStats(&currentMap)
-			SendToPipe(statsList, fireList)
+		Run(&currentMap, peopleArray, statsList)
+		fireList = FireStats(&currentMap)
+		SendToPipe(statsList, fireList)
 		//} //PrintTileMapP(aMap)
 	}
-			
 
 }
 

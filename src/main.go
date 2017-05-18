@@ -32,20 +32,8 @@ func toPipe(list [][]int) {
 }
 
 func SendToPipe(posList [][]int, fireList [][]int) {
-
-	//for *exitStatus == 0 {
-		//if !(a == b) {
-			//TODO Copy list to pipe
-		
-			posCopy := posList
-			fireCopy := fireList
-		
-			toPipe(posCopy)
-			toPipe(fireCopy)
-		//}
-
-	//}
-
+	toPipe(posList)
+	toPipe(fireList)
 }
 
 func fromPipe() ([][]int, [][]int) {
@@ -75,32 +63,44 @@ func fromPipe() ([][]int, [][]int) {
 	fmt.Println("PEOPLE LIST COPIED")
 	//TODO: Get fire start position*/
 	b, err3 := ioutil.ReadFile("../src/mapfile.txt")
-    if err3 != nil{
-        panic(err3)
-    }
+	if err3 != nil {
+		panic(err3)
+	}
 
-    var m = [][]int{}
-    err := json.Unmarshal(b, &m)
-    if err != nil{
-        panic(err)
-    }
+	var m = [][]int{}
+	err := json.Unmarshal(b, &m)
+	if err != nil {
+		panic(err)
+	}
 
+	c, err4 := ioutil.ReadFile("../src/playerfile.txt")
+	if err4 != nil {
+		panic(err4)
+	}
 
-    c, err4 := ioutil.ReadFile("../src/playerfile.txt")
-    if err4 != nil{
-        panic(err4)
-    }
+	var mm = [][]int{}
+	err5 := json.Unmarshal(c, &mm)
+	if err5 != nil {
+		panic(err5)
+	}
 
-    var mm = [][]int{}
-    err5 := json.Unmarshal(c, &mm)
-    if err5 != nil{
-        panic(err5)
-    }
+	d, err6 := ioutil.ReadFile("../src/firefile.txt")
+	if err6 != nil {
+		panic(err6)
+	}
+
+	var mmm = []int{}
+
+	err7 := json.Unmarshal(d, &mmm)
+	if err7 != nil {
+		panic(err7)
+	}
 	return m, mm
 }
 
-func singleSimulation(fireStartPos [2]int) {
+func singleSimulation() {
 	mapList, peopleList := fromPipe()
+
 	//TODO: create lsit for positions
 	//TODO: implement spinlock in gameloop
 
@@ -114,10 +114,11 @@ func singleSimulation(fireStartPos [2]int) {
 	    statsList[i] = make([]int, 3)
 	  }*/
 	//posList := StatsInit(len(peopleList))
-//	posList := StartStats(peopleList)
+	//	posList := StartStats(peopleList)
 	//fireList := StatsInit(10)
-
-
+	var fireStartPos [2]int
+	fireStartPos[0] = 1
+	fireStartPos[1] = 1
 	GameLoop(mapList, peopleList, fireStartPos)
 	//sendToPipe(&exitStatus, &posList, fireList, &a, &b)
 	//
@@ -129,5 +130,5 @@ func main() {
 	fireStartPos[0] = 1
 	fireStartPos[1] = 1
 	//fmt.Println("Fire pos started")
-	singleSimulation(fireStartPos)
+	singleSimulation()
 }
