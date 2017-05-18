@@ -10,7 +10,7 @@ import (
 
 func readStats(peopleArray []*Person, inmap [][]tile) {
 
-  pplfile, err := os.Create("peopleStats.txt") //alive deaths injured
+  pplfile, err := os.Create("peopleStats.txt") //[alive, deaths, injured],[average exit time], [average health]
   if err != nil {
     log.Fatal("Cannot create file, ppl")
   }
@@ -24,6 +24,28 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
   s := string(bytes2[:])
   //alive dead injured
   fmt.Fprintf(pplfile, s)
+
+  exitTime := [1]float32{averageExitTime(peopleArray)} 
+  
+  bytes2, err2 = json.Marshal(exitTime)
+  if err2 != nil {
+    panic(err2)
+  }
+  s = string(bytes2[:])
+  //average exit time
+  fmt.Fprintf(pplfile, s)
+
+  exitHealth := [1]int{averageExitHealth(peopleArray)} 
+  
+  bytes2, err2 = json.Marshal(exitHealth)
+  if err2 != nil {
+    panic(err2)
+  }
+  s = string(bytes2[:])
+  //average exit health
+  fmt.Fprintf(pplfile, s)
+
+
 
   mapfile, err2 := os.Create("mapStats.txt")
   //[how many tiles are on fire?], [amount exited per door], [exit-doorcordinates]
@@ -90,8 +112,6 @@ func doorStats(peopleArray []*Person, inmap [][]tile) ([]int, [][]int) {
 }
 
 //TODO average escape time
-//TODO write average escapetime to file
-//TODO call this func at end of simuation
 func averageExitTime(peopleArray []*Person) float32 {
 
   var totalTime float32
@@ -109,18 +129,23 @@ func averageExitTime(peopleArray []*Person) float32 {
 
 
 //TODO average health impact
-//TODO write average healthexit to file
 func averageExitHealth(peopleArray []*Person) int {
 
   var totalHealth int
+  var alive int
 
-  size := len(peopleArray)
-  for _, p := range peopleArray {
-    totalHealth = totalHealth + p.hp
+  for i, _ := range peopleArray {
+     if(peopleArray[i].alive == true) {
+      alive ++
+    }
   }
-  if size != 0 {
-    fmt.Print(totalHealth/size)
-    return (totalHealth/size)
+  for i, p := range peopleArray {
+    if(peopleArray[i].alive == true) {
+      totalHealth = totalHealth + p.hp
+    }
+  }
+  if alive != 0 {
+    return (totalHealth/alive)
   }else {return 0}
 }
 
@@ -138,7 +163,7 @@ func main() {
     {1, 0, 0, 1, 0, 0, 2},
     {1, 0, 0, 1, 0, 0, 0},
     {3, 0, 0, 0, 0, 0, 0},
-    {1, 0, 2, 0, 0, 0, 2}}
+    {1, 0, 0, 0, 0, 0, 0}}
 
     ppl := [][]int{
       {1, 1},
@@ -149,7 +174,8 @@ func main() {
       testmap := TileConvert(matrix)
       pplArray:= PeopleInit(testmap,ppl)
 
-      SetFire(&testmap[1][1])
+      SetFire(&testmap[3][4])
+      //SetFire(&testmap[3][6])
       for i := 0 ; i < 100 ; i++ {
         Run(&testmap, pplArray, &ppl)
       }
