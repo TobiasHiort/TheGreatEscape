@@ -12,6 +12,7 @@ import time
 import subprocess
 import doctest # read from txt, read docs
 import random
+#import psutil
 
 import tkinter as tk
 from tkinter import filedialog
@@ -51,6 +52,7 @@ COLOR_BACKGROUND = (245, 245, 245)
 COLOR_KEY = (127, 127, 127)
 COLOR_GREY1 = (226, 226, 226) # lighter
 COLOR_GREY2 = (145, 145, 145) # darker, org: 221
+COLOR_GREY3 = (120, 120, 120)
 
 # dictionary for map matrix to color
 colors = {
@@ -67,6 +69,7 @@ def buildMap(path, mapSurface):
 
     More...
     """
+    map_error = []
 
     # read image to matrix
     mapImage = Image.open(os.path.join('maps', path))
@@ -94,25 +97,29 @@ def buildMap(path, mapSurface):
             elif mapRGBA[column, row] == COLOR_KEY + (255,): # warning: mapRGBA has [column, row]. RGBA
                 mapMatrix[row][column] = 3
             else:
-                raise ValueError('Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]))
+                #raise ValueError('Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]))		                raise ValueError('Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]))
+                #placeText(mapSurface, 'Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]), 'Roboto-Regular.ttf', 11, COLOR_RED, 0, 0)
+                #print('hejj')
+                map_error.append([column + 1, row + 1, mapRGBA[column, row]])
+                #print(map_error)
+    if map_error == []:
+        # for formula
+        t = tilesize
+        sh = 713 # map surface height
+        sw = 907 # map surface width
+        p = PADDING_MAP
+        h = mapheight
+        w = mapwidth
 
-    # for formula
-    t = tilesize
-    sh = 713 # map surface height
-    sw = 907 # map surface width
-    p = PADDING_MAP
-    h = mapheight
-    w = mapwidth
-
-    # create the map with draw.rect on mapSurface
-    for row in range(mapheight):
-        for column in range(mapwidth):
-            # black magic
-            pygame.draw.rect(mapSurface, colors[mapMatrix[row][column]],
-                             (math.floor(0.5 * (sw - w * t + 2 * t * column)),
-                                math.floor((sh - p)/2 - (h * t)/2 + t * row),
-                             tilesize, tilesize))
-    return mapSurface, mapMatrix, tilesize, mapwidth, mapheight
+        # create the map with draw.rect on mapSurface
+        for row in range(mapheight):
+            for column in range(mapwidth):
+                # black magic
+                pygame.draw.rect(mapSurface, colors[mapMatrix[row][column]],
+                                 (math.floor(0.5 * (sw - w * t + 2 * t * column)),
+                                    math.floor((sh - p)/2 - (h * t)/2 + t * row),
+                                 tilesize, tilesize))
+    return mapSurface, mapMatrix, tilesize, mapwidth, mapheight, map_error
 
 def buildMiniMap(path, mapSurface): # ~duplicate^
     """Returns mapSurface, mapMatrix, tilesize,
@@ -185,29 +192,31 @@ def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord
     More...
     """
     playerSurface.fill((0, 0, 0, 0)) # remove last frame. Also black magic for AA gfxdraw blitting of players.
+    survived = 0 # reset for each draw
 
     for player in range(len(player_pos)):
-        # black magic
-        pygame.gfxdraw.aacircle(playerSurface,
-                            coord_x + tilesize * player_pos[player][0],
-                            coord_y + tilesize * player_pos[player][1],
-                            math.floor(radius_scale*player_scale), COLOR_GREEN) # round()?
+        if player_pos[player][0] == 0 and player_pos[player][1] == 0:
+            survived += 1
+        else:
+            # black magic
+            pygame.gfxdraw.aacircle(playerSurface,
+                                coord_x + tilesize * player_pos[player][0],
+                                coord_y + tilesize * player_pos[player][1],
+                                math.floor(radius_scale*player_scale), COLOR_GREEN) # round()?
 
-        pygame.gfxdraw.filled_circle(playerSurface,
-                            coord_x + tilesize * player_pos[player][0],
-                            coord_y + tilesize * player_pos[player][1],
-                            math.floor(radius_scale*player_scale), COLOR_GREEN) # round()?
+            pygame.gfxdraw.filled_circle(playerSurface,
+                                coord_x + tilesize * player_pos[player][0],
+                                coord_y + tilesize * player_pos[player][1],
+                                math.floor(radius_scale*player_scale), COLOR_GREEN) # round()?
+    return playerSurface, survived
 
-
-    return playerSurface
-
-def drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth):
+def drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GRADIENT):
     """Description.
 
     More...
     """
-    fireSurface.fill(COLOR_KEY) # remove last frame. Not needed?
-
+    # fireSurface.fill(COLOR_KEY) # remove last frame. Not needed?
+    fireSurface.fill((0, 0, 0, 0))
     # for formula
     t = tilesize
     sh = 713 # map surface height
@@ -218,22 +227,56 @@ def drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth):
 
     # create the map with draw.rect on mapSurface
     for idx in range(len(fire_pos)):
-            if fire_pos[idx][2] == 1:
-                pygame.draw.rect(fireSurface, COLOR_YELLOW,
+            if fire_pos[idx][2] < 30:
+                pygame.draw.rect(fireSurface, COLOR_FIRE_GRADIENT[fire_pos[idx][2]] + (200,),
                                  (math.floor(0.5 * (sw - w * t + 2 * t * fire_pos[idx][0])),
                                     math.floor((sh - p)/2 - (h * t)/2 + t * fire_pos[idx][1]),
                                  tilesize, tilesize))
-            if fire_pos[idx][2] == 2:
-                pygame.draw.rect(fireSurface, COLOR_RED_PNG,
+            elif fire_pos[idx][2] >= 29:
+                #if fire_pos[idx][2] == 2:
+                pygame.draw.rect(fireSurface, COLOR_FIRE_GRADIENT[29] + (200,),
                                  (math.floor(0.5 * (sw - w * t + 2 * t * fire_pos[idx][0])),
                                     math.floor((sh - p)/2 - (h * t)/2 + t * fire_pos[idx][1]),
                                  tilesize, tilesize))
-            if fire_pos[idx][2] == 3:
-                pygame.draw.rect(fireSurface, COLOR_RED,
-                                 (math.floor(0.5 * (sw - w * t + 2 * t * fire_pos[idx][0])),
-                                    math.floor((sh - p)/2 - (h * t)/2 + t * fire_pos[idx][1]),
-                                 tilesize, tilesize))
+            #if fire_pos[idx][2] == 3:
+            #    pygame.draw.rect(fireSurface, COLOR_FIRE_GRADIENT[2] + (200,),
+            #                     (math.floor(0.5 * (sw - w * t + 2 * t * fire_pos[idx][0])),
+            #                        math.floor((sh - p)/2 - (h * t)/2 + t * fire_pos[idx][1]),
+            #                     tilesize, tilesize))
     return fireSurface
+
+def drawSmoke(smokeSurface, smoke_pos, tilesize, mapheight, mapwidth):
+    """Description.
+    More...
+    """
+    #fireSurface.fill(COLOR_KEY) # remove last frame. Not needed?
+    smokeSurface.fill((0, 0, 0, 0))
+    #fireSurface.set_alpha(0.3)
+    # for formula
+    t = tilesize
+    sh = 713 # map surface height
+    sw = 907 # map surface width
+    p = PADDING_MAP
+    h = mapheight
+    w = mapwidth
+    # create the map with draw.rect on mapSurface, CHANGE
+    for idx in range(len(smoke_pos)):
+            if smoke_pos[idx][2] == 1:
+                pygame.draw.rect(smokeSurface, COLOR_GREY1 + (150,),
+                                 (math.floor(0.5 * (sw - w * t + 2 * t * smoke_pos[idx][0])),
+                                    math.floor((sh - p)/2 - (h * t)/2 + t * smoke_pos[idx][1]),
+                                 tilesize, tilesize))
+            if smoke_pos[idx][2] == 2:
+                pygame.draw.rect(smokeSurface, COLOR_GREY2 + (150,),
+                                 (math.floor(0.5 * (sw - w * t + 2 * t * smoke_pos[idx][0])),
+                                    math.floor((sh - p)/2 - (h * t)/2 + t * smoke_pos[idx][1]),
+                                 tilesize, tilesize))
+            if smoke_pos[idx][2] == 3:
+                pygame.draw.rect(smokeSurface, COLOR_GREY3 + (150,),
+                                 (math.floor(0.5 * (sw - w * t + 2 * t * smoke_pos[idx][0])),
+                                    math.floor((sh - p)/2 - (h * t)/2 + t * smoke_pos[idx][1]),
+                                 tilesize, tilesize))
+    return smokeSurface
 
 def placeText(surface, text, font, size, color, x, y):
     """Description.
@@ -241,13 +284,35 @@ def placeText(surface, text, font, size, color, x, y):
     More...
     """
     font = pygame.font.Font(font, size)
-    surface.blit(font.render(text, True, color), (x, y))
+    text_tmp = font.render(text, True, color, COLOR_WHITE)
+    text_rect = text_tmp.get_rect()
+    surface.blit(text_tmp, (x, y))
+    return text_rect, x, y
+
+def placeTextAlpha(surface, text, font, size, color, x, y):
+    """Description.
+
+    More...
+    """
+    font = pygame.font.Font(font, size)
+    text_tmp = font.render(text, True, color)
+    text_rect = text_tmp.get_rect()
+    surface.blit(text_tmp, (x, y))
+    return text_rect, x, y
 
 def placeCenterText(surface, text, font, size, color, width, y):
+    font = pygame.font.Font(font, size)
+    text_tmp = font.render(text, True, color, COLOR_WHITE)
+    text_rect = text_tmp.get_rect(center = (width / 2, y))
+    surface.blit(text_tmp, text_rect)
+    return text_rect, width, y
+
+def placeCenterTextAlpha(surface, text, font, size, color, width, y):
     font = pygame.font.Font(font, size)
     text_tmp = font.render(text, True, color)
     text_rect = text_tmp.get_rect(center = (width / 2, y))
     surface.blit(text_tmp, text_rect)
+    return text_rect, width, y
 
 def placeClockText(rmenuSurface, minutes, seconds):
     """Description.
@@ -255,8 +320,8 @@ def placeClockText(rmenuSurface, minutes, seconds):
     More...
     """
     if len(minutes) == 2 and len(seconds) == 2:
-        placeText(rmenuSurface, minutes, 'digital-7-mono.ttf', 45, COLOR_YELLOW, 8, 249-17)
-        placeText(rmenuSurface, seconds, 'digital-7-mono.ttf', 45, COLOR_YELLOW, 71, 249-17)
+        placeTextAlpha(rmenuSurface, minutes, 'digital-7-mono.ttf', 45, COLOR_YELLOW, 8, 249-17+1)
+        placeTextAlpha(rmenuSurface, seconds, 'digital-7-mono.ttf', 45, COLOR_YELLOW, 71, 249-17+1)
     else:
         raise ValueError('Seconds and minutes must be of length 2')
 
@@ -295,7 +360,7 @@ def mapSqm(mapMatrix):
 
     More...
     """
-    counter = 0.0
+    counter = 0.00
     for row in range(len(mapMatrix)):
         for column in range(len(mapMatrix[0])):
             if mapMatrix[row][column] == 0 or mapMatrix[row][column] == 2:
@@ -324,8 +389,13 @@ def resetState():
     current_time_float = 0.0 # for simulation clock, not system
     paused = True
     player_pos = []
+    players_movement = []
     player_count = 0
-    return player_scale, current_frame, current_time_float, paused, player_pos, player_count
+    fire_movement = []
+    fire_pos = []
+    survived = 0
+    fire_percent = 0
+    return player_scale, current_frame, current_time_float, paused, player_pos, players_movement, player_count, fire_movement, fire_pos, survived, fire_percent
 
 def cursorBoxHit(mouse_x, mouse_y, x1, x2, y1, y2, tab):
     """Description.
@@ -366,8 +436,8 @@ def createSurface(x, y):
     #else:
     #    raise ValueError('Argument alpha must be Bool')
     surface = surface.convert_alpha() #?
-    surface.fill(COLOR_KEY) # COLOR_BACKGROUND?
-    surface.set_colorkey(COLOR_KEY)
+    #surface.fill(COLOR_KEY) # COLOR_BACKGROUND?
+    #surface.set_colorkey(COLOR_KEY)
     return surface
 
 def populateMap(mapMatrix, pop_percent):
@@ -615,7 +685,6 @@ def fileDialogInit():
     return file_opt
 
 def fileDialogPath():
-
     """Description.
 
     More...
@@ -626,6 +695,37 @@ def fileDialogPath():
     root = tk.Tk()
     root.withdraw()
     file_path = filedialog.askopenfilename(**file_opt)
-    filename_pos = file_path.rfind('/')+1 # position for filename
+    filename_pos = file_path.rfind('\\')+1 # position for filename
     active_map_path_tmp = file_path[filename_pos:]
     return active_map_path_tmp
+
+def interpolateTuple(startcolor, goalcolor, steps):
+    """Description.
+
+    More...
+
+    """
+    R = startcolor[0]
+    G = startcolor[1]
+    B = startcolor[2]
+
+    targetR = goalcolor[0]
+    targetG = goalcolor[1]
+    targetB = goalcolor[2]
+
+    DiffR = targetR - R
+    DiffG = targetG - G
+    DiffB = targetB - B
+
+    gradient_list = []
+
+    for i in range(0, steps + 1):
+        new_R = R + (DiffR * i / steps)
+        new_G = G + (DiffG * i / steps)
+        new_B = B + (DiffB * i / steps)
+
+        gradient_list.append((new_R, new_G, new_B))
+    return gradient_list
+
+def pathToName(path):
+	return path[path.rfind('/') + 1:-4]

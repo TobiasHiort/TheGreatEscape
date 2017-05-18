@@ -15,7 +15,8 @@ func PrintTileP(thisTile tile) {
 	} else if thisTile.heat > 0{
 		fmt.Print("*")
 	}else {
-		fmt.Print("0")
+		//fmt.Print("0")
+		fmt.Print(" ")
 	} 
 }
 
