@@ -71,7 +71,7 @@ func fromPipe() ([][]int, [][]int, []int) {
 	return m, mm, mmm
 }
 
-func singleSimulation(fire [2]int) {
+func singleSimulation() {
 	mapList, peopleList, fireList := fromPipe()
 
 	//TODO: create lsit for positions
@@ -84,5 +84,5 @@ func singleSimulation(fire [2]int) {
 }
 
 func main() {
-	singleSimulation(fire)
+	singleSimulation()
 }
