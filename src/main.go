@@ -7,15 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 )
-
-/*
-
--- Paste Python communication stuff here
-
-*/
-
-//[][]int, peopleList []*Person, fireStartPos []int
-
 //TODO func for input from pipe
 //TODO runtime single simulation
 //TODO runtime multiple simulation
@@ -49,30 +40,6 @@ func SendToPipe(posList [][]int, fireList [][]int) {
 }
 
 func fromPipe() ([][]int, [][]int) {
-	//Import map
-	/**b, err := ioutil.ReadFile("../src/mapfile.txt")
-	if err != nil {
-		panic(err)
-	}
-	var m = [][]int{}
-	err2 := json.Unmarshal(b, &m)
-	if err2 != nil {
-		panic(err2)
-	}
-	fmt.Println("MAP LIST DONE")
-
-	//Import people
-	c, err3 := ioutil.ReadFile("../src/playerfile.txt")
-	if err3 != nil {
-		panic(err3)
-	}
-	fmt.Println("OPEN PEOPLE LIST")
-	var p = [][]int{}
-	err4 := json.Unmarshal(c, &p)
-	if err4 != nil {
-		panic(err4)
-	}
-	fmt.Println("PEOPLE LIST COPIED")
 	//TODO: Get fire start position*/
 	b, err3 := ioutil.ReadFile("../src/mapfile.txt")
     if err3 != nil{
@@ -114,20 +81,17 @@ func singleSimulation(fireStartPos [2]int) {
 	    statsList[i] = make([]int, 3)
 	  }*/
 	//posList := StatsInit(len(peopleList))
-//	posList := StartStats(peopleList)
+    //posList := StartStats(peopleList)
 	//fireList := StatsInit(10)
 
 
 	GameLoop(mapList, peopleList, fireStartPos)
 	//sendToPipe(&exitStatus, &posList, fireList, &a, &b)
-	//
 }
 
 func main() {
-	//fmt.Println("Started main")
 	var fireStartPos [2]int
 	fireStartPos[0] = 1
 	fireStartPos[1] = 1
-	//fmt.Println("Fire pos started")
 	singleSimulation(fireStartPos)
 }
