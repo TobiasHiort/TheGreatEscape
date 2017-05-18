@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 )
+
 //TODO func for input from pipe
 //TODO runtime single simulation
 //TODO runtime multiple simulation
@@ -19,28 +20,20 @@ func toPipe(list [][]int) {
 	}
 	s := string(bytes[:])
 	fmt.Println(s)
-
 }
 
 func SendToPipe(posList [][]int, fireList [][]int) {
 
-	//for *exitStatus == 0 {
-		//if !(a == b) {
 			//TODO Copy list to pipe
+	posCopy := posList
+	fireCopy := fireList
 		
-			posCopy := posList
-			fireCopy := fireList
-		
-			toPipe(posCopy)
-			toPipe(fireCopy)
-		//}
-
-	//}
-
+	toPipe(posCopy)
+	toPipe(fireCopy)
 }
 
 func fromPipe() ([][]int, [][]int) {
-	//TODO: Get fire start position*/
+	//TODO: Get fire start position
 	b, err3 := ioutil.ReadFile("../src/mapfile.txt")
     if err3 != nil{
         panic(err3)
@@ -74,16 +67,6 @@ func singleSimulation(fireStartPos [2]int) {
 	//TODO: create function to copy list and send to python through pipe
 	//TODO: implenet sem lock + spinlock t ensure wait for all people to move
 	//TODO: implement that both gameloop and copy func tries to run concurrently, spinlock continously spins
-	/**
-	  size := len(peopleList)
-	  statsList := make([][]int, size)
-	  for i := range statsList {
-	    statsList[i] = make([]int, 3)
-	  }*/
-	//posList := StatsInit(len(peopleList))
-    //posList := StartStats(peopleList)
-	//fireList := StatsInit(10)
-
 
 	GameLoop(mapList, peopleList, fireStartPos)
 	//sendToPipe(&exitStatus, &posList, fireList, &a, &b)

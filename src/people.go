@@ -25,25 +25,6 @@ type Stats struct {
 	y int
 }
 
-/*
-
-func (p *Person)getStats() []int {
-	//if p == nil || p.currentTile() == nil {return Stats{}}
-	//if len(p.path) < 1 {return []int{0,0}}
-//	return Stats{p.path[len(p.path) - 1].xCoord, p.path[len(p.path) - 1].yCoord}
-//	return []int{p.currentTile().xCoord, p.currentTile().yCoord}//, p.hp}
-	return []int{p.currentTile().yCoord, p.currentTile().xCoord}//, p.hp}
-======= */
-/*
-func (p *Person) GetStats(aslice []int) {
-	aslice[0] = p.currentTile().xCoord
-	aslice[1] = p.currentTile().yCoord
-	//	*aslice = append(*aslice, p.currentTile().yCoord)
-	//	*aslice = append(*aslice, p.currentTile().xCoord)
-	//	*aslice = append(*aslice, p.hp)
-	//aslice[2] = p.hp
-}
-*/
 func (p *Person) GetStats()[]int {
 	aslice := make ([]int,0)
 	aslice = append(aslice, p.currentTile().xCoord)
@@ -145,28 +126,13 @@ func (p *Person) nextTile() *tile {
 		return p.currentTile().neighborSW
 	}
 
-	return nil // default?
+	return nil 
 }
 
 func (p *Person) followPlan() {
 
 
 	if p.path[len(p.path) - 1] == nil { return} // TODO updatestats
-/*	if len(p.plan) > 0 { // follow tha plan!		
-	//	if p.moveTo(p.plan[0]) {   // next step in plan is available -> move		
->>>>>>> jump
-		if p.followDir() {
-			//p.plan = p.plan[1:]
-			p.updateTime()
-		} else { // next step in plan is occupied -> w8
-			p.wait()
-			p.updateTime()
-		}
-	} else if p.path[len(p.path)-1].door { // standing at the exit -> leave
-		(p.path[len(p.path)-1].occupied) = nil
-		p.path = append(p.path, nil) // replace with safezone?
-		p.updateTime()
-		p.save()*/
 	if p.path[len(p.path) - 1].door {   // standing at the exit -> leave
 		(p.path[len(p.path) - 1].occupied) = nil
 		p.path = append(p.path, nil)  // replace with safezone?
@@ -175,12 +141,8 @@ func (p *Person) followPlan() {
 		p.save()
 
 	} else if len(p.plan) > 0 { // follow tha plan!
-
-		//	if len(p.plan) < 2 {fmt.Println(p.currentTile())}
 		
-		//	if p.moveTo(p.plan[0]) {   // next step in plan is available -> move		
 		if p.followDir() {
-			//p.plan = p.plan[1:]
 			p.w8ed = 0 // testing testing
 			p.updateTime()  
 		} else {                   // next step in plan is occupied -> w8
@@ -193,7 +155,6 @@ func (p *Person) followPlan() {
 		// idea: don't update last plan-path, follow it despite fire etc?
 	}
 }
-
 
 func (p *Person) wait() {
 	p.w8ed++
@@ -231,14 +192,6 @@ func (p *Person) updatePlan(m *[][]tile) {
 	}
 	if len(p.plan) > 0 {p.dir = getDir(p.currentTile(), p.plan[0])} //TODO: fixa till!
 } 
-/*	ret := p.foo()
-	if !p.currentTile().door && (ret || len(p.plan) < 1) {
-		p.redirect(m)
-		p.updateTime()
-		if len(p.plan) > 0 {p.dir = getDir(p.currentTile(), p.plan[0])} //TODO: fixa till!
-	}
-	return ret*/
-//}
 
 func (p *Person) foo() bool{  //TODO!! checka om planen bör updates lr ej
 	return false 
@@ -390,7 +343,6 @@ func InitPlans(m *[][]tile) {
 		for j, _ := range list {
 		
 			if (*m)[i][j].door {
-			//	fmt.Println("door?", (*m)[i][j])
 				doors = append(doors, &(*m)[i][j])}
 		}
 	}

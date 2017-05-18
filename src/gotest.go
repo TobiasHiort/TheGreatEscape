@@ -53,16 +53,11 @@ func main() {
 
 	ppl := PeopleInit(testmap, mm)
 	InitPlans(&testmap)
-
-
-	//fire := GetTile(testmap, 20, 20)
 	
-//	stats := [][]int{}
 	stats := StartStats(ppl)
 	SetFire(GetTile(testmap, 20, 20))
 	fireStats := FireStats(&testmap) 
 
-	//	SetFire(GetTile(testmap, 2, 2))
 	
 
 	for !CheckFinish(ppl) {
@@ -72,32 +67,7 @@ func main() {
 		//time.Sleep(10 * time.Millisecond)
 		
 		Run(&testmap, ppl, &stats)
-		/*
-			for check == 0 {
-				check = fromPipe()
-			} */
-	}
-
-	//	go func() {
-	//		SingleSimulation(m, ppl)
-	//	}()
-	//	if timeToSend {toPipe(stats)}
-	//	FireSpread2(fireStats)
+		
 	}
 
 }
-
-/**
-func fromPipe() int{
-	bio := bufio.NewReader(os.Stdin)
-	line, _, _ := bio.ReadLine()
-
-	m := 0
-
-	err := json.Unmarshal(line, &m)
-	if err != nil {
-		panic(err)
-	}
-
-	return m
-}*/

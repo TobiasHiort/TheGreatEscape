@@ -57,7 +57,7 @@ func FireSpread(tileMap [][]tile) {
 
 }
 
-func fireSpreadTile(thisTile *tile) { //TODO: fixa tiles på riktigt!!
+func fireSpreadTile(thisTile *tile) { 
 	if thisTile.heat >= MINHEAT {
 		thisTile.fireLevel = 1
 	}
@@ -202,7 +202,6 @@ func StatsInit(size int) [][]int {
 
 func StatsStart(statsList [][]int, peopleArray []*Person) [][]int{
 	for i := range statsList {
-		//peopleArray[i].GetStats(statsList[i])
 		statsList[i] = peopleArray[i].GetStats()
 	}
 	return statsList
@@ -212,7 +211,6 @@ func fireStart(fireList [][]int, fireStartPos []int) [][]int{
 	fireList = append(fireList, fireStartPos)
 	return fireList
 }
-
 /*
 func StartStats(peopleList [][]int) [][]int {
 	lst := [][]int{}
@@ -223,9 +221,7 @@ func StartStats(peopleList [][]int) [][]int {
 		lst = append(lst, templst)
 	}
 	return lst
-}
-
-*/
+}*/
 func Run(m *[][]tile, ppl []*Person, statsList [][]int) {
 
 	var wg sync.WaitGroup
@@ -253,7 +249,7 @@ func Run(m *[][]tile, ppl []*Person, statsList [][]int) {
 	FireSpread(*m)
 }
 
-/**
+/*
 func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile { // OBS: not working
 	movement := make([]*tile, len(peopleArray))
 	var wg sync.WaitGroup
@@ -274,15 +270,6 @@ func RunGo(inMap *[][]tile, peopleArray []*Person) []*tile { // OBS: not working
 		}(person, i)
 	}
 	return movement
-=======
-	FireSpread(*m) // MOVED!
-
-//	if math.Mod(float64(step), 40) == 0 {InitPlans(m)}
-	// TODO: takes up tiiime!!1 fixy-changy
-
-	//if math.Mod(float64(step), 5) == 0 {InitPlans(m)}
->>>>>>> jump
-}
 */
 func CheckFinish(peopleArray []*Person) bool {
 	for i := 0; i < len(peopleArray); i++ {
@@ -293,178 +280,7 @@ func CheckFinish(peopleArray []*Person) bool {
 	return true
 }
 
-/*
-func mainMap() {
-	//	mainPath()
-	//	MainPeople()
-	//      testRedirect()
-	//	testDiagPpl()
-	//	testDiag()
 
-	testDiagonally()
-	//	testMovePeople()
-	//	Whut()
-	//	testJP()
-	//	GLoop()
-
-	//	testDiagonally()
-	testMovePeople()
-=======
- func CheckFinish (peopleArray []*Person) bool {
- 	for i := 0; i < len(peopleArray); i++ {
- 		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {
- 			return false
- 		}
- 	}
- 	return true
- }
-
-func mainMap() {
-	if math.Mod(float64(step), 20) == 0 {}
-//	mainPath()
-//	MainPeople()
-//      testRedirect()
-//	testDiagPpl()
-//	testDiag()
-	debugging()
-//	testSame()
-//	testDiagonally()
-//	testMovePeople()
-//	Whut()
-//	testJP()
-	//	GLoop()
-
-//	testDiagonally()
-//	testMovePeople()
->>>>>>> jump
-
-}
-
-func testRedirect() {
-	matrix := [][]int{
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{1, 0, 1, 1, 1, 0, 1},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 2, 0, 0, 0, 0}}
-
-	list := [][]int{
-		{1, 1},
-		{1, 2},
-		{0, 2},
-		{0, 0},
-		{2, 1},
-		{3, 1},
-		{0, 3},
-		{0, 1},
-		{1, 0},
-		{1, 3}}
-
-	tryThis(matrix, list, -1, -1)
-}
-
-func testDiag() {
-	matrix := [][]int{
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 2}}
-
-	list := [][]int{
-		{0, 0},
-		{0, 6}}
-	tryThis(matrix, list, -1, -1)
-}
-
-func testDiagPpl() {
-	matrix := [][]int{
-		{0, 0, 1, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{1, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 2}}
-
-	list := [][]int{
-		{0, 0},
-		{0, 1},
-		{1, 0},
-		{0, 6},
-		{2, 4}}
-
-	tryThis(matrix, list, -1, -1)
-}
-
-func testDiagonally() {
-	matrix := [][]int{
-		{0, 1, 0, 0, 0, 0, 0},
-		{0, 1, 0, 0, 0, 0, 0},
-		{0, 1, 0, 0, 0, 0, 0},
-		{0, 1, 0, 0, 0, 0, 0},
-		{0, 1, 0, 1, 0, 0, 0},
-		{0, 1, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 2}}
-
-	list := [][]int{
-		{0, 0},
-		{0, 6},
-		{2, 4}}
-
-	tryThis(matrix, list, 1, 2)
-}
-
-func testMovePeople() {
-	matrix := [][]int{
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 1, 0, 0, 0, 0},
-		{1, 0, 1, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 2}}
-
-	list := [][]int{
-		{0, 0}}
-	//	{0, 6},
-	//	{2, 4}}
-
-	tryThis(matrix, list, -1, -1)
-	// Note: it takes 1 timeunit to take a step from the door and away
-}
-
-func testJP() {
-	matrix := [][]int{
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{2, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{1, 1, 0, 0, 0, 0, 0},
-		{1, 1, 0, 0, 0, 0, 1}}
-
-	list := [][]int{
-<<<<<<< HEAD
-		{0, 0}}
-=======
-		{0, 2}}
->>>>>>> jump
-	//	{0, 6},
-	//	{2, 4}}
-
-	testmap := TileConvert(matrix)
-	pplArray := PeopleInit(testmap, list)
-
-	MovePeople(&testmap, pplArray)
-
-	for i, p := range pplArray {
-		fmt.Println("Person", i, "time:  ", p.time, "\n         health:", p.hp)
-	}
-
-}
-*/
 func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 	testmap := TileConvert(matrix)
 	pplArray := PeopleInit(testmap, ppl)
@@ -510,11 +326,6 @@ func debugging() {
 	if err != nil{
 		panic(err)
 	}
-	//m[8][1] = 2
-	//m[13][0] = 2
-
-	//	testmap := TileConvert(m)
-
 
 	c, err4 := ioutil.ReadFile("../src/playerfile.txt")
 	if err4 != nil{
@@ -527,9 +338,6 @@ func debugging() {
 		panic(err5)
 	}
 
-//	ppl := PeopleInit(testmap, mm)
-
-//	list := [][]int{{89,33}}//{104, 28}, {105, 29}}  // lr tvärtom?
 	tryThis(m, mm, 20, 20)
 }
 
