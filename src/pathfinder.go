@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"sync"
 )
@@ -11,62 +10,22 @@ type Direction struct {
 	yDir int   //-1,0,1
 }
 
-func getPath(m *[][]tile, from *tile) ([]*tile, bool) {
-
-	// map to keep track of the final path
-	var parentOf map[*tile]*tile
-	parentOf = make(map[*tile]*tile)
-
-	//initialise 'costqueue', start-0, other-infinite
-	costQueue := queue{}
-
-	for i, list := range *m {
-		for j, _ := range list {
-			costQueue.Add(&(*m)[i][j], float32(math.Inf(1)))	
-		}
-	}
-
-	costQueue.Update(from, 0)
-
-//	checkedQueue := queue{}  // TODO: implement this later for a more efficient algorithm: dummer! går inte fortare..
-
-	v := float32(0)
-	current := tileCost{&tile{}, &v}
-	currentDir := Direction{1,1}
-	
-	for len(costQueue) != 0 && !current.tile.door {
-	//	fmt.Println("----")
-		current = (&costQueue).Pop()
-		currentDir = getDir(parentOf[current.tile], current.tile)  // for reference!
-
-
-		neighbors := getNeighborsPruned(current.tile, currentDir)
-		var wg sync.WaitGroup
-		wg.Add(len(neighbors))
-		var mutex = &sync.Mutex{}
-		for _, neighbor := range neighbors {
-		//	fmt.Println(neighbor)
-			go func(n *tile) {			
-				defer wg.Done()			
-				cost := *current.cost + stepCost(*n)
-				if Diagonal(current.tile, n) {cost += float32(math.Sqrt(2)) - 1}
-				if n.occupied.IsWaiting() {cost += 1}
-
-				// TODO: 1 default cost improve!? depending on heat, smoke etc
-				mutex.Lock()
-				if cost < costQueue.costOf(n) {
-					
-					parentOf[n] = current.tile
-					costQueue.Update(n, cost)				
-				}
-				mutex.Unlock()
-			}(neighbor)		
-		}
-		wg.Wait()	
-		//	checkedQueue.AddTC(current)	
-	}	
-	return compactPath(parentOf, from, current.tile)
+type jp struct {
+	jp *tile   // jp
+	fn []*tile // forced neighbors from jp
 }
+
+var (  // TODO: define this a weak ago...
+	n = Direction{-1,0}
+	e = Direction{0,1}
+	s = Direction{1,0}
+	w = Direction{0,-1}
+
+	nw = Direction{-1,-1}
+	ne = Direction{-1,1}
+	se = Direction{1,1}
+	sw = Direction{1,-1}	
+)
 
 func contains(tiles []*tile, t *tile) bool {
 	for _, ti := range tiles {
@@ -95,7 +54,7 @@ func getNeighborsPruned(current *tile, dir Direction) []*tile{
 	west := validTile(current.neighborWest)
 	south := validTile(current.neighborSouth)   // replace !?
 	
-	if dir.yDir == 0 {  // horisontal/vertical? hur vare med coordsen..
+	if dir.yDir == 0 { 
 		if dir.xDir == 0 {return getNeighbors(current, queue{})}
 		if dir.xDir == -1 {  // går rakt uppåt
 			if north {neighbors = append(neighbors, current.neighborNorth)}
@@ -128,16 +87,12 @@ func getNeighborsPruned(current *tile, dir Direction) []*tile{
 			if validTile(current.neighborSouth) {
 				neighbors = append(neighbors, current.neighborSouth)}
 			if east && south && validTile(current.neighborSE) {neighbors = append(neighbors, current.neighborSE)}
-
-			
 		} else if dir.xDir == -1 { // går NE    
 			if east {neighbors = append(neighbors, current.neighborEast)}
 			if east && north && validTile(current.neighborSE) {neighbors = append(neighbors, current.neighborNE)}
 			if north {
 				neighbors = append(neighbors, current.neighborNorth)
-				//	if !west && validTile(current.neighborSW) {neighbors = append(neighbors, current.neighborSW)}
 			}
-			
 		} else {  // ydir = 0,  går höger   //fixed!
 			if east {
 				neighbors = append(neighbors, current.neighborEast)
@@ -151,7 +106,6 @@ func getNeighborsPruned(current *tile, dir Direction) []*tile{
 				if east && validTile(current.neighborSE) {neighbors = append(neighbors, current.neighborSE)}
 			}
 		}
-
 	} else { //xdir = -1
 		if dir.xDir == -1 { // går NW
 			if west {neighbors = append(neighbors, current.neighborWest)}
@@ -200,67 +154,8 @@ func getNeighbors(current *tile, costQueue queue) []*tile {
 		if east && validTile(current.neighborSE) {
 			neighbors = append(neighbors, current.neighborSE)}	
 	}
-
-	//  --this--
-	// nedanför kollar om värdet finns i costQueue också.. tar längre tid för 100*100 och 100*200 iaf
-	
-/*	north := validTile(current.neighborNorth) && costQueue.inQueue(current.neighborNorth)
-	east := validTile(current.neighborEast) && costQueue.inQueue(current.neighborEast)
-	west := validTile(current.neighborWest) && costQueue.inQueue(current.neighborWest)
-	south := validTile(current.neighborSouth) && costQueue.inQueue(current.neighborSouth)
-
-	if north {
-		neighbors = append(neighbors, current.neighborNorth)
-		if west && validTile(current.neighborNW) && costQueue.inQueue(current.neighborNW) {
-			neighbors = append(neighbors, current.neighborNW)}
-		if east && validTile(current.neighborNE) && costQueue.inQueue(current.neighborNE){
-			neighbors = append(neighbors, current.neighborNE)}
-	}
-	if east {neighbors = append(neighbors, current.neighborEast)}
-	if west {neighbors = append(neighbors, current.neighborWest)}
-	if south {
-		neighbors = append(neighbors, current.neighborSouth)
-		if west && validTile(current.neighborSW) && costQueue.inQueue(current.neighborSW){
-			neighbors = append(neighbors, current.neighborSW)}
-		if east && validTile(current.neighborSE) && costQueue.inQueue(current.neighborSE){
-			neighbors = append(neighbors, current.neighborSE)}	
-	} */
-//  --this--
-	
-	/*
-	
-	if validTile(current.neighborNorth) && costQueue.inQueue(current.neighborNorth){
-		neighbors = append(neighbors, current.neighborNorth)
-	}
-	if validTile(current.neighborEast) && costQueue.inQueue(current.neighborEast){
-		neighbors = append(neighbors, current.neighborEast)
-	}
-	if validTile(current.neighborWest) && costQueue.inQueue(current.neighborWest){
-		neighbors = append(neighbors, current.neighborWest)
-	}
-	if validTile(current.neighborSouth) && costQueue.inQueue(current.neighborSouth){
-		neighbors = append(neighbors, current.neighborSouth)
-	}
-	//
-	if validTile(current.neighborNW) && costQueue.inQueue(current.neighborNW){
-		neighbors = append(neighbors, current.neighborNW)
-	}
-	if validTile(current.neighborNE) && costQueue.inQueue(current.neighborNE){
-		neighbors = append(neighbors, current.neighborNE)
-	}
-	if validTile(current.neighborSE) && costQueue.inQueue(current.neighborSE){
-		neighbors = append(neighbors, current.neighborSE)
-	}
-	if validTile(current.neighborSW) && costQueue.inQueue(current.neighborSW){
-		neighbors = append(neighbors, current.neighborSW)
-	}
-	*/
-	//
-
 	return neighbors
 }
-
-
 
 func validTile(t *tile) bool {
 	if t == nil {
@@ -270,9 +165,7 @@ func validTile(t *tile) bool {
 }
 
 func canGo(t *tile) bool {
-	if t == nil {
-		return false
-	}
+	if t == nil {return false}
 	return !t.wall && !t.outOfBounds && t.heat < 2
 }
 
@@ -287,25 +180,10 @@ func compactPath(parentOf map[*tile]*tile, from *tile, to *tile) ([]*tile, bool)
 		ok := true
 		current, ok = parentOf[current]
 	
-		if !ok {
-			return nil, false
-		}
+		if !ok {return nil, false}
 	}
 	return path, true
 }
-
-func printPath(path []*tile) {
-	if path == nil {
-		fmt.Println("No valid path exists")
-	}
-	for i, t := range path {
-		if (t == nil) {
-			fmt.Println("End")
-		} else {fmt.Println(i, ":", t.xCoord, ",", t.yCoord)}
-	}
-}
-
-// new funcs
 
 func getDir(from *tile, to *tile) Direction{
 	if from == nil{ 
@@ -315,7 +193,7 @@ func getDir(from *tile, to *tile) Direction{
 	y := to.yCoord - from.yCoord
 	if x > 1 {x = 1} else if x < 0 {x = -1}
 	if y > 1 {y = 1} else if y < 0  {y = -1}
-	return Direction {x,y}//{math.Mod(to.xCoord - from.xCoord, ), to.yCoord - from.yCoord}
+	return Direction {x,y} 
 }
 
 func (t *tile)followDir(dir Direction) *tile{  // diagonalt!
@@ -363,45 +241,21 @@ func (t *tile) neighbor(dir Direction) *tile{
 }
 
 func Jp(current *tile, dir Direction) []jp {//[]*tile {
-//func Jp(current *tile, dir Direction, parentOf map[*tile]*tile) []jp {//[]*tile {
 	jps := []jp{}
-	//----
-//	if current.occupied != nil{
-//		jps = append(jps, jp{current, []*tile{}})
-		//current.occupied.plan = compactPath2(parentOf, current)
-		//current.occupied.dir = getDir(parent[current], current) //OBS: osäkert..maybe tvärtom?
-//	}
-	//----
-	
-//----	if current.door {return []jp{jp{current, []*tile{}}}}
-
 	if (dir.xDir == 0 && dir.yDir != 0) ||(dir.yDir == 0 && dir.xDir != 0) {
 		tmpJP := getJumpPoint(current, dir)
 		for tmpJP.jp != nil && tmpJP.jp.occupied != nil {
 			jps = append(jps, tmpJP)
 			tmpJP = getJumpPoint(tmpJP.jp.neighbor(dir), dir)
-	
 		}
-		
 		return append(jps, tmpJP)
 	}
-	/*----
-	if dir.xDir == 0 {
-		if dir.yDir == 1 {return []jp{getJumpPoint(current, dir)}} // höger
-		if dir.yDir == -1 {return []jp{getJumpPoint(current, dir)}} // vänster		
-	}
-	if dir.yDir == 0 {
-		if dir.xDir == 1 {return []jp{getJumpPoint(current, dir)}} // neråt
-		if dir.xDir == -1 {return []jp{getJumpPoint(current, dir)}} // uppåt
-	}----*/
-
 	for current != nil {
-	//	fmt.Println("check", dir.xDir, 0)
 		jpX := getJumpPoint(current, Direction{dir.xDir, 0})
 		if jpX.jp != nil {
 			tmpJP := jp{current, []*tile{jpX.jp}}
 			jps = append(jps, tmpJP)
-		//	jps = append(jps, jp{})
+			//	jps = append(jps, jp{})
 		}
 		jpY := getJumpPoint(current, Direction{0, dir.yDir})
 		if jpY.jp != nil {
@@ -414,13 +268,6 @@ func Jp(current *tile, dir Direction) []jp {//[]*tile {
 			jps = append(jps, tempJP)
 		}
 		current = current.followDir(dir)
-		//----
-	//	if current != nil && current.occupied != nil{
-	//		jps = append(jps, jp{current, []*tile{}})
-			//current.occupied.plan = compactPath2(parentOf, current)
-			//current.occupied.dir = getDir(parent[current], current) //OBS: osäkert..maybe tvärtom?
-	//	}
-		//----
 	}
 	return jps
 }
@@ -464,97 +311,18 @@ func sneJP(current *tile, dir Direction) jp{
 			curJP.fn = append(curJP.fn, current.neighborSouth)
 		}
 	}
-
 	return curJP
 }
-/*
-func getJPs(current *tile, dir Direction, jps *[]jp) { //*[]*tile) {
-	//	current := currentTC.tile
-	if current.door {
-		*jps = append(*jps, jp{current, nil})
-		return
-	}// found jp!
-	if dir.xDir == 1 {
-		sPath := getJumpPoint(current, Direction{1,0})  // jp söderut?    // TODO: set 'parentof' properly!
-		if sPath.jp != nil {*jps = append(*jps, sPath)}  // CONTINUE HERE!
-		if dir.yDir == 1 { // sydöst
-			ePath := getJumpPoint(current, Direction{0,1})  // jp österut?
-			if ePath.jp != nil {*jps = append(*jps, ePath)}
-			cPath := getJumpPoint(current, dir)
-			if cPath.jp != nil {*jps = append(*jps, cPath)}
-
-
-			if (!validTile(current.neighborSW) && validTile(current.neighborSouth)) || (!validTile(current.neighborNE) && validTile(current.neighborEast)) {
-				if (!validTile(current.neighborSW) && validTile(current.neighborSouth)) {}
-				if (!validTile(current.neighborNE) && validTile(current.neighborEast)) {}
-			}
-			
-			
-			//if !validTile(current.neighborSW) || !validTile(current.neighborNE) {
-			//	*jps = append(*jps, current) // found jp!
-			//}
-
-				
-			//if validTile(current.neighborSouth) && validTile(current.neighborEast) && validTile(current.neighborSE) {
-			//	return getJumpPoint(current.neighborSE, dir)
-			//} else {return current}  //lr nil? right..?
-			return
-		}
-		if dir.yDir == -1 { // sydväst
-			wPath := getJumpPoint(current, Direction{-1,0})  // jp västerut?
-			if wPath.jp != nil {*jps = append(*jps, wPath)}
-			if !validTile(current.neighborNW) || !validTile(current.neighborSE) {
-				*jps = append(*jps, current) // found jp!
-			}
-			//if validTile(current.neighborWest) && validTile(current.neighborSouth) && validTile(current.neighborSW) {
-		//		return getJumpPoint(current.neighborSW, dir)
-		//	} else {return current}  //lr nil? right..?
-			return
-		}
-	}
-	if dir.xDir == -1 {  
-		nPath := getJumpPoint(current, Direction{-1,0})  // jp norrut?
-		if nPath != nil {*jps = append(*jps, nPath)}
-		if dir.yDir == 1 { // nordöst
-			ePath := getJumpPoint(current, Direction{0,1})  // jp österut?
-			if ePath != nil {*jps = append(*jps, ePath)}
-			if !validTile(current.neighborNW) || !validTile(current.neighborSE) {
-				*jps = append(*jps, current) // found jp!
-			} 
-			//if validTile(current.neighborNorth) && validTile(current.neighborEast) && validTile(current.neighborNE) {
-		//		return getJumpPoint(current.neighborNE, dir)
-	//		} else {return current}  //lr nil? right..? 
-//			return
-		}
-		if dir.yDir == -1 { // nordväst
-			wPath := getJumpPoint(current, Direction{-1,0})  // jp västerut?
-			if wPath != nil {*jps = append(*jps, wPath)}
-			if !validTile(current.neighborSW) || !validTile(current.neighborNE) {
-				*jps = append(*jps, current) // found jp!
-			}
-			//if validTile(current.neighborWest) && validTile(current.neighborNorth) && validTile(current.neighborNW) {
-			//	return getJumpPoint(current.neighborNW, dir)
-		//	} else {return current}  //lr nil? right..?
-			return
-		}	
-	}
-}
-*/
-
-
 
 func getJumpPoint(current *tile, dir Direction) jp{
 	curJP := jp{}
 	if current == nil {return curJP}
 	if current.door {
-	//	fmt.Println("\n\n\n\n", current.xCoord, current.yCoord, "\n\n ")
 		return jp{current, nil}}
-//	if current.occupied != nil {return jp{current, nil}}
-	
 	if dir.xDir == 0 {
 		if dir.yDir == 1 { // höger
 			return eastJP(current)
-		}       // OBS: above is modified differently so far!
+		} 
 		if dir.yDir == -1 {  // vänster
 			return westJP(current)		
 		}
@@ -562,100 +330,27 @@ func getJumpPoint(current *tile, dir Direction) jp{
 	if dir.yDir == 0 {
 		if dir.xDir == 1 { // neråt
 			return(southJP(current))		
-		} /*grunkagrunkagrunkagrunka
-		bra kaffe
-		steg 1
-		kaffe bönor
-		2 kaffekvarn
-		3 köksvåg
-                vad tycker jenny? o.O majbi om man ändå dricker ofta kan ma ju göra de godare, kan ju vara värt de, majbi kuul mhmm*/
+		} 
 		if dir.xDir == -1 { // uppåt
 			return northJP(current)
-		/*	if (!validTile(current.neighborSW) && validTile(current.neighborWest)) || (!validTile(current.neighborSE) && validTile(current.neighborEast)) {
-				//return current  // found jp!
-				curJP.jp = current
-				if !validTile(current.neighborSW) && validTile(current.neighborWest) {curJP.fn = append(curJP.fn, current.neighborWest)}
-				if !validTile(current.neighborSE) && validTile(current.neighborEast) {curJP.fn = append(curJP.fn, current.neighborEast)}
-				return curJP  // found jp!
-			}
-			if validTile(current.neighborNorth) {
-				return getJumpPoint(current.neighborNorth, dir)
-//				nextJP := getJumpPoint(current.neighborNorth, dir)
-//				if nextJP.jp != nil {}
-			} else {return curJP}  //lr nil? right..?	 */	
+	
 		}
 	}
-/* härifrån	if dir.xDir == 1 {
-		if dir.yDir == 1 { // sydöst
-			if (!validTile(current.neighborSW) && validTile(current.neighborSouth)) || (!validTile(current.neighborNE) && validTile(current.neighborEast)) {
-				fmt.Println("found this...?")
-				return current // found jp!
-			} */
-			/*if validTile(current.neighborSE) {
-				if validTile(current.neighborSouth) {	
-					if validTile(current.neighborEast) {
-						if validTile(current.neighborSE) {return getJumpPoint(current.neighborSE, dir)}
-					} else {return current} // found jp!
-				} else if validTile(current.neighborEast)
-			}*/
-	/*		
-			if validTile(current.neighborSouth) && validTile(current.neighborEast) && validTile(current.neighborSE) {
-				return getJumpPoint(current.neighborSE, dir)
-			}
-			if !validTile(current.neighborSouth) || !validTile(current.neighborEast){  // TODO: strict or
-				return current  // found jp!    
-			} else {return nil}  //lr nil? right..?
-		}
-
-
-		if dir.yDir == -1 { // sydväst
-			if !validTile(current.neighborNW) || !validTile(current.neighborSE) {
-				return current // found jp!
-			}
-			if validTile(current.neighborWest) && validTile(current.neighborSouth) && validTile(current.neighborSW) {
-				return getJumpPoint(current.neighborSW, dir)
-			} else {return nil}  //lr nil? right..?
-		}
-	}
-	if dir.xDir == -1 {  //här
-		if dir.yDir == 1 { // nordöst
-			if !validTile(current.neighborNW) || !validTile(current.neighborSE) {
-				return current // found jp!
-			}
-			if validTile(current.neighborNorth) && validTile(current.neighborEast) && validTile(current.neighborNE) {
-				return getJumpPoint(current.neighborNE, dir)
-			} else {return nil}  //lr nil? right..?
-		}
-		if dir.yDir == -1 { // nordväst
-			if !validTile(current.neighborSW) || !validTile(current.neighborNE) {
-				return current // found jp!
-			}
-			if validTile(current.neighborWest) && validTile(current.neighborNorth) && validTile(current.neighborNW) {
-				return getJumpPoint(current.neighborNW, dir)
-			} else {return nil}  //lr nil? right..?
-		}	
-	}*/  //hit
 	return curJP
 }
 
-func eastJP(current *tile) jp{  //fns fixed(i think..)
-//	fmt.Println("I'm here!")
-//	fmt.Println(current.xCoord, current.yCoord)
+func eastJP(current *tile) jp{ 
 	curJP := jp{}
-	if (!validTile(current.neighborNW) /*&& validTile(current.neighborNorth)*/) || !validTile(current.neighborSW) /*&& validTile(current.neighborSouth)*/{
-	//	fmt.Println("jp?")
-	//	curJP.jp = current	
-		//if !validTile(current.neighborNW) && validTile(current.neighborNorth) {curJP.fn = append(curJP.fn, current.neighborNorth)}
+	if (!validTile(current.neighborNW)) || !validTile(current.neighborSW) {
 		if !validTile(current.neighborNW) {
 			if validTile(current.neighborNorth) {
 				curJP.fn = append(curJP.fn, current.neighborNorth)
 				if validTile(current.neighborEast) && validTile(current.neighborNE) {
-					curJP.fn = append(curJP.fn, current.neighborNE)} //check! (2/8)
+					curJP.fn = append(curJP.fn, current.neighborNE)}
 			}
 			if validTile(current.neighborSouth) && validTile(current.neighborEast) && validTile(current.neighborSE) && !validTile(current.neighborSW){
 				curJP.fn = append(curJP.fn, current.neighborSE)}			
 		}
-		//if !validTile(current.neighborSW) && validTile(current.neighborSouth) {curJP.fn = append(curJP.fn, current.neighborSouth)}
 		if !validTile(current.neighborSW){
 			if validTile(current.neighborSouth) {
 				curJP.fn = append(curJP.fn, current.neighborSouth)
@@ -664,31 +359,22 @@ func eastJP(current *tile) jp{  //fns fixed(i think..)
 			}
 			if validTile(current.neighborNorth) && validTile(current.neighborEast) && validTile(current.neighborNE) && !validTile(current.neighborNW){
 				curJP.fn = append(curJP.fn, current.neighborNE)}
-
 		}
-	//	return curJP  // found jp!
-
 		if len(curJP.fn) > 0 {
 			curJP.jp = current
-			//if validTile(current.neighborEast) {curJP.fn = append(curJP.fn, current.neighborEast)}
 			return curJP}
 	}
 	if validTile(current.neighborEast) {
-	//	fmt.Println("continue")
-	//	if current.neighborEast.door {return jp{current, nil}}
 		return getJumpPoint(current.neighborEast, e)
 	} else {return curJP}	
 }
 
-func westJP(current *tile) jp{ // check 4/8 done!
+func westJP(current *tile) jp{ 
 	curJP := jp{}
-//	fmt.Println(current)
 	if current.door {
 		curJP.jp = current
 		return curJP}
 	if !validTile(current.neighborNE) || !validTile(current.neighborSE) {
-
-
 		if !validTile(current.neighborNE) {
 			if validTile(current.neighborNorth) {
 				curJP.fn = append(curJP.fn, current.neighborNorth)
@@ -700,7 +386,6 @@ func westJP(current *tile) jp{ // check 4/8 done!
 		}
 		if !validTile(current.neighborSE) {
 			if validTile(current.neighborSouth) {
-				//fmt.Println("??")
 				curJP.fn = append(curJP.fn, current.neighborSouth)
 				if validTile(current.neighborWest) && validTile(current.neighborSW) {
 					curJP.fn = append(curJP.fn, current.neighborSW)}
@@ -708,16 +393,10 @@ func westJP(current *tile) jp{ // check 4/8 done!
 			if validTile(current.neighborNorth) && validTile(current.neighborWest) && validTile(current.neighborNW) && !validTile(current.neighborNE){
 				curJP.fn = append(curJP.fn, current.neighborNW)}
 		}
-		//if (!validTile(current.neighborNW) && validTile(current.neighborWest)) || (!validTile(current.neighborNE) && validTile(current.neighborEast)) {
-		//return current  // found jp!
-		//	if !validTile(current.neighborNW) && validTile(current.neighborWest) {curJP.fn = append(curJP.fn, current.neighborWest)}
-	//	if !validTile(current.neighborNE) && validTile(current.neighborEast) {curJP.fn = append(curJP.fn, current.neighborEast)}
 		if len(curJP.fn) > 0 {
 			curJP.jp = current
-			// TODO?: if validTile(current.neighborNorth) {curJP.append(current.neighborNorth)}
 			if validTile(current.neighborWest) {curJP.fn = append(curJP.fn, current.neighborWest)}
 			return curJP}
-		//	return curJP  // found jp!
 	}
 	if validTile(current.neighborWest) {
 		return getJumpPoint(current.neighborWest, w) // TODO: 'southJP' instead of getjp
@@ -729,12 +408,10 @@ func southJP(current *tile) jp{
 	curJP := jp{}
 
 	if !validTile(current.neighborNW) || !validTile(current.neighborNE) {
-		//curJP.jp = current
 		if !validTile(current.neighborNW) {
 			if validTile(current.neighborWest) {
 				curJP.fn = append(curJP.fn, current.neighborWest)
 			}
-
 			if validTile(current.neighborSouth) && validTile(current.neighborEast) && validTile(current.neighborSE) && !validTile(current.neighborNE){
 				curJP.fn = append(curJP.fn, current.neighborSE)}
 		}
@@ -744,39 +421,21 @@ func southJP(current *tile) jp{
 			
 				curJP.fn = append(curJP.fn, current.neighborSW)}
 		}
-		//if (!validTile(current.neighborNW) && validTile(current.neighborWest)) || (!validTile(current.neighborNE) && validTile(current.neighborEast)) {
-		//return current  // found jp!
-		//	if !validTile(current.neighborNW) && validTile(current.neighborWest) {curJP.fn = append(curJP.fn, current.neighborWest)}
-		//	if !validTile(current.neighborNE) && validTile(current.neighborEast) {curJP.fn = append(curJP.fn, current.neighborEast)}
-
 		if len(curJP.fn) > 0 {
 			curJP.jp = current
-			// TODO?: if validTile(current.neighborNorth) {curJP.append(current.neighborNorth)}
 			if validTile(current.neighborSouth) {curJP.fn = append(curJP.fn, current.neighborSouth)}
 			return curJP}
-		//	return curJP  // found jp!
 	}
 	if validTile(current.neighborSouth) {
 
 		return getJumpPoint(current.neighborSouth, s) // TODO: 'southJP' instead of getjp
 	}
-/*	if current.neighborWest.door {
-		curJP.fn = append(curJP.fn, current.neighborWest)
-	}
-	if current.neighborEast.door { curJP.fn = append(curJP.fn, current.neighborEast)
-	} //else {return curJP}  //lr nil? right..?
-	if len(curJP.fn) > 0 {
-		curJP.jp = current
-	} */
 	return curJP
 }
 
-
 func northJP(current *tile) jp{
-
 	curJP := jp{}
 	if !validTile(current.neighborSE) || !validTile(current.neighborSW) {
-	//	curJP.jp = current
 		if !validTile(current.neighborSE) {
 			if validTile(current.neighborEast) {curJP.fn = append(curJP.fn, current.neighborEast)}
 			if validTile(current.neighborWest) && validTile(current.neighborNorth) && validTile(current.neighborNW) && !validTile(current.neighborSW){
@@ -787,114 +446,15 @@ func northJP(current *tile) jp{
 			if validTile(current.neighborNorth) && validTile(current.neighborEast) && validTile(current.neighborNE) && !validTile(current.neighborSE){
 				curJP.fn = append(curJP.fn, current.neighborNE)}
 		}
-		//if (!validTile(current.neighborNW) && validTile(current.neighborWest)) || (!validTile(current.neighborNE) && validTile(current.neighborEast)) {
-		//return current  // found jp!
-		//	if !validTile(current.neighborNW) && validTile(current.neighborWest) {curJP.fn = append(curJP.fn, current.neighborWest)}
-	//	if !validTile(current.neighborNE) && validTile(current.neighborEast) {curJP.fn = append(curJP.fn, current.neighborEast)}
-
 		if len(curJP.fn) > 0 {
 			curJP.jp = current
-			// TODO?: if validTile(current.neighborNorth) {curJP.append(current.neighborNorth)}
 			if validTile(current.neighborNorth) {curJP.fn = append(curJP.fn, current.neighborNorth)}
 			return curJP}
-		//return curJP  // found jp!
 	}
 	if validTile(current.neighborNorth) {
-		return getJumpPoint(current.neighborNorth, n) // TODO: 'southJP' instead of getjp
-	} else {return curJP}  //lr nil? right..?
+		return getJumpPoint(current.neighborNorth, n) 
+	} else {return curJP} 
 }
-
-func getPath2(m *[][]tile, from *tile) ([]*tile, bool) {
-	
-	// map över jp
-	var parentOf map[*tile]*tile
-	parentOf = make(map[*tile]*tile)
-
-	cq := queue{}
-
-	for i, list := range *m {
-		for j, _ := range list {
-			cq.Add(&(*m)[i][j], float32(math.Inf(1)))		
-		}
-	}
-
-	cq.Update(from, 0)
-	
-	v := float32(0)
-	current := tileCost{&tile{}, &v}
-	currentDir := Direction{0,0}	
-	for len(cq) != 0 && !current.tile.door {
-		current = (&cq).Pop()
-		fmt.Println("current:", current.tile.xCoord, current.tile.yCoord)
-		_, ok := parentOf[current.tile]
-		if ok {
-			currentDir = getDir(parentOf[current.tile], current.tile)
-		} else {currentDir = Direction{0,0}}
-		neighbors := /*getNeighbors(current.tile, cq)*/ getNeighborsPruned(current.tile, currentDir)
-
-		var wg sync.WaitGroup
-		wg.Add(len(neighbors))
-		var mutex = &sync.Mutex{}
-		for _, neighbor := range neighbors {
-			//	fmt.Println("neighbor",neighbor.xCoord, neighbor.yCoord)
-			go func(n *tile) {
-				defer wg.Done()
-			//	n := neighbor
-
-				jps := Jp(n, getDir(current.tile, n))
-				for _, jp := range jps {
-
-					if jp.jp != nil {
-						
-						mutex.Lock()
-						//	if cq.costOf(current.tile) < 0 {fmt.Println("wtf?", current.tile, cq.costOf(current.tile))}
-						//cost := cq.costOf(current.tile) + smplCost(current.tile, jp.jp) //TODO:!
-						cost := *current.cost + smplCost(current.tile, jp.jp) + 100*float32(jp.jp.smoke)//+ 10000*float32(current.tile.smoke)//TODO:!
-					
-						//	if jp.jp == GetTile(*m, 5, 0) {fmt.Println("\nCOST: ",cost)}
-						//	if cost < 0 {fmt.Println("neg cost?:",cost)}
-					//	fmt.Println("jp", jp.jp)
-					//	fmt.Println("jpcost?", cost)
-						//	fmt.Println("whut?", cq.costOf(jp.jp))
-						p, ok := parentOf[jp.jp]
-						if !ok || (ok && cost < cq.costOf(jp.jp) && p.smoke >= current.tile.smoke) {
-//							if p.smoke == current
-							//	if !ok || (ok && p.smoke > current.tile.smoke){
-							parentOf[jp.jp] = current.tile
-							cq.Update(jp.jp, cost)
-							//	} 
-							//	fmt.Println("whut?", cq.costOf(jp.jp))
-							for _, n := range jp.fn {
-								//	fmt.Println("fn", n)
-
-								fnCost := cost + smplCost(jp.jp, n) + 100*float32(n.smoke)
-								//	if fnCost < 1 {
-								//	fmt.Println("neg cost?:",fnCost)
-								//	fmt.Println(jp.jp)
-								//	fmt.Println(n)
-								//	fmt.Println(parentOf[jp.jp])
-							//	}
-								//fmt.Println("fn?", fnCost)
-								p, ok := parentOf[jp.jp]								
-								if n != nil && !ok || (ok && (fnCost < cq.costOf(n)  && p.smoke >= n.smoke)) {
-									
-									parentOf[n] = jp.jp
-									cq.Update(n, fnCost) 
-								}
-							}
-						}
-						mutex.Unlock()	
-					}
-				}
-			}(neighbor)						
-		
-		}
-		wg.Wait()		
-	}
-	return compactPath(parentOf, from, current.tile)
-}
-
-
 
 func smplCost(t1 *tile, t2 *tile) float32{
 	cost := needName(t1, t2)
@@ -904,20 +464,13 @@ func smplCost(t1 *tile, t2 *tile) float32{
 }
 
 func needName(t1 *tile, t2 *tile) float32{
-//	fmt.Println(t1)
-//	fmt.Println(t2)
 	xDif := math.Max(float64(t1.xCoord), float64(t2.xCoord)) - math.Min(float64(t1.xCoord), float64(t2.xCoord))
 	yDif := math.Max(float64(t1.yCoord), float64(t2.yCoord)) - math.Min(float64(t1.yCoord), float64(t2.yCoord))
-	if xDif == 0 {
-		return float32(yDif)}
-	if yDif == 0 {
+	if xDif == 0 {return float32(yDif)}
+	if yDif == 0 {return float32(xDif)}
 
-		return float32(xDif)}
-
-//	fmt.Println("other", float32(math.Sqrt(xDif*xDif + yDif*yDif)))
 	return float32(math.Sqrt(xDif*xDif + yDif*yDif))
 }
-
 
 func notSoSmplCost(t1 *tile, t2 *tile) float32 {
 	dir := getDir(t1, t2)
@@ -944,85 +497,6 @@ func nextTile(t1 *tile, dir Direction) *tile{
 	return nil // default?
 }
 
-
-// get partial path
-func getPPath(m *[][]tile, from *tile, to *tile) ([]*tile, bool) {
-
-	// map to keep track of the final path
-	var parentOf map[*tile]*tile
-	parentOf = make(map[*tile]*tile)
-
-	//initialise 'costqueue', start-0, other-infinite
-	costQueue := queue{}
-
-	for i, list := range *m {
-		for j, _ := range list {
-			costQueue.Add(&(*m)[i][j], float32(math.Inf(1)))	
-		}
-	}
-
-	costQueue.Update(from, 0)
-
-	v := float32(0)
-	current := tileCost{&tile{}, &v}
-	currentDir := Direction{1,1}
-	
-	for len(costQueue) != 0 && !(*current.tile == *to) {//!current.tile.door {
-
-		current = (&costQueue).Pop()
-		currentDir = getDir(parentOf[current.tile], current.tile)  // for reference!
-
-
-		neighbors := getNeighborsPruned(current.tile, currentDir)
-		var wg sync.WaitGroup
-		wg.Add(len(neighbors))
-		var mutex = &sync.Mutex{}
-		for _, neighbor := range neighbors {
-			go func(n *tile) {			
-				defer wg.Done()			
-				cost := *current.cost + stepCost(*n)
-				if Diagonal(current.tile, n) {cost += float32(math.Sqrt(2)) - 1}
-				if n.occupied.IsWaiting() {cost += 1}
-			
-				mutex.Lock()
-				if cost < costQueue.costOf(n) {
-					
-					parentOf[n] = current.tile
-					costQueue.Update(n, cost)				
-				}
-				mutex.Unlock()
-			}(neighbor)		
-		}
-		wg.Wait()		
-	}	
-	return compactPath(parentOf, from, current.tile)
-}
-
-var (  // TODO: define this a weak ago...
-	n = Direction{-1,0}
-	e = Direction{0,1}
-	s = Direction{1,0}
-	w = Direction{0,-1}
-
-	nw = Direction{-1,-1}
-	ne = Direction{-1,1}
-	se = Direction{1,1}
-	sw = Direction{1,-1}
-	
-)
-
-type jp struct {
-	jp *tile   // jp
-	fn []*tile // forced neighbors from jp
-}
-/*
-func getForcedNeighbor(current *tile, dir Direction) *tile{
-	// TODO: do this automagically in other functions!!
-	if dir == n {}
-}*/
-
-
-
 func getPath3(m *[][]tile, from []*tile) {    //INIT!
 	
 	// map över jp
@@ -1033,26 +507,19 @@ func getPath3(m *[][]tile, from []*tile) {    //INIT!
 
 	for i, list := range *m {
 		for j, _ := range list {
-			//fmt.Println(len(cq))
-			//cq.Add(&(*m)[i][j], float32(math.Inf(1)))
 			val := float32(math.Inf(1))
 			cq = append(cq, tileCost{&(*m)[i][j], &val})
 		}
 	}
 
 	for _, f := range from {
-	//	fmt.Println("wtf f?:", f)
 		cq.Update(f, 0)
 	}
 	v := float32(0)
 	current := tileCost{&tile{}, &v}
 	currentDir := Direction{0,0}	
-	for len(cq) != 0 {//!current.tile.door {
-		//fmt.Println(len(cq))
-	//	toPipe(len(cq))
+	for len(cq) != 0 {
 		current = (&cq).Pop()
-	//	fmt.Println(len(cq))
-	//	fmt.Println("current:", current.tile.xCoord, current.tile.yCoord, *current.cost)
 		if *current.cost == float32(math.Inf(1)) {break}
 		_, ok := parentOf[current.tile]
 		if ok {
@@ -1065,158 +532,87 @@ func getPath3(m *[][]tile, from []*tile) {    //INIT!
 		var mutex = &sync.Mutex{}
 		for _, neighbor := range neighbors {
 			
-		//.	go func(n *tile) {
-		//.		defer wg.Done()
-					n := neighbor
-
+			go func(n *tile) {
+				defer wg.Done()
+				//	n := neighbor
 				jps := JpInit(n, getDir(current.tile, n))
 				for _, jp := range jps {
-				
-
+					
 					if jp.jp != nil {
 						
-					//	fmt.Println("jp:", jp.jp.xCoord, jp.jp.yCoord)
 						mutex.Lock()
-						cost := *current.cost + smplCost(current.tile, jp.jp) + 100*float32(jp.jp.smoke)// float32(math.Mod(float64(jp.jp.smoke), 50))//TODO:!
-					//	cost += notSoSmplCost(current.tile, jp.jp)
-					//	cost += notSoSmplCost(current.tile, jp.jp)
-						//	if current.tile.occupied != nil {cost++}   //new!
-
+						cost := *current.cost + smplCost(current.tile, jp.jp) + 100*float32(jp.jp.smoke)
 						p, ok := parentOf[jp.jp]
 						if !ok || (ok && cost < cq.costOf(jp.jp) && p.smoke >= current.tile.smoke) {
-							if jp.jp == current.tile {fmt.Println("whuupsie1")}
 							parentOf[jp.jp] = current.tile
 							cq.Update(jp.jp, cost)
-
 							if jp.jp.occupied != nil {
-								setPlan(parentOf, jp.jp)  // + cq maybe??
+								setPlan(parentOf, jp.jp) 
 							}
 						}
 						for _, n := range jp.fn {
-						//	fmt.Println("fn:", n.xCoord, n.yCoord)
 							fnCost := cost + smplCost(jp.jp, n) + 100*float32(n.smoke)//float32(math.Mod(float64(n.smoke), 50))
-						//	fnCost += notSoSmplCost(jp.jp, n)
-							//	if n.occupied != nil {fnCost++}   //new!
 							p, ok := parentOf[n]
 							if jp.jp != n && (!ok || (n != nil && fnCost < cq.costOf(n) && p.smoke >= n.smoke)) {
-								//if jp.jp == n {fmt.Println("whuupsie2")}
 								parentOf[n] = jp.jp
 								cq.Update(n, fnCost)
 
 								if n.occupied != nil {
-								//	fmt.Println("setplan?")
-									setPlan(parentOf, n)  // + cq maybe??
-								//	fmt.Println("setplan")
+									setPlan(parentOf, n)
 								}
 							}
 						}
 						mutex.Unlock()
-					//	fmt.Println("unlocked")
 					}
-				
 				}
-				//}
-	//.		}(neighbor)						
-
-			
+			}(neighbor)						
 		}
-	//.	wg.Wait()		
+		wg.Wait()		
 	}
-	//	return compactPath(parentOf, from, current.tile)
 }
 
-
-
-func smokeCostOf(t1 *tile, t2 *tile) int{
-	sm := t1.smoke
-	return sm
-	//..aaand continue after mandatory sleepy-time
-}
-
-
-//TODO: func compactpath2
 func setPlan(parentOf map[*tile]*tile, pers *tile) {
 	path := []*tile{pers}
 	
 	current := pers
 	ok := true
-//	newSmoke := 0 //false
-/*	inSmoke := 0 //false
-		for _, t := range pers.occupied.plan {
-			inSmoke += t.smoke
-			inSmoke += t.heat*1000
-		}*/
 
-	//if len(pers.occupied.plan) > 0 {inSmoke = pers.occupied.plan[0].smoke}
-	//newSmoke = parentOf[pers].smoke
-
-	if current.xCoord == 28 && current.yCoord == 49 {
-	//	fmt.Println("nöööööo")
-	} //else {fmt.Println("fail")}
-	
-	curDir := Direction{} // getDir(current, parentOf[current])
+	curDir := Direction{} 
 	lastDir := Direction{0,0}
-	for !current.door {//current.xCoord != from.xCoord || current.yCoord != from.yCoord {
-		//	path = append([]*tile{parentOf[current]}, path...)
-		//if current.smoke > 0 {newSmoke = true}
-	//	newSmoke += current.smoke
+	for !current.door {
 		curDir = getDir(current, parentOf[current])
 		if curDir == lastDir {
 			path = path[:len(path)-1]
 		}
 		path = append(path, parentOf[current])	
-		//	fmt.Println(current)
-
 		if parentOf[current].xCoord == 28 && parentOf[current].yCoord == 49 {}
 		
 		current, ok = parentOf[current]
 		lastDir = curDir
 		
 		if !ok {
-		//	return
 			break
 		}
 	}
-
-//	if ok && newSmoke <= inSmoke {//(!newSmoke || (newSmoke && inSmoke)) {
-	if ok {// && (newSmoke <= inSmoke) {
-
-
-		
+	if ok {
 		pers.occupied.plan = path} else if len(pers.occupied.plan) > 0 && pers.occupied.dir != getDir(pers, pers.occupied.plan[0]){
 			d := getDir(pers.occupied.currentTile(), pers.occupied.plan[0])
-			if d.xDir == 0 && d.yDir == 0 {//fmt.Println("o-oh")
+			if d.xDir == 0 && d.yDir == 0 {
 				pers.occupied.plan = pers.occupied.plan[1:]
 				if len(pers.occupied.plan) > 0 {pers.occupied.dir = getDir(pers, pers.occupied.plan[0])}
 			} else {pers.occupied.dir = getDir(pers.occupied.currentTile(), pers.occupied.plan[0])}// Maybe onödig??
-			//if pers.occupied.currentTile
 		}
-	//TODO: fix whateverthefk is going on here...
-
-	
-	if !ok {//fmt.Println(newSmoke)//pers.occupied.plan = []*tile{}  //TODO: soo...remove old/newsmoke counters!
-	}else {
-
-		//	printPath(pers.occupied.plan)
-	//	if ok && newSmoke <= inSmoke {/*(!newSmoke || (newSmoke && inSmoke))*/ pers.occupied.plan = path}
-		//	return path, true
-	}
-	
 }
-
 
 func getJumpPointInit(current *tile, dir Direction) jp{
 	curJP := jp{}
 	if current == nil || !validTile(current) {return curJP}
-	//if current.door {
-	//	fmt.Println("\n\n\n\n", current.xCoord, current.yCoord, "\n\n ")
-	//	return jp{current, nil}}
 	if current.occupied != nil {return jp{current, nil}}
 	
 	if dir.xDir == 0 {
 		if dir.yDir == 1 { // höger
 			return eastJPInit(current)
-		}       // OBS: above is modified differently so far!
+		} 
 		if dir.yDir == -1 {  // vänster
 			return westJPInit(current)		
 		}
@@ -1232,38 +628,23 @@ func getJumpPointInit(current *tile, dir Direction) jp{
 	return curJP
 }
 
-
-func JpInit(current *tile, dir Direction) []jp {//[]*tile {
-//func Jp(current *tile, dir Direction, parentOf map[*tile]*tile) []jp {//[]*tile {
+func JpInit(current *tile, dir Direction) []jp {
 	jps := []jp{}
-	//----
-	if current.occupied != nil{
-		jps = append(jps, jp{current, []*tile{}})
-		//current.occupied.plan = compactPath2(parentOf, current)
-		//current.occupied.dir = getDir(parent[current], current) //OBS: osäkert..maybe tvärtom?
-	}
-	//----
-	
-//----	if current.door {return []jp{jp{current, []*tile{}}}}
-
+	if current.occupied != nil{jps = append(jps, jp{current, []*tile{}})}
 	if (dir.xDir == 0 && dir.yDir != 0) ||(dir.yDir == 0 && dir.xDir != 0) {
 		tmpJP := getJumpPointInit(current, dir)
 		for tmpJP.jp != nil && tmpJP.jp.occupied != nil {
 			jps = append(jps, tmpJP)
 			tmpJP = getJumpPointInit(tmpJP.jp.neighbor(dir), dir)
-	
 		}
-		
 		return append(jps, tmpJP)
 	}
 
 	for current != nil {
-	//	fmt.Println("check", dir.xDir, 0)
 		jpX := getJumpPointInit(current, Direction{dir.xDir, 0})
 		if jpX.jp != nil {
 			tmpJP := jp{current, []*tile{jpX.jp}}
 			jps = append(jps, tmpJP)
-		//	jps = append(jps, jp{})
 		}
 		jpY := getJumpPointInit(current, Direction{0, dir.yDir})
 		if jpY.jp != nil {
@@ -1272,42 +653,28 @@ func JpInit(current *tile, dir Direction) []jp {//[]*tile {
 		}
 		tempJP := sneJP(current, dir)
 		if tempJP.jp != nil {
-		//	fmt.Println("temp?:", tempJP.jp)
 			jps = append(jps, tempJP)
 		}
 		current = current.followDir(dir)
-		//----
 		if current != nil && current.occupied != nil{
 			jps = append(jps, jp{current, []*tile{}})
-			//current.occupied.plan = compactPath2(parentOf, current)
-			//current.occupied.dir = getDir(parent[current], current) //OBS: osäkert..maybe tvärtom?
 		}
-		//----
 	}
 	return jps
 }
 
-
-
-
-func eastJPInit(current *tile) jp{  //fns fixed(i think..)
-//	fmt.Println("I'm here!")
-//	fmt.Println(current.xCoord, current.yCoord)
+func eastJPInit(current *tile) jp{
 	curJP := jp{}
-	if (!validTile(current.neighborNW) /*&& validTile(current.neighborNorth)*/) || !validTile(current.neighborSW) /*&& validTile(current.neighborSouth)*/{
-	//	fmt.Println("jp?")
-	//	curJP.jp = current	
-		//if !validTile(current.neighborNW) && validTile(current.neighborNorth) {curJP.fn = append(curJP.fn, current.neighborNorth)}
+	if (!validTile(current.neighborNW)) || !validTile(current.neighborSW){
 		if !validTile(current.neighborNW) {
 			if validTile(current.neighborNorth) {
 				curJP.fn = append(curJP.fn, current.neighborNorth)
 				if validTile(current.neighborEast) && validTile(current.neighborNE) {
-					curJP.fn = append(curJP.fn, current.neighborNE)} //check! (2/8)
+					curJP.fn = append(curJP.fn, current.neighborNE)} 
 			}
 			if validTile(current.neighborSouth) && validTile(current.neighborEast) && validTile(current.neighborSE) && !validTile(current.neighborSW){
 				curJP.fn = append(curJP.fn, current.neighborSE)}			
 		}
-		//if !validTile(current.neighborSW) && validTile(current.neighborSouth) {curJP.fn = append(curJP.fn, current.neighborSouth)}
 		if !validTile(current.neighborSW){
 			if validTile(current.neighborSouth) {
 				curJP.fn = append(curJP.fn, current.neighborSouth)
@@ -1318,28 +685,21 @@ func eastJPInit(current *tile) jp{  //fns fixed(i think..)
 				curJP.fn = append(curJP.fn, current.neighborNE)}
 
 		}
-	//	return curJP  // found jp!
-
 		if len(curJP.fn) > 0 {
 			curJP.jp = current
-			//if validTile(current.neighborEast) {curJP.fn = append(curJP.fn, current.neighborEast)}
 			return curJP}
 	}
 	if validTile(current.neighborEast) {
-	//	fmt.Println("continue")
-	//	if current.neighborEast.door {return jp{current, nil}}
 		return getJumpPointInit(current.neighborEast, e)
 	} else {return curJP}	
 }
 
-func westJPInit(current *tile) jp{ // check 4/8 done!
+func westJPInit(current *tile) jp{
 	curJP := jp{}
-//	fmt.Println(current)
 	if current.door {
 		curJP.jp = current
 		return curJP}
 	if !validTile(current.neighborNE) || !validTile(current.neighborSE) {
-
 
 		if !validTile(current.neighborNE) {
 			if validTile(current.neighborNorth) {
@@ -1352,7 +712,6 @@ func westJPInit(current *tile) jp{ // check 4/8 done!
 		}
 		if !validTile(current.neighborSE) {
 			if validTile(current.neighborSouth) {
-				//fmt.Println("??")
 				curJP.fn = append(curJP.fn, current.neighborSouth)
 				if validTile(current.neighborWest) && validTile(current.neighborSW) {
 					curJP.fn = append(curJP.fn, current.neighborSW)}
@@ -1360,28 +719,21 @@ func westJPInit(current *tile) jp{ // check 4/8 done!
 			if validTile(current.neighborNorth) && validTile(current.neighborWest) && validTile(current.neighborNW) && !validTile(current.neighborNE){
 				curJP.fn = append(curJP.fn, current.neighborNW)}
 		}
-		//if (!validTile(current.neighborNW) && validTile(current.neighborWest)) || (!validTile(current.neighborNE) && validTile(current.neighborEast)) {
-		//return current  // found jp!
-		//	if !validTile(current.neighborNW) && validTile(current.neighborWest) {curJP.fn = append(curJP.fn, current.neighborWest)}
-	//	if !validTile(current.neighborNE) && validTile(current.neighborEast) {curJP.fn = append(curJP.fn, current.neighborEast)}
 		if len(curJP.fn) > 0 {
 			curJP.jp = current
-			// TODO?: if validTile(current.neighborNorth) {curJP.append(current.neighborNorth)}
 			if validTile(current.neighborWest) {curJP.fn = append(curJP.fn, current.neighborWest)}
 			return curJP}
-		//	return curJP  // found jp!
 	}
 	if validTile(current.neighborWest) {
-		return getJumpPointInit(current.neighborWest, w) // TODO: 'southJP' instead of getjp
+		return getJumpPointInit(current.neighborWest, w) 
 	} else {
-		return curJP}  //lr nil? right..?
+		return curJP}
 }
 
 func southJPInit(current *tile) jp{	
 	curJP := jp{}
 
 	if !validTile(current.neighborNW) || !validTile(current.neighborNE) {
-		//curJP.jp = current
 		if !validTile(current.neighborNW) {
 			if validTile(current.neighborWest) {
 				curJP.fn = append(curJP.fn, current.neighborWest)
@@ -1393,29 +745,22 @@ func southJPInit(current *tile) jp{
 		if !validTile(current.neighborNE) {
 			if validTile(current.neighborEast) {curJP.fn = append(curJP.fn, current.neighborEast)}
 			if validTile(current.neighborSouth) && validTile(current.neighborWest) && validTile(current.neighborSW) && !validTile(current.neighborNW){
-			
+				
 				curJP.fn = append(curJP.fn, current.neighborSW)}
 		}
 		if len(curJP.fn) > 0 {
 			curJP.jp = current
-			// TODO?: if validTile(current.neighborNorth) {curJP.append(current.neighborNorth)}
 			if validTile(current.neighborSouth) {curJP.fn = append(curJP.fn, current.neighborSouth)}
 			return curJP}
-		//	return curJP  // found jp!
 	}
-	if validTile(current.neighborSouth) {
-
-		return getJumpPointInit(current.neighborSouth, s) // TODO: 'southJP' instead of getjp
-	}
+	if validTile(current.neighborSouth) {return getJumpPointInit(current.neighborSouth, s)}
 	return curJP
 }
-
 
 func northJPInit(current *tile) jp{
 
 	curJP := jp{}
 	if !validTile(current.neighborSE) || !validTile(current.neighborSW) {
-	//	curJP.jp = current
 		if !validTile(current.neighborSE) {
 			if validTile(current.neighborEast) {curJP.fn = append(curJP.fn, current.neighborEast)}
 			if validTile(current.neighborWest) && validTile(current.neighborNorth) && validTile(current.neighborNW) && !validTile(current.neighborSW){
@@ -1428,32 +773,15 @@ func northJPInit(current *tile) jp{
 		}
 		if len(curJP.fn) > 0 {
 			curJP.jp = current
-			// TODO?: if validTile(current.neighborNorth) {curJP.append(current.neighborNorth)}
 			if validTile(current.neighborNorth) {curJP.fn = append(curJP.fn, current.neighborNorth)}
 			return curJP}
 	}
 	if validTile(current.neighborNorth) {
-		return getJumpPointInit(current.neighborNorth, n) // TODO: 'southJP' instead of getjp
-	} else {return curJP}  //lr nil? right..?
+		return getJumpPointInit(current.neighborNorth, n) 
+	} else {return curJP} 
 }
 
-
-
 func (p *Person) redirect() bool {
-	//	if true {return false}
-/*	if p.currentTile().smoke > 0 {
-		if p.dir == se {return p.reDirSE()}
-		if p.dir == sw {return p.reDirSW()}
-		if p.dir == nw {return p.reDirNW()}
-		if p.dir == ne {return p.reDirNE()}
-		return false}*/
-	//if p.dir == e  {return p.reDirE()}
-/*	if p.dir == s  {return p.reDirS()}
-	if p.dir == w  {return p.reDirW()}
-	if p.dir == n  {return p.reDirN()} */
-
-	// below: fullösning om initplans körs varje run...
-
 	if p.dir == e {return p.redE()}
 	if p.dir == s {return p.redS()}
 	if p.dir == w {return p.redW()}
@@ -1465,13 +793,9 @@ func (p *Person) redirect() bool {
 	if p.dir == ne {return p.redNE()}
 
 	return false
-	
 }
 
-
-
-//redX todo: if smokecsts are equal, check 'again'! 
-func (p *Person) redSE() bool{
+func (p *Person) redSE() bool {
 	current := p.currentTile()
 	if current.neighborSouth.smoke <= current.neighborEast.smoke {
 		if p.moveTo(current.neighborSouth) {return true}}
@@ -1480,8 +804,7 @@ func (p *Person) redSE() bool{
 	return false
 }
 
-
-func (p *Person) redSW() bool{
+func (p *Person) redSW() bool {
 	current := p.currentTile()
 	if current.neighborSouth.smoke <= current.neighborWest.smoke {
 		if p.moveTo(current.neighborSouth) {return true}}
@@ -1490,8 +813,7 @@ func (p *Person) redSW() bool{
 	return false
 }
 
-
-func (p *Person) redNW() bool{
+func (p *Person) redNW() bool {
 	current := p.currentTile()
 	if current.neighborNorth.smoke <= current.neighborWest.smoke {
 		if p.moveTo(current.neighborNorth) {return true}}
@@ -1500,8 +822,7 @@ func (p *Person) redNW() bool{
 	return false
 }
 
-
-func (p *Person) redNE() bool{
+func (p *Person) redNE() bool {
 	current := p.currentTile()
 	if current.neighborNorth.smoke <= current.neighborEast.smoke {
 		if p.moveTo(current.neighborNorth) {return true}}
@@ -1510,7 +831,7 @@ func (p *Person) redNE() bool{
 	return false
 }
 
-func (p *Person) redE() bool{
+func (p *Person) redE() bool {
 	current := p.currentTile()
 	if current.neighborSouth.smoke <= current.neighborNorth.smoke {
 		if p.moveTo(current.neighborSouth) {return true}}
@@ -1519,7 +840,7 @@ func (p *Person) redE() bool{
 	return false
 }
 
-func (p *Person) redS() bool{
+func (p *Person) redS() bool {
 	current := p.currentTile()
 	if current.neighborWest.smoke <= current.neighborEast.smoke {
 		if p.moveTo(current.neighborWest) {return true}}
@@ -1528,7 +849,7 @@ func (p *Person) redS() bool{
 	return false
 }
 
-func (p *Person) redW() bool{
+func (p *Person) redW() bool {
 	current := p.currentTile()
 	if current.neighborSouth.smoke <= current.neighborNorth.smoke {
 		if p.moveTo(current.neighborSouth) {return true}}
@@ -1537,479 +858,12 @@ func (p *Person) redW() bool{
 	return false
 }
 
-func (p *Person) redN() bool{
+func (p *Person) redN() bool {
 	current := p.currentTile()
 	if current.neighborWest.smoke <= current.neighborEast.smoke {
 		if p.moveTo(current.neighborWest) {return true}}
 	if p.moveTo(current.neighborEast) {return true}
 	if p.moveTo(current.neighborWest) {return true}
-	return false
-}
-
-func (p *Person) reDirSE() bool{
-	//TODO: continuieieie!!
-//	if p.dir != se {return false}
-	current := p.currentTile()
-	//	if current.neighborNorth.occupied == nil { }
-	if p.moveTo(current.neighborSouth) {
-		next := current.followDir(p.dir)
-		if next != nil {
-			p.plan = append([]*tile{next}, p.plan...)
-			for next != nil && next.xCoord != p.plan[1].xCoord{
-				p.plan[0] = next
-				next = next.followDir(p.dir)
-			}
-			tmp := p.plan[0]
-		//	p.plan = append(p.plan[1:0])
-			p.plan[0] = tmp.neighborEast
-//			p.plan = append([]*tile{tmp}, p.plan...)
-			p.plan = append([]*tile{p.plan[0].neighborWest}, p.plan[1:]...) //west??
-
-
-			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
-			
-		} else {
-			p.plan = append([]*tile{p.currentTile().neighborEast}, p.plan...)
-		}
-		
-		return true
-	} else 	if p.moveTo(current.neighborEast) {
-		next := current.followDir(p.dir)
-		if next != nil {
-			p.plan = append([]*tile{next}, p.plan...)
-			for next != nil && next.xCoord != p.plan[1].xCoord {
-				p.plan[0] = next
-				next = next.followDir(p.dir)
-			}
-			tmp := p.plan[0]
-			//	p.plan = append(p.plan[1:0])
-			p.plan[0] = tmp.neighborSouth
-			//			p.plan = append([]*tile{tmp}, p.plan...)
-			p.plan = append([]*tile{p.plan[0].neighborNorth}, p.plan[1:]...)
-
-
-			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
-			
-		} else {
-			p.plan = append([]*tile{p.currentTile().neighborSouth}, p.plan...)
-		}
-		return true
-	}
-	return false
-}
-
-
-func (p *Person) reDirSW() bool{
-	//TODO: continuieieie!!
-//	if p.dir != sw {return false}
-	current := p.currentTile()
-	//	if current.neighborNorth.occupied == nil { }
-	if p.moveTo(current.neighborSouth) {
-		next := current.followDir(p.dir)
-		if next != nil {
-			p.plan = append([]*tile{next}, p.plan...)
-			for next != nil && next.xCoord != p.plan[1].xCoord {
-				p.plan[0] = next
-				next = next.followDir(p.dir)
-			}
-			tmp := p.plan[0]
-		//	p.plan = append(p.plan[1:0])
-			p.plan[0] = tmp.neighborWest
-//			p.plan = append([]*tile{tmp}, p.plan...)
-			p.plan = append([]*tile{p.plan[0].neighborEast}, p.plan[1:]...) 
-
-
-			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
-			
-		} else {
-			p.plan = append([]*tile{p.currentTile().neighborWest}, p.plan...)
-		}
-		
-		return true
-	} else 	if p.moveTo(current.neighborWest) {
-		next := current.followDir(p.dir)
-		if next != nil {
-			p.plan = append([]*tile{next}, p.plan...)
-			for next != nil && next.xCoord != p.plan[1].xCoord {
-				p.plan[0] = next
-				next = next.followDir(p.dir)
-			}
-			tmp := p.plan[0]
-			//	p.plan = append(p.plan[1:0])
-			p.plan[0] = tmp.neighborSouth
-			//			p.plan = append([]*tile{tmp}, p.plan...)
-			p.plan = append([]*tile{p.plan[0].neighborNorth}, p.plan[1:]...)
-
-
-			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
-			
-		} else {
-			p.plan = append([]*tile{p.currentTile().neighborSouth}, p.plan...)
-		}
-		return true
-	}
-	return false
-}
-
-
-func (p *Person) reDirNW() bool{
-	//TODO: continuieieie!!
-//	if p.dir != se {return false}
-	current := p.currentTile()
-	//	if current.neighborNorth.occupied == nil { }
-	if p.moveTo(current.neighborNorth) {
-		next := current.followDir(p.dir)
-		if next != nil {
-			p.plan = append([]*tile{next}, p.plan...)
-			for next != nil && next.xCoord != p.plan[1].xCoord{
-				p.plan[0] = next
-				next = next.followDir(p.dir)
-			}
-			tmp := p.plan[0]
-		//	p.plan = append(p.plan[1:0])
-			p.plan[0] = tmp.neighborWest
-//			p.plan = append([]*tile{tmp}, p.plan...)
-			p.plan = append([]*tile{p.plan[0].neighborEast}, p.plan[1:]...) //west??
-
-
-			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
-			
-		} else {
-			p.plan = append([]*tile{p.currentTile().neighborWest}, p.plan...)
-		}
-		
-		return true
-	} else 	if p.moveTo(current.neighborWest) {
-		next := current.followDir(p.dir)
-		if next != nil {
-			p.plan = append([]*tile{next}, p.plan...)
-			for next != nil && next.xCoord != p.plan[1].xCoord {
-				p.plan[0] = next
-				next = next.followDir(p.dir)
-			}
-			tmp := p.plan[0]
-			//	p.plan = append(p.plan[1:0])
-			p.plan[0] = tmp.neighborNorth
-			//			p.plan = append([]*tile{tmp}, p.plan...)
-			p.plan = append([]*tile{p.plan[0].neighborSouth}, p.plan[1:]...)
-
-
-			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
-			
-		} else {
-			p.plan = append([]*tile{p.currentTile().neighborNorth}, p.plan...)
-		}
-		return true
-	}
-	return false
-}
-
-func (p *Person) reDirNE() bool{
-	//TODO: continuieieie!!
-//	if p.dir != se {return false}
-	current := p.currentTile()
-	//	if current.neighborNorth.occupied == nil { }
-	if p.moveTo(current.neighborNorth) {
-		next := current.followDir(p.dir)
-		if next != nil {
-			p.plan = append([]*tile{next}, p.plan...)
-			for next != nil && next.xCoord != p.plan[1].xCoord {
-				p.plan[0] = next
-				next = next.followDir(p.dir)
-			}
-			tmp := p.plan[0]
-		//	p.plan = append(p.plan[1:0])
-			p.plan[0] = tmp.neighborEast
-//			p.plan = append([]*tile{tmp}, p.plan...)
-			p.plan = append([]*tile{p.plan[0].neighborWest}, p.plan[1:]...) //west??
-
-			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
-			
-		} else {
-			p.plan = append([]*tile{p.currentTile().neighborEast}, p.plan...)
-		}
-		
-		return true
-	} else 	if p.moveTo(current.neighborEast) {
-		next := current.followDir(p.dir)
-		if next != nil {
-			p.plan = append([]*tile{next}, p.plan...)
-			for next != nil && next.xCoord != p.plan[1].xCoord {
-				p.plan[0] = next
-				next = next.followDir(p.dir)
-			}
-			tmp := p.plan[0]
-			//	p.plan = append(p.plan[1:0])
-			p.plan[0] = tmp.neighborNorth
-			//			p.plan = append([]*tile{tmp}, p.plan...)
-			p.plan = append([]*tile{p.plan[0].neighborSouth}, p.plan[1:]...)
-			//([]*tile{p.plan[0], p.plan[0].neighborWest, p.plan[:]})
-			
-		} else {
-			p.plan = append([]*tile{p.currentTile().neighborNorth}, p.plan...)
-		}
-		return true
-	}
-	return false
-}
-
-func (p *Person) reDirE() bool{
-	return false
-
-	//TODO: fix thiiiiis!!!
-}
-
-
-
-func (p *Person) reDirEMaybe() bool{
-	current := p.currentTile()
-	//TODO: fix whichone's first
-	//	if true{return false}
-	if validTile(current.neighborSE) && len(p.plan) > 1 && p.plan[0] != current.neighborEast && (getDir(p.plan[0], p.plan[1]) == se /*|| getDir(p.plan[0], p.plan[1]) == e*/ || getDir(p.plan[0], p.plan[1]) == s) {
-		if  p.moveTo(current.neighborSouth) {
-			next := p.currentTile().neighborEast//.followDir(e)//p.dir)
-			//	fmt.Println("??", next)
-			//	if next != nil {
-			p.plan = append([]*tile{next}, p.plan...)
-			for next != nil && next.yCoord < p.plan[1].yCoord {		
-				p.plan[0] = next
-				next = next.neighborEast//followDir(p.dir)
-			}	
-			tmp := p.plan[0]
-			//	fmt.Println(tmp)
-			if validTile(tmp.neighborEast) && tmp.neighborEast.yCoord == p.plan[1].yCoord && getDir(p.plan[1], p.plan[2]) != e {
-				if tmp.neighborEast.yCoord == p.plan[1].yCoord {
-					tmpDir := getDir(p.plan[1], p.plan[2])
-					if tmpDir == s {
-						p.plan[0] = p.plan[0].neighborEast
-						p.plan = append(p.plan[:1], p.plan[2:]...)
-					} else if tmpDir == se {
-						p.plan[0] = p.plan[0].neighborEast.neighborEast
-						p.plan = append(p.plan[:1], p.plan[2:]...)	
-					}
-				}
-			} else {
-				p.plan[0] = tmp.neighborNorth
-				if validTile(tmp.neighborNE) {p.plan[0] = tmp.neighborNE}
-				//fmt.Println(p.plan[0])
-				p.plan = append([]*tile{tmp}, p.plan...)}
-			//	} 			
-			return true	
-		}
-	}
-	return false
-}
-
-
-func (p *Person) reDirEold() bool{  //TOMORROW: THIS SHAJT AIN'T WORKIN
-	current := p.currentTile()
-
-//	test := Direction{0,0}
-//	if len(p.plan) > 1 {test = getDir(p.plan[0], p.plan[1])}
-	//	endN := current.neighborNorth.endOfLine(p.dir)
-	//	endS := current.neighborSouth.endOfLine(p.dir)
-
-//	if validTile(current.neighborSE) && test == se {
-		if p.moveTo(current.neighborSouth) {
-			next := current.followDir(p.dir)
-			if next != nil {
-				p.plan = append([]*tile{next}, p.plan...)
-				following := p.plan[1]
-				for next != nil && next.yCoord <= following.yCoord {
-					p.plan[0] = next
-					next = next.followDir(p.dir)
-				}
-				tmp := p.plan[0]
-				if p.plan[0] == p.plan[1] {p.plan = p.plan[1:]
-				} else {
-					p.plan[0] = tmp.neighborNorth
-					if validTile(tmp.neighborEast) && validTile(tmp.neighborNE) {p.plan[0] = tmp.neighborNE}
-					//p.plan = append([]*tile{tmp}, p.plan...)
-					{p.plan = append([]*tile{tmp}, p.plan...)
-					}
-					/*
-				p.plan[0] = tmp.neighborNorth
-				
-				if validTile(tmp.neighborEast) && validTile(tmp.neighborNE) {p.plan[0] = tmp.neighborNE}
-				//p.plan = append([]*tile{tmp}, p.plan...)
-				if {p.plan = append([]*tile{tmp}, p.plan...)}	*/	
-				}
-				
-				return true}
-//		}
-
-	} /*else if validTile(current.neighborNE) && test == ne {
-		if true{return false}
-		if p.moveTo(current.neighborNorth) {
-			next := current.followDir(p.dir)
-			if next != nil {
-				p.plan = append([]*tile{next}, p.plan...)
-				for next != nil && next.yCoord <= following.yCoord {
-					p.plan[0] = next
-					next = next.followDir(p.dir)
-				}
-				tmp := p.plan[0]
-				
-				p.plan[0] = tmp.neighborSouth
-				
-				if validTile(tmp.neighborEast) && validTile(tmp.neighborSE) {p.plan[0] = tmp.neighborSE}
-				//if  {p.plan = append([]*tile{tmp}, p.plan...)}		
-			}
-			
-			return true}
-	}
-*/
-
-
-
-
-
-	/*else if validTile(current.neighborNE) {
-		if p.moveTo(current.neighborNorth) {
-			next := current.followDir(p.dir)
-			if next != nil {
-				p.plan = append([]*tile{next}, p.plan...)
-				for next != nil && next.yCoord <= p.plan[1].yCoord {
-					p.plan[0] = next
-					next = next.followDir(p.dir)
-				}
-				tmp := p.plan[0]
-				p.plan[0] = tmp.neighborSouth
-				
-				if validTile(tmp.neighborSE) {p.plan[0] = tmp.neighborSE}
-				p.plan = append([]*tile{tmp}, p.plan...)		
-			} 
-			return true	
-		}
-	} */
-	return false
-}
-
-func (p *Person) reDirS() bool{
-	current := p.currentTile()
-
-	if validTile(current.neighborSW) {
-		if p.moveTo(current.neighborWest) {
-			next := current.followDir(p.dir)
-			if next != nil {
-				p.plan = append([]*tile{next}, p.plan...)
-				for next != nil && next.xCoord < p.plan[1].xCoord {
-					p.plan[0] = next
-					next = next.followDir(p.dir)
-				}
-				tmp := p.plan[0]
-				p.plan[0] = tmp.neighborEast
-				
-				if validTile(tmp.neighborSouth) {p.plan[0] = tmp.neighborSE}
-				p.plan = append([]*tile{tmp}, p.plan...)		
-			} 
-			return true}
-	} else if validTile(current.neighborSE) {
-		if p.moveTo(current.neighborEast) {
-		next := current.followDir(p.dir)
-			if next != nil {
-				p.plan = append([]*tile{next}, p.plan...)
-				for next != nil && next.xCoord < p.plan[1].xCoord {
-					p.plan[0] = next
-					next = next.followDir(p.dir)
-				}
-				tmp := p.plan[0]
-				p.plan[0] = tmp.neighborWest
-				
-				if validTile(tmp.neighborSW) {p.plan[0] = tmp.neighborSW}
-				p.plan = append([]*tile{tmp}, p.plan...)		
-			} /*else {
-			p.plan = append([]*tile{p.currentTile().neighborNorth}, p.plan...)
-		}*/
-			return true	
-		}
-	}
-	return false
-}
-
-
-func (p *Person) reDirW() bool{
-	current := p.currentTile()
-
-	if validTile(current.neighborSW) {
-		if p.moveTo(current.neighborSouth) {
-			next := current.followDir(p.dir)
-			if next != nil {
-				p.plan = append([]*tile{next}, p.plan...)
-				for next != nil && next.yCoord > p.plan[1].yCoord {
-					p.plan[0] = next
-					next = next.followDir(p.dir)
-				}
-				tmp := p.plan[0]
-				p.plan[0] = tmp.neighborNorth
-				
-				if validTile(tmp.neighborWest) {p.plan[0] = tmp.neighborNW}
-				p.plan = append([]*tile{tmp}, p.plan...)		
-			} 
-			return true}
-	} else if validTile(current.neighborNW) {
-		if p.moveTo(current.neighborNorth) {
-		next := current.followDir(p.dir)
-			if next != nil {
-				p.plan = append([]*tile{next}, p.plan...)
-				for next != nil && next.yCoord > p.plan[1].yCoord {
-					p.plan[0] = next
-					next = next.followDir(p.dir)
-				}
-				tmp := p.plan[0]
-				p.plan[0] = tmp.neighborSouth
-				
-				if validTile(tmp.neighborWest) {p.plan[0] = tmp.neighborSW}
-				p.plan = append([]*tile{tmp}, p.plan...)		
-			} /*else {
-			p.plan = append([]*tile{p.currentTile().neighborNorth}, p.plan...)
-		}*/
-			return true	
-		}
-	}
-	return false
-}
-
-
-func (p *Person) reDirN() bool{
-	current := p.currentTile()
-
-	if validTile(current.neighborNW) {
-		if p.moveTo(current.neighborWest) {
-			next := current.followDir(p.dir)
-			if next != nil {
-				p.plan = append([]*tile{next}, p.plan...)
-				for next != nil && next.xCoord > p.plan[1].xCoord {
-					p.plan[0] = next
-					next = next.followDir(p.dir)
-				}
-				tmp := p.plan[0]
-				p.plan[0] = tmp.neighborEast
-				
-				if validTile(tmp.neighborNorth) {p.plan[0] = tmp.neighborNE}
-				p.plan = append([]*tile{tmp}, p.plan...)		
-			} 
-			return true}
-	} else if validTile(current.neighborNE) {
-		if p.moveTo(current.neighborEast) {
-		next := current.followDir(p.dir)
-			if next != nil {
-				p.plan = append([]*tile{next}, p.plan...)
-				for next != nil && next.xCoord > p.plan[1].xCoord {
-					p.plan[0] = next
-					next = next.followDir(p.dir)
-				}
-				tmp := p.plan[0]
-				p.plan[0] = tmp.neighborWest
-				
-				if validTile(tmp.neighborNorth) {p.plan[0] = tmp.neighborNW}
-				p.plan = append([]*tile{tmp}, p.plan...)		
-			} /*else {
-			p.plan = append([]*tile{p.currentTile().neighborNorth}, p.plan...)
-		}*/
-			return true	
-		}
-	}
 	return false
 }
 
@@ -2021,120 +875,4 @@ func (t *tile) endOfLine(dir Direction) *tile {
 		next = tmp
 	}
 	return nil
-}
-
-
-
-// In Progress!!!!
-func UpdateParentOf(m *[][]tile, parentOf map[*tile]*tile, newBad [][]int) {//[]*tile) {
-	for k, v := range parentOf {
-		for _, bad := range newBad {
-			if inBetween(k, v, &(*m)[bad[0]][bad[1]]) {
-				pPath, ok := getPPath2(m, k, v)
-				if ok {
-					for i := 0; i < len(pPath) - 1; i++{
-						parentOf[pPath[i]] = pPath[i+1]
-					}
-					/*parentOf[k] = pPath[0]
-					for _, p := range pPath[1:] {
-
-					}*/
-				}
-			}
-		}
-	}
-}
-
-func inBetween(t1 *tile, t2 *tile, between *tile) bool{
-	dir1 := getDir(t1, between)
-	dir2 := getDir(between, t2)
-//	dir3 := getDir(t1, t2)
-	return dir1 == dir2 
-}
-
-
-
-
-// testing testing
-
-
-func getPPath2(m *[][]tile, from *tile, to *tile) ([]*tile, bool) {
-	
-	// map över jp
-	var parentOf map[*tile]*tile
-	parentOf = make(map[*tile]*tile)
-
-	cq := queue{}
-
-	for i, list := range *m {
-		for j, _ := range list {
-			cq.Add(&(*m)[i][j], float32(math.Inf(1)))		
-		}
-	}
-
-	cq.Update(from, 0)
-	
-	v := float32(0)
-	current := tileCost{&tile{}, &v}
-	currentDir := Direction{0,0}	
-	for len(cq) != 0 && current.tile != to{//!current.tile.door {
-		current = (&cq).Pop()
-		_, ok := parentOf[current.tile]
-		if ok {
-			currentDir = getDir(parentOf[current.tile], current.tile)
-		} else {currentDir = Direction{0,0}}
-		neighbors := /*getNeighbors(current.tile, cq)*/ getNeighborsPruned(current.tile, currentDir)
-
-		var wg sync.WaitGroup
-		wg.Add(len(neighbors))
-		var mutex = &sync.Mutex{}
-		for _, neighbor := range neighbors {
-			//	fmt.Println("neighbor",neighbor.xCoord, neighbor.yCoord)
-			go func(n *tile) {
-				defer wg.Done()
-			//	n := neighbor
-
-				jps := Jp(n, getDir(current.tile, n))
-				for _, jp := range jps {
-
-					if jp.jp != nil {
-						
-						mutex.Lock()
-						//	if cq.costOf(current.tile) < 0 {fmt.Println("wtf?", current.tile, cq.costOf(current.tile))}
-						//cost := cq.costOf(current.tile) + smplCost(current.tile, jp.jp) //TODO:!
-						cost := *current.cost + smplCost(current.tile, jp.jp) //TODO:!
-						//	if jp.jp == GetTile(*m, 5, 0) {fmt.Println("\nCOST: ",cost)}
-						//	if cost < 0 {fmt.Println("neg cost?:",cost)}
-					//	fmt.Println("jp", jp.jp)
-					//	fmt.Println("jpcost?", cost)
-					//	fmt.Println("whut?", cq.costOf(jp.jp))
-						if cost < cq.costOf(jp.jp) {
-							parentOf[jp.jp] = current.tile
-							cq.Update(jp.jp, cost)
-						//	fmt.Println("whut?", cq.costOf(jp.jp))
-							for _, n := range jp.fn {
-							//	fmt.Println("fn", n)
-								fnCost := cost + smplCost(jp.jp, n)
-							//	if fnCost < 1 {
-								//	fmt.Println("neg cost?:",fnCost)
-								//	fmt.Println(jp.jp)
-								//	fmt.Println(n)
-								//	fmt.Println(parentOf[jp.jp])
-							//	}
-								//fmt.Println("fn?", fnCost)
-								if n != nil && fnCost < cq.costOf(n)  {
-									parentOf[n] = jp.jp
-									cq.Update(n, fnCost) 
-								}
-							}
-						}
-						mutex.Unlock()	
-					}
-				}
-			}(neighbor)						
-		
-		}
-		wg.Wait()		
-	}
-	return compactPath(parentOf, from, current.tile)
 }

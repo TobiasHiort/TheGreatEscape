@@ -99,3 +99,14 @@ func PrintNeighbors(atile tile) {
 		fmt.Print("SW: nil\n")
 	}	
 }
+
+func printPath(path []*tile) {
+	if path == nil {
+		fmt.Println("No valid path exists")
+	}
+	for i, t := range path {
+		if (t == nil) {
+			fmt.Println("End")
+		} else {fmt.Println(i, ":", t.xCoord, ",", t.yCoord)}
+	}
+}
