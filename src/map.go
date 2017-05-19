@@ -586,7 +586,7 @@ func StatsStart(peopleArray []*Person) [][]int {
 func FireInit(currentMap [][]tile, fireList [][]int) [][]int {
 	fireStats := [][]int{}
 	for _, fire := range fireList {
-		SetFire(GetTile(currentMap, fire[0], fire[1]))
+		SetFire(GetTile(currentMap, fire[1], fire[0]))
 		tempList := []int{}
 		tempList = append(tempList, fire[0])
 		tempList = append(tempList, fire[1])

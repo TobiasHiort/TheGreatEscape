@@ -85,6 +85,8 @@ fire_movement = []
 smoke_pos = []		
 smoke_movement = []
 
+init_fires = 1
+
 fire_percent = 0
 survived = 0
 
@@ -318,6 +320,14 @@ while True:
                 elif event.key == K_l: # for use with cursorHitBox
                     if pop_percent > 0.1:
                         pop_percent *= 0.8
+                    
+                ## testing fire
+                elif event.key == K_PLUS:
+                    init_fires = init_fires + 1
+                elif event.key == K_MINUS:
+                    if init_fires > 1:
+                        init_fires = init_fires - 1                        
+                ## testing fire
 
                 elif event.key == K_5: # for use with cursorHitBox
                     if surface_toggle[0]:
@@ -343,8 +353,9 @@ while True:
                     #if players_movement != [] and current_frame == 0: # warning, cannot run sim without people due to this.
                                                                        # shitty handling for no respawn (current_frame)?,
                                                                        # if respawn is needed, remove current_frame
-                        player_pos, player_count = populateMap(mapMatrix, pop_percent)
+                        player_pos, player_count, fire_pos = populateMap(mapMatrix, pop_percent, init_fires)
                         playerSurface, survived = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
+                       # fireSurface = drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GRADIENT)
                     else:
                         print('Depop first')
                 elif event.key == K_z: # depopulate
@@ -433,7 +444,7 @@ while True:
                             current_map_sqm = mapSqm(mapMatrix)
                             current_map_exits = mapExits(mapMatrix)
 
-                            player_pos, player_count = populateMap(mapMatrix, pop_percent)
+                            player_pos, player_count, fire_pos = populateMap(mapMatrix, pop_percent, init_fires)
                             players_movement = []
 
                             playerSurface, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
@@ -469,7 +480,7 @@ while True:
                             current_map_sqm = mapSqm(mapMatrix)
                             current_map_exits = mapExits(mapMatrix)
 
-                            player_pos, player_count = populateMap(mapMatrix, pop_percent)
+                            player_pos, player_count, fire_pos = populateMap(mapMatrix, pop_percent, init_fires)
                             players_movement = []
 
                             playerSurface, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
@@ -504,7 +515,7 @@ while True:
                             current_map_sqm = mapSqm(mapMatrix)
                             current_map_exits = mapExits(mapMatrix)
 
-                            player_pos, player_count = populateMap(mapMatrix, pop_percent)
+                            player_pos, player_count, fire_pos = populateMap(mapMatrix, pop_percent, init_fires)
                             players_movement = []
 
                             playerSurface, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)

@@ -460,11 +460,13 @@ def createSurface(x, y):
     #surface.set_colorkey(COLOR_KEY)
     return surface
 
-def populateMap(mapMatrix, pop_percent):
+#def populateMap(mapMatrix, pop_percent):
+def populateMap(mapMatrix, pop_percent, init_fires):
     """Description.
 
     More...
     """
+    print(init_fires)
     if pop_percent < 0 or pop_percent > 1:
         raise ValueError('pop_percent must be positive and <= 1')
 
@@ -481,19 +483,38 @@ def populateMap(mapMatrix, pop_percent):
     #print("counter: " + str(counter))
     #print("pop_remove: " + str(pop_remove))
 
+    fire_coords = []
+    
     random.seed() # remove '5' later, using same seed rn. () = system clock
     # delete pop_remove number of players
-    for _ in range(pop_remove):
+    for i in range(pop_remove):
         rand_player = random.randint(0, counter - 1)
         #print("rand_player: " + str(rand_player))
+        if i < init_fires:
+            fire_coords.append(floor_coords[rand_player])
+            fire_coords[i].append(0, )
         del floor_coords[rand_player] # delete player
         counter -= 1
         player_count = len(floor_coords)
+    
 
     for idx in range(player_count):
         floor_coords[idx].append(100, )
 
-    return floor_coords, player_count
+
+
+        #
+   # fire_coords = []
+   # for _ in range(init_fires):
+   #     fire_coords.append(floor_coords[random.randint(0, counter - 1)])
+        
+   # for fire in fire_coords:
+   #     fire[2] = 1 #append(1, 
+
+
+        #
+
+    return floor_coords, player_count, fire_coords
 
 
 def makeItr(byte_limit, str1):
@@ -754,7 +775,11 @@ def interpolateTuple(startcolor, goalcolor, steps):
 def pathToName(path):
     return path[path.rfind('/') + 1:-4]
 
+def startFire(fires):
+    for i in range(fires):
+        print("fire")
 
+    
 def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement):
     # export json map matrix
     print("thread!")
@@ -772,6 +797,12 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     tofile3.write(player_pos_str)
     tofile3.close()
     print('Wrote playerfile.txt')
+
+    fire_pos_str = json.dumps(fire_pos)#_tmp)
+    tofile3 = open('../src/firefile.txt', 'w+')
+    tofile3.write(fire_pos_str)
+    tofile3.close()
+    print('Wrote firefile.txt')
     
     # spawn Go subprocess
     child = Popen('../src/main', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
@@ -826,6 +857,8 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     print('Removed mapfile.txt')
     os.remove('../src/playerfile.txt')
     print('Removed playerfile.txt')
+    os.remove('../src/firefile.txt')
+    print('Removed firefile.txt')    
     
     child.stdout.flush()
     child.stdin.flush()    
@@ -851,6 +884,13 @@ def goThreadold(mapMatrix, player_pos, players_movement, fire_pos, fire_movement
     
     tofile3 = open('../src/playerfile.txt', 'w+')
     tofile3.write(player_pos_str)
+    tofile3.close()
+
+
+    fire_pos_str = json.dumps(fire_pos)#_tmp)
+    
+    tofile3 = open('../src/firefile.txt', 'w+')
+    tofile3.write(fire_pos_str)
     tofile3.close()
     
     child = Popen('../src/main', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
