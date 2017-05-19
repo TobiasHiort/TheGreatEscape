@@ -764,6 +764,7 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     tofile.write(map_jsons)
     tofile.close()
     print('Wrote mapfile.txt')
+    print(map_jsons)
     
     # export json people position list
     player_pos_str = json.dumps(player_pos)#_tmp)
@@ -773,7 +774,7 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     print('Wrote playerfile.txt')
     
     # spawn Go subprocess
-    child = Popen('../src/gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+    child = Popen('../src/main', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
     child.stdout.flush()
     child.stdin.flush()
     print('Go subprocess started')
@@ -815,10 +816,12 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
         fire_movement.append(json_fire)
 
         fromgo_json_smoke = child.stdout.readline().rstrip('\n')
-        smoke_movement.append(json_smoke)      
+        smoke_movement.append(json_smoke)
+
+    print(len(json_smoke))
         
     print('Go subprocess done and terminated in ' + str(time.clock() - go_time_pre) + "ms")
-    
+
     os.remove('../src/mapfile.txt')
     print('Removed mapfile.txt')
     os.remove('../src/playerfile.txt')
@@ -850,7 +853,7 @@ def goThreadold(mapMatrix, player_pos, players_movement, fire_pos, fire_movement
     tofile3.write(player_pos_str)
     tofile3.close()
     
-    child = Popen('../src/gotest', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+    child = Popen('../src/main', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
     child.stdout.flush()
     child.stdin.flush()
     

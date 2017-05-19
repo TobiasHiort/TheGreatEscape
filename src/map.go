@@ -206,8 +206,8 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	var mutex = &sync.Mutex{}
 	wg.Add(len(ppl))
 	*statsList = [][]int{}
-	for _, pers := range ppl {
-		go func(p *Person){//, ind int){
+	for i, pers := range ppl {
+		go func(p *Person, ind int){//, ind int){
 			//	ind := i
 		//	p := pers
 			defer wg.Done()
@@ -215,13 +215,14 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 			//	sList :=  []int{}// append(sList, p.getStats())
 			p.MovePerson(m)
 			sList := &[]int{}
-			p.getStats(sList)//(statsList[ind])
+			p.getStats((sList))//(statsList[ind])
 			mutex.Lock()
+		//	(*statsList)[ind] = *sList
 			*statsList = append(*statsList, *sList)
 			mutex.Unlock()
 			//	fmt.Println(len(statsList))
 
-		}(pers)//, i)
+		}(pers, i)//, i)
 	}
 	step++
 	wg.Wait()
@@ -567,4 +568,30 @@ func SmokeSpreadTile(thisTile *tile) { //TODO: fixa tiles på riktigt!!
 	if thisTile.neighborSW != nil && !thisTile.neighborSW.wall {
 		(thisTile.neighborSW.smoke) += 1//thisTile.smoke
 	}*/
+}
+
+
+
+
+// merging
+
+func StatsStart(peopleArray []*Person) [][]int {
+	statsList := [][]int{}
+	for i := 0; i < len(peopleArray); i++ {
+		statsList = append(statsList, peopleArray[i].GetStats())
+	}
+	return statsList
+}
+
+func FireInit(currentMap [][]tile, fireList [][]int) [][]int {
+	fireStats := [][]int{}
+	for _, fire := range fireList {
+		SetFire(GetTile(currentMap, fire[0], fire[1]))
+		tempList := []int{}
+		tempList = append(tempList, fire[0])
+		tempList = append(tempList, fire[1])
+		tempList = append(tempList, MINHEAT)
+		fireStats = append(fireStats, tempList)
+	}
+	return fireStats
 }
