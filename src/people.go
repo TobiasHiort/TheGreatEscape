@@ -82,8 +82,8 @@ func (t *tile) getDamage() int {
 	//damage = damage + int(t.heat)   // TODO: how much does the fire hurt??
 	// damage = damage + effect from smoke'n stuff
 //	smoke := int(t.smoke)
-//	if smoke > 2 {damage += 2}
-	//damage += smoke //int(t.smoke)
+	if t.smoke > 1 {damage += 1}
+//	damage += smoke //int(t.smoke)
 	return damage
 }
 
@@ -91,7 +91,7 @@ func (p *Person) moveTo(t *tile) bool {
 	//if validTile(t) && t.occupied == nil {
 	if canGo(t) && t.occupied == nil {
 		p.path = append(p.path, t)
-		p.updateStats()
+	//	p.updateStats()
 		return true
 	} else {
 		return false
@@ -176,7 +176,7 @@ func (p *Person) followPlan() {
 func (p *Person)wait() {
 	p.w8ed++
 	p.path = append(p.path, p.path[len(p.path) - 1])
-	p.updateStats()	
+//	p.updateStats()	
 }
 
 func (p *Person)IsWaiting() bool{
@@ -240,6 +240,8 @@ func (p *Person) MovePerson(m *[][]tile) {
 		p.followPlan()
 	} /*else if p.time + 1 <= step{
 		p.updateStats()*/
+
+	p.updateStats()   // DOING, outcommented in 2 other places
 	
 
 	
