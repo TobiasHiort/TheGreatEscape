@@ -541,3 +541,106 @@ func TestThis(t *testing.T) {
 	MovePeople(&testmap, ppl)
 >>>>>>> master:src/pathfinder_test.go
 }*/
+
+
+
+
+
+
+// tests moved from pathfinder!
+
+
+
+
+func mainPath() {
+
+	workingPath()
+	fmt.Println("--------------")
+/*	blockedPath()
+	fmt.Println("--------------")
+	firePath()*/
+	fmt.Println("--------------")
+	doorsPath()
+}
+
+func workingPath() {
+	matrix := [][]int{
+		{0, 1, 2, 0},
+		{0, 0, 1, 0},
+		{0, 0, 0, 0},
+		{0, 0, 1, 0}}
+	testmap := TileConvert(matrix)
+
+	path, _ := getPath(&testmap, &testmap[0][0])
+
+	fmt.Println("\nWorking path:")
+	printPath(path)
+}
+
+func blockedPath() {
+	matrix := [][]int{
+		{0, 1, 2, 0},
+		{0, 0, 1, 0},
+		{0, 0, 1, 0},
+		{0, 0, 1, 0}}
+	testmap := TileConvert(matrix)
+
+	path, _ := getPath(&testmap, &testmap[0][0])
+
+	fmt.Println("\nBlocked path:")
+	printPath(path)
+
+}
+
+func firePath() {
+	matrix := [][]int{
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 2, 0, 0, 0}}
+	testmap := TileConvert(matrix)
+	SetFire(&(testmap[3][2]))
+	for i := 0; i < 10; i++ {
+		FireSpread(testmap)
+	}
+
+	path, _ := getPath(&testmap, &testmap[0][3])
+	fmt.Println("\nFire path:")
+	printPath(path)
+}
+
+func doorsPath() {
+	matrix := [][]int{
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{1, 1, 1, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+		{2, 0, 0, 1, 0, 0, 0}}
+
+	testmap := TileConvert(matrix)
+
+	path, _ := getPath(&testmap, &testmap[0][0])
+	fmt.Println("\nDoors path:")
+	printPath(path)
+}
+
+func Whut() {
+	matrix := [][]int {
+		{0,0,0,0,0,0,0},
+		{0,0,1,0,0,0,0},
+		{1,1,1,1,0,0,0},
+		{0,0,0,1,0,0,0},
+		{0,0,0,0,0,0,0},
+		{2,0,0,1,1,0,0}}
+
+	testmap := TileConvert(matrix)	
+
+	path, _ := getPath2(&testmap, &testmap[0][6])
+	printPath(path)
+}
+

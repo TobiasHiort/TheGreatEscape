@@ -4,7 +4,9 @@ import "fmt"
 
 // map prints 
 func PrintTileP(thisTile tile) {
-	if thisTile.occupied != nil{
+	if thisTile.xCoord == 28 && thisTile.yCoord == 49 {
+		fmt.Print("Ö")
+	} else if thisTile.occupied != nil{
 		fmt.Print("X")
 	} else if thisTile.wall {
 		fmt.Print("1")
@@ -14,8 +16,11 @@ func PrintTileP(thisTile tile) {
 		fmt.Print("3")
 	} else if thisTile.heat > 0{
 		fmt.Print("*")
-	}else {
-		fmt.Print("0")
+	} else if thisTile.smoke > 0 {
+		fmt.Print("'")
+	} else {
+		//fmt.Print("0")
+		fmt.Print(" ")
 	} 
 }
 

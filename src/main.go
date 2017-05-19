@@ -1,52 +1,90 @@
 package main
 
-/*
-
--- Paste Python communication stuff here
-
-*/
-
-//[][]int, peopleList []*Person, fireStartPos []int
+import (
+	//"os"
+	//"bufio"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	//	"math"
+)
 
 //TODO func for input from pipe
 //TODO runtime single simulation
 //TODO runtime multiple simulation
 //TODO firestuff
 
-
-func sendToPipe(exitStatus *int, statsList[][] int, PIPEIN, a *int, b *int) {
-
-  for *exitStatus == 0 {
-   if !(a == b) {
-    //TODO Copy list to pipe
-   *b++
-   }
-
-  }
-
+func toPipe(list *[][]int) {
+	bytes, err := json.Marshal(*list)
+	if err != nil {
+		panic(err)
+	}
+	s := string(bytes[:])
+	fmt.Println(s)
 }
 
+func SendToPipe(posList *[][]int, fireList *[][]int, smokeList *[][]int) {
+	toPipe(posList)
+	toPipe(fireList)
+	toPipe(smokeList)
+}
 
+func fromPipe() ([][]int, [][]int, [][]int) {
+	//TODO: Get fire start position*/
+	b, err3 := ioutil.ReadFile("../src/mapfile.txt")
+	if err3 != nil {
+		panic(err3)
+	}
 
-func singleSimulation(mapList [][]int, peopleList [][]int, fireStartPos[]int) {
+	var m = [][]int{}
+	err := json.Unmarshal(b, &m)
+	if err != nil {
+		panic(err)
+	}
 
-  //TODO: create lsit for positions
-  //TODO: implement spinlock in gameloop
-  a := 0 //pointers?
-  b := 0
-  exitStatus := 0
-  //TODO: create function to copy list and send to python through pipe
-  //TODO: implenet sem lock + spinlock t ensure wait for all people to move
-  //TODO: implement that both gameloop and copy func tries to run concurrently, spinlock continously spins
+	c, err4 := ioutil.ReadFile("../src/playerfile.txt")
+	if err4 != nil {
+		panic(err4)
+	}
 
-  size := len(peopleList)
-  statsList := make([][]int, size)
-  for i := range statsList {
-    statsList[i] = make([]int, 3)
-  }
+	var mm = [][]int{}
+	err5 := json.Unmarshal(c, &mm)
+	if err5 != nil {
+		panic(err5)
+	}
+	d, err6 := ioutil.ReadFile("../src/firefile.txt")
+	if err6 != nil {
+		panic(err6)
+	}
 
-  GameLoop(mapList, peopleList, fireStartPos, statsList, &a, &b, &exitStatus)
+	var mmm = [][]int{}
 
-  
+	err7 := json.Unmarshal(d, &mmm)
+	if err7 != nil {
+		panic(err7)
+	}
+	//BonnBonn? or BonBon^^ mm fred fredburger ;)
+	if len(mmm) < 2 {
+		//We are gonna do something drastic here!
+	} else if len(mmm)%2 != 0 {
+		mmm = mmm[:len(mmm)-1]
+	}
+	return m, mm, mmm
+}
 
+func singleSimulation() {
+	mapList, peopleList, fireList := fromPipe()
+//	toPipe(&mapList)
+//	toPipe(&mapList)
+	//TODO: create lsit for positions
+	//TODO: implement spinlock in gameloop
+
+	//TODO: create function to copy list and send to python through pipe
+	//TODO: implenet sem lock + spinlock t ensure wait for all people to move
+	//TODO: implement that both gameloop and copy func tries to run concurrently, spinlock continously spins
+	GameLoop(mapList, peopleList, fireList)
+}
+
+func main() {
+	singleSimulation()
 }
