@@ -24,8 +24,8 @@ type tile struct {
 
 	heat      int //how hot a tile is before fire
 	fireLevel int //strength of the fire
-	smoke int
-	
+	smoke     int
+
 	wall bool
 	door bool
 
@@ -206,47 +206,36 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	var mutex = &sync.Mutex{}
 	wg.Add(len(ppl))
 	*statsList = [][]int{}
-	for i, pers := range ppl {
-		go func(p *Person, ind int){//, ind int){
-			//	ind := i
-		//	p := pers
-			defer wg.Done()
+	for _, pers := range ppl {
 
-			//	sList :=  []int{}// append(sList, p.getStats())
+		go func(p *Person){//, ind int){
+			defer wg.Done()
 			p.MovePerson(m)
 			sList := &[]int{}
 			p.getStats((sList))//(statsList[ind])
 			mutex.Lock()
-		//	(*statsList)[ind] = *sList
 			*statsList = append(*statsList, *sList)
 			mutex.Unlock()
-			//	fmt.Println(len(statsList))
 
-		}(pers, i)//, i)
+		}(pers)//, i)
 	}
 	step++
 	wg.Wait()
-	
+
 	if math.Mod(float64(step), 2) == 0 {
 		FireSpread(*m)
 		SmokeSpread(*m)
 		InitPlans(m)
 	} // MOVED!
-	
-	
-//	if math.Mod(float64(step), 40) == 0 {InitPlans(m)}
-	// TODO: takes up tiiime!!1 fixy-changy
-
-	//if math.Mod(float64(step), 5) == 0 {InitPlans(m)}
 }
 
  func CheckFinish (peopleArray []*Person) bool {
- 	for i := 0; i < len(peopleArray); i++ {
- 		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {
- 			return false
- 		}
- 	}
- 	return true
+	for i := 0; i < len(peopleArray); i++ {
+		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {
+			return false
+		}
+	}
+	return true
  }
 
 func mainMap() {
@@ -358,9 +347,17 @@ func testMovePeople() {
 		{0, 0, 0, 0, 0, 0, 2}}
 
 	list := [][]int{
+    /*
+<<<<<<< HEAD
 		{0, 0}}
 	//	{0, 6},
 	//	{2, 4}}
+=======
+*/
+		{0, 0},
+		{0, 6},
+		{2, 4}}
+//>>>>>>> stats
 
 	tryThis(matrix, list, -1, -1)
 	// Note: it takes 1 timeunit to take a step from the door and away
@@ -410,6 +407,7 @@ func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 	}
 }
 
+//<<<<<<< HEAD
 
 func testSame() {
 	matrix := [][]int {
@@ -542,7 +540,7 @@ func SmokeSpreadTile(thisTile *tile) { //TODO: fixa tiles på riktigt!!
 	//	if thisTile.smoke < 1 {return}
 	smoke := thisTile.smoke
 	if smoke >= 1 {smoke = 1}
-	
+
 	if thisTile.neighborNorth != nil && !thisTile.neighborNorth.wall {
 		(thisTile.neighborNorth.smoke) += smoke //thisTile.smoke/30
 	}
@@ -594,4 +592,49 @@ func FireInit(currentMap [][]tile, fireList [][]int) [][]int {
 		fireStats = append(fireStats, tempList)
 	}
 	return fireStats
+}
+
+func PeopleStats(peopleArray []*Person) []int {
+
+	aliveAmount := 0
+	deadAmount := 0
+	injuredAmount := 0
+
+	for i := 0; i < len(peopleArray); i++ {
+		if ((peopleArray[i]).alive) && ((peopleArray[i]).hp < 70) {
+			injuredAmount++
+		} else if (peopleArray[i].alive) {
+			aliveAmount++
+		} else {
+			deadAmount++
+		}
+	}
+
+	return []int{aliveAmount, deadAmount, injuredAmount}
+}
+
+func MapStats(inMap [][]tile) []int{
+	fireTiles := 0
+	for i := range inMap {
+		for j := range inMap[i] {
+			if inMap[i][j].heat >= MINHEAT {
+					fireTiles ++
+				}
+			}
+		}
+	return []int{fireTiles}
+}
+
+func DoorCoord(inMap [][]tile) [][]int {
+
+  var door [][]int
+	for i := range inMap {
+		for j := range inMap[i] {
+			if inMap[i][j].door {
+					door = append(door, []int{i, j})
+				}
+			}
+		}
+	return door
+//>>>>>>> stats
 }
