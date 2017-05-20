@@ -29,8 +29,8 @@ func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos [][]int) {
 	//	statsList = StatsStart(peopleArray)
 	//	fmt.Println(statsList)	
 		Run(&currentMap, peopleArray, &statsList)
-		fireList = FireStats(&currentMap)		
-		smokeList = SmokeStats(&currentMap)
+		fireList, smokeList = FireStats(&currentMap)		
+		//smokeList = SmokeStats(&currentMap)
 		SendToPipe(&statsList, &fireList, &smokeList)
 		//} //PrintTileMapP(aMap)
 	}

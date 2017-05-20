@@ -214,7 +214,7 @@ def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord
     dead = 0 # reset for each draw
 
     for player in range(len(player_pos)):
-        if player_pos[player][2] == 0:
+        if player_pos[player][2] <= 0:
             dead += 1
         if player_pos[player][0] == 0 and player_pos[player][1] == 0:
             survived += 1

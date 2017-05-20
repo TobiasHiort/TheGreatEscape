@@ -284,18 +284,20 @@ func debugging() {
 }
 
 //send heat
-func FireStats(m *[][]tile) [][]int{
+func FireStats(m *[][]tile) ([][]int, [][]int){
 	//func FireStats(start []*tile, dir Direction) [][]int{
 	fire := [][]int{}
+	smoke := [][]int{}
 
 	for i, list := range *m {
 		for j, _ := range list {
 			//tl := GetTile(*m, i, j)
 			tl := &(*m)[i][j]
 			if tl.heat  > 0 {fire = append(fire, []int{tl.yCoord, tl.xCoord, tl.heat})}
+			if tl.smoke  > 0 {smoke = append(smoke, []int{tl.yCoord, tl.xCoord, tl.smoke})}
 		}
 	}
-	return fire
+	return fire, smoke
 }
 
 // send smoke
