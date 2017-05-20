@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"math/rand"
 	"time"
 	"sync"
 )
@@ -59,7 +60,7 @@ func (p *Person) updateStats() {
 func (t *tile) getDamage() int {
 	damage := int(0)
 	damage += 10*int(t.fireLevel) 
-	if t.smoke > 1 {damage += 1}
+//	if t.smoke > 2 {damage += 1}
 	return damage
 }
 
@@ -101,18 +102,18 @@ func (p *Person) followPlan() {
 		p.path = append(p.path, nil)  // replace with safezone?
 		p.updateTime()
 		p.save()
-	} else if len(p.plan) > 0 { // follow tha plan!
+	} else /*if len(p.plan) > 0 */{ // follow tha plan!
 		if p.followDir() {   // next step in plan is available -> move		
 			p.updateTime()  
 		} else { // next step in plan is occupied -> redirect or w8
 			if !p.redirect() {p.wait()}
 			p.updateTime()	
 		}
-	}else {
+	}/*else {		
 		p.kill()
 		// TODO: no valid path! panic behavior? lay down and w8 for death?
 		// insert a followdir(randomDir)/move to 'safest' nearby tile?
-	}
+	}*/
 }
 
 func (p *Person)wait() { // just chillin'
@@ -128,6 +129,7 @@ func (p *Person)IsWaiting() bool{
 
 func (p *Person) kill() {
 	p.alive = false
+//	p.currentTile().occupied = nil // If u wanna run over corpses.
 }
 
 func (p *Person) save() {
@@ -136,7 +138,13 @@ func (p *Person) save() {
 }
 
 func (p *Person) updatePlan(m *[][]tile) {  //OBS: Function has been reduced greatly, is more like 'updateDir' right now.., 
-	if len(p.plan) > 0 {p.dir = getDir(p.currentTile(), p.plan[0])} 
+	if len(p.plan) > 0 {
+		p.dir = getDir(p.currentTile(), p.plan[0])
+	} else {
+		xDir := rand.Intn(1) - rand.Intn(1)
+		yDir := rand.Intn(1) - rand.Intn(1)
+		p.dir = Direction{xDir, yDir}
+	}
 } 
 
 func (p *Person) MovePerson(m *[][]tile) {	

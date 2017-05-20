@@ -595,13 +595,18 @@ func setPlan(parentOf map[*tile]*tile, pers *tile) {
 		}
 	}
 	if ok {
-		pers.occupied.plan = path} else if len(pers.occupied.plan) > 0 && pers.occupied.dir != getDir(pers, pers.occupied.plan[0]){
+		pers.occupied.plan = path} else {pers.occupied.plan = []*tile{}}
+
+
+	/*else if len(pers.occupied.plan) > 0 && pers.occupied.dir != getDir(pers, pers.occupied.plan[0]){
 			d := getDir(pers.occupied.currentTile(), pers.occupied.plan[0])
 			if d.xDir == 0 && d.yDir == 0 {
 				pers.occupied.plan = pers.occupied.plan[1:]
 				if len(pers.occupied.plan) > 0 {pers.occupied.dir = getDir(pers, pers.occupied.plan[0])}
-			} else {pers.occupied.dir = getDir(pers.occupied.currentTile(), pers.occupied.plan[0])}// Maybe onödig??
-		}
+			} */ // PBS above tmp borttaget..
+
+			/*else {pers.occupied.dir = getDir(pers.occupied.currentTile(), pers.occupied.plan[0])}// Maybe onödig??*/
+	//	}
 }
 
 func getJumpPointInit(current *tile, dir Direction) jp{

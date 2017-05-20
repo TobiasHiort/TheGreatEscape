@@ -118,6 +118,7 @@ current_map_exits = 0
 #COLOR_FIRE_GRADIENT = linearInterpolationGradient([(255, 255, 0), (107, 14, 14)], 3)
 
 COLOR_PLAYER_GRADIENT = interpolateTuple((46, 127, 0),(66, 181, 0), 100) # 2 steps == len 3
+COLOR_PLAYER_GRADIENT = interpolateTuple((181, 181, 0),(66, 181, 0), 100) # 2 steps == len 3
 COLOR_FIRE_GRADIENT = interpolateTuple((253, 207, 88), (128, 9, 9), 100) # 2 steps == len 3
 COLOR_SMOKE_GRADIENT = interpolateTuple((254, 254, 254), (100, 100, 100), 100) # 2 steps == len 3
 
