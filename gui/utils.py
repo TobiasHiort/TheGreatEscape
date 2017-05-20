@@ -880,7 +880,10 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     os.remove('../src/firefile.txt')
     print(Fore.WHITE + Back.RED + Style.DIM + 'removed ' + Back.RED + Style.BRIGHT + 'firefile.txt' + ' '*5)
 
-    print(Fore.WHITE + Back.RED + Style.DIM + 'removed ' + Back.RED + Style.BRIGHT + 'pid.txt' + ' '*10)
+    with open('../src/pid.txt', 'a') as out:
+        out.write(json.dumps(0))
+    print(Fore.WHITE + Back.RED + Style.DIM + 'reset ' + Back.RED + Style.BRIGHT + 'pid.txt' + ' '*12)
+    
     print(Fore.WHITE + Back.BLUE + Style.BRIGHT + ' '*11 + 'END' + ' '*11)
 
     child.stdout.flush()

@@ -849,7 +849,6 @@ while True:
 	    if not psutil.pid_exists(json_pid_content):
 	    	go_running = False
 	    	throbberSurface.fill((0, 0, 0, 0))
-	    	os.remove('../src/pid.txt')
 
     # update displaySurface
     pygame.display.flip() # .update(<surface_args>) instead?
