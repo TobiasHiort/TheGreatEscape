@@ -12,8 +12,12 @@ import time
 import subprocess
 import doctest # read from txt, read docs
 import random
+import scipy.spatial as sp
 
-#testing thread!
+from colorama import init
+init(autoreset=True)
+from colorama import Fore, Back, Style
+
 import copy
 import json
 from subprocess import Popen, PIPE
@@ -51,6 +55,7 @@ COLOR_BLUE = (0, 111, 162)
 COLOR_GREEN = (0, 166, 56)
 COLOR_RED = (162, 19, 24)
 COLOR_RED_PNG = (255, 0, 0)
+COLOR_RED_DEAD = (204, 0, 1)
 COLOR_YELLOW = (255, 238, 67)
 COLOR_BACKGROUND = (245, 245, 245)
 COLOR_KEY = (127, 127, 127)
@@ -65,6 +70,14 @@ colors = {
                 2 : COLOR_WHITE,        # door
                 3 : COLOR_BACKGROUND    # out of bounds
           }
+
+valid_colors = [
+					COLOR_WHITE,
+					COLOR_BLACK,
+					COLOR_RED_PNG,
+					COLOR_KEY
+			   ]
+color_tree = sp.KDTree(valid_colors)
 
 def buildMap(path, mapSurface):
     """Returns mapSurface, mapMatrix, tilesize,
@@ -101,7 +114,7 @@ def buildMap(path, mapSurface):
             elif mapRGBA[column, row] == COLOR_KEY + (255,): # warning: mapRGBA has [column, row]. RGBA
                 mapMatrix[row][column] = 3
             else:
-                #raise ValueError('Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]))		                raise ValueError('Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]))
+                #raise ValueError('Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]))                      raise ValueError('Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]))
                 #placeText(mapSurface, 'Invalid RGBA value(s) in map. ' + '(x:' + str(column+1) + ', y:' + str(row+1) + '), wrong RGBA: ' +  str(mapRGBA[column, row]), 'Roboto-Regular.ttf', 11, COLOR_RED, 0, 0)
                 #print('hejj')
                 map_error.append([column + 1, row + 1, mapRGBA[column, row]])
@@ -196,36 +209,49 @@ def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord
     More...
     """
     playerSurface.fill((0, 0, 0, 0)) # remove last frame. Also black magic for AA gfxdraw blitting of players.
+
     survived = 0 # reset for each draw
+    dead = 0 # reset for each draw
 
     for player in range(len(player_pos)):
+        if player_pos[player][2] <= 0:
+            dead += 1
         if player_pos[player][0] == 0 and player_pos[player][1] == 0:
             survived += 1
-        else:           
+            pygame.gfxdraw.aacircle(playerSurface,
+                            coord_x,
+                            coord_y,
+                                    math.floor(radius_scale*player_scale), COLOR_BLACK + (0,)) # round()?
+
+            pygame.gfxdraw.filled_circle(playerSurface,
+                            coord_x,
+                            coord_y,
+                            math.floor(radius_scale*player_scale), COLOR_BLACK + (0,)) # round()?
+        else:
             if player_pos[player][2] < 1:
                 pygame.gfxdraw.aacircle(playerSurface,
                                 coord_x + tilesize * player_pos[player][0],
                                 coord_y + tilesize * player_pos[player][1],
-                                        math.floor(radius_scale*player_scale), COLOR_RED) # round()?
+                                        math.floor(radius_scale*player_scale), COLOR_RED_DEAD) # round()?
 
                 pygame.gfxdraw.filled_circle(playerSurface,
                                 coord_x + tilesize * player_pos[player][0],
                                 coord_y + tilesize * player_pos[player][1],
-                                math.floor(radius_scale*player_scale), COLOR_RED) # round()?                
-                
+                                math.floor(radius_scale*player_scale), COLOR_RED_DEAD) # round()?
+
             # black magic
             elif player_pos[player][2] > 0:
                 pygame.gfxdraw.aacircle(playerSurface,
                                         coord_x + tilesize * player_pos[player][0],
                                         coord_y + tilesize * player_pos[player][1],
                                         math.floor(radius_scale*player_scale), COLOR_PLAYER_GRADIENT[player_pos[player][2]]) # round()?
-                
+
                 pygame.gfxdraw.filled_circle(playerSurface,
                                              coord_x + tilesize * player_pos[player][0],
                                              coord_y + tilesize * player_pos[player][1],
                                              math.floor(radius_scale*player_scale), COLOR_PLAYER_GRADIENT[player_pos[player][2]]) # round()?
-        
-    return playerSurface, survived
+
+    return playerSurface, survived, dead
 
 def drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GRADIENT):
     """Description.
@@ -245,7 +271,6 @@ def drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GR
     # create the map with draw.rect on mapSurface
     for idx in range(len(fire_pos)):
             if fire_pos[idx][2] < 100:
-                print(fire_pos[idx][2])
                 pygame.draw.rect(fireSurface, COLOR_FIRE_GRADIENT[fire_pos[idx][2]] + (180,),
                                  (math.floor(0.5 * (sw - w * t + 2 * t * fire_pos[idx][0])),
                                     math.floor((sh - p)/2 - (h * t)/2 + t * fire_pos[idx][1]),
@@ -283,7 +308,6 @@ def drawSmoke(smokeSurface, smoke_pos, tilesize, mapheight, mapwidth, COLOR_SMOK
     for idx in range(len(smoke_pos)):
             #if 20 < smoke_pos[idx][2] and smoke_pos[idx][2] <= 100:
         if smoke_pos[idx][2] <= 100:
-                print(smoke_pos[idx][2])
                 pygame.draw.rect(smokeSurface, COLOR_SMOKE_GRADIENT[smoke_pos[idx][2]] + (100,),
                                  (math.floor(0.5 * (sw - w * t + 2 * t * smoke_pos[idx][0])),
                                     math.floor((sh - p)/2 - (h * t)/2 + t * smoke_pos[idx][1]),
@@ -443,21 +467,20 @@ def loadImageAlpha(folder, file):
     image = pygame.image.load(os.path.join(folder, file)).convert_alpha()
     return image
 
-def createSurface(x, y):
+def createSurface(x, y, alpha):
     """Description.
 
     More...
     """
-    #if alpha:
-    #    surface = pygame.Surface((x, y), SRCALPHA)
-        #surface = surface.convert_alpha() #?
-    #elif not alpha:
-    surface = pygame.Surface((x, y))
-    #else:
-    #    raise ValueError('Argument alpha must be Bool')
-    surface = surface.convert_alpha() #?
-    #surface.fill(COLOR_KEY) # COLOR_BACKGROUND?
-    #surface.set_colorkey(COLOR_KEY)
+    if alpha:
+        surface = pygame.Surface((x, y))
+        surface = surface.convert_alpha()
+        surface.fill((0, 0, 0, 0))
+    elif not alpha:
+        surface = pygame.Surface((x, y))
+        surface = surface.convert_alpha()
+    else:
+        raise ValueError('Argument alpha must be Bool')
     return surface
 
 #def populateMap(mapMatrix, pop_percent):
@@ -466,11 +489,12 @@ def populateMap(mapMatrix, pop_percent, init_fires):
 
     More...
     """
-    print(init_fires)
     if pop_percent < 0 or pop_percent > 1:
         raise ValueError('pop_percent must be positive and <= 1')
 
     floor_coords = []
+    fire_coords = []
+
     counter = 0
     for row in range(len(mapMatrix)):
         for column in range(len(mapMatrix[0])):
@@ -480,11 +504,6 @@ def populateMap(mapMatrix, pop_percent, init_fires):
 
     pop_remove = round(counter - (pop_percent * counter)) # how many to remove from floor_coords
 
-    #print("counter: " + str(counter))
-    #print("pop_remove: " + str(pop_remove))
-
-    fire_coords = []
-    
     random.seed() # remove '5' later, using same seed rn. () = system clock
     # delete pop_remove number of players
     for i in range(pop_remove):
@@ -496,26 +515,11 @@ def populateMap(mapMatrix, pop_percent, init_fires):
         del floor_coords[rand_player] # delete player
         counter -= 1
         player_count = len(floor_coords)
-    
 
     for idx in range(player_count):
-        floor_coords[idx].append(100, )
-
-
-
-        #
-   # fire_coords = []
-   # for _ in range(init_fires):
-   #     fire_coords.append(floor_coords[random.randint(0, counter - 1)])
-        
-   # for fire in fire_coords:
-   #     fire[2] = 1 #append(1, 
-
-
-        #
+        floor_coords[idx].append(100,)
 
     return floor_coords, player_count, fire_coords
-
 
 def makeItr(byte_limit, str1):
     """Description.
@@ -779,45 +783,58 @@ def startFire(fires):
     for i in range(fires):
         print("fire")
 
-    
-def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement):
+
+def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, child_pid):
+    """Description.
+
+    More...
+
+    """
+    print('\n')
+    print(Fore.WHITE + Back.BLUE + Style.BRIGHT + ' '*9 + 'NEW SIM' + ' '*9)
+
     # export json map matrix
-    print("thread!")
     map_matrixInt = copy.deepcopy(mapMatrix).astype(int)
     map_jsons = json.dumps(map_matrixInt.tolist())
     tofile = open('../src/mapfile.txt', 'w+')
     tofile.write(map_jsons)
     tofile.close()
-    print('Wrote mapfile.txt')
-    print(map_jsons)
-    
+    print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'mapfile.txt' + ' '*8)
+
     # export json people position list
     player_pos_str = json.dumps(player_pos)#_tmp)
     tofile3 = open('../src/playerfile.txt', 'w+')
     tofile3.write(player_pos_str)
     tofile3.close()
-    print('Wrote playerfile.txt')
+    print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'playerfile.txt' + ' '*5)
 
     fire_pos_str = json.dumps(fire_pos)#_tmp)
     tofile3 = open('../src/firefile.txt', 'w+')
     tofile3.write(fire_pos_str)
     tofile3.close()
-    print('Wrote firefile.txt')
-    
+    print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'firefile.txt' + ' '*7)
+
     # spawn Go subprocess
     child = Popen('../src/main', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+    pid_json = json.dumps(child.pid)
+    tofile7 = open('../src/pid.txt', 'w+')
+    tofile7.write(pid_json)
+    tofile7.close()
+    print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'pid.txt' + ' '*12)
+
     child.stdout.flush()
     child.stdin.flush()
-    print('Go subprocess started')
-    
+    #print('\n')
+    print(Fore.WHITE + Back.CYAN + Style.DIM + 'go subprocess started' + ' '*4)
+
     # first people
     json_ppl_bytes = child.stdout.readline().rstrip('\n')
     player_pos = json.loads(json_ppl_bytes)
     for pos in player_pos:
         players_movement.append([pos])
-        
+
     json_ppl = json.loads(json_ppl_bytes)
-    
+
     # first fire
     fromgo_json_fire = child.stdout.readline().rstrip('\n')
     fire_pos = json.loads(fromgo_json_fire)
@@ -831,133 +848,84 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     for pos in smoke_pos:
         smoke_movement.append([pos])
     json_smoke = json.loads(fromgo_json_smoke)
-        
-    print('Calculating simulation...')
+
+    #print('\n')
+    print(Fore.WHITE + Back.YELLOW + Style.DIM + 'calculating simulation...')
     go_time_pre = time.clock()
     while len(json_ppl_bytes) > 0: #fromgo_json != []:
         json_ppl = json.loads(json_ppl_bytes)
         json_fire = json.loads(fromgo_json_fire)
         json_smoke = json.loads(fromgo_json_smoke)
-        
+
         json_ppl_bytes = child.stdout.readline().rstrip('\n')
         for i in range(len(json_ppl)):
             players_movement[i].append(json_ppl[i])
-            
+
         fromgo_json_fire = child.stdout.readline().rstrip('\n')
         fire_movement.append(json_fire)
 
         fromgo_json_smoke = child.stdout.readline().rstrip('\n')
         smoke_movement.append(json_smoke)
-
-    print(len(json_smoke))
-        
-    print('Go subprocess done and terminated in ' + str(time.clock() - go_time_pre) + "ms")
+    #print('\n')
+    print(Fore.WHITE + Back.MAGENTA + Style.DIM + 'go subprocess done and' + ' '*3)
+    white_space_clock = 10 - len(str(roundSig(time.clock() - go_time_pre)))
+    print(Fore.WHITE + Back.MAGENTA + Style.DIM + 'terminated in ' + Back.MAGENTA + Style.BRIGHT + str(roundSig(time.clock() - go_time_pre)) + 's' + ' '*white_space_clock)
+    #print('\nGo subprocess done and \nterminated in ' + str(roundSig(time.clock() - go_time_pre)) + "s")
 
     os.remove('../src/mapfile.txt')
-    print('Removed mapfile.txt')
+    #print('\n')
+    print(Fore.WHITE + Back.RED + Style.DIM + 'removed ' + Back.RED + Style.BRIGHT + 'mapfile.txt' + ' '*6)
     os.remove('../src/playerfile.txt')
-    print('Removed playerfile.txt')
+    print(Fore.WHITE + Back.RED + Style.DIM + 'removed ' + Back.RED + Style.BRIGHT + 'playerfile.txt' + ' '*3)
     os.remove('../src/firefile.txt')
-    print('Removed firefile.txt')    
+    print(Fore.WHITE + Back.RED + Style.DIM + 'removed ' + Back.RED + Style.BRIGHT + 'firefile.txt' + ' '*5)
+
+    with open('../src/pid.txt', 'a') as out:
+        out.write(json.dumps(0))
+    print(Fore.WHITE + Back.RED + Style.DIM + 'reset ' + Back.RED + Style.BRIGHT + 'pid.txt' + ' '*12)
     
-    child.stdout.flush()
-    child.stdin.flush()    
+    print(Fore.WHITE + Back.BLUE + Style.BRIGHT + ' '*11 + 'END' + ' '*11)
 
-
-
-def goThreadold(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement):
-    print("thread!")
-    map_matrixInt = copy.deepcopy(mapMatrix).astype(int)
-    #map_matrixInt.astype(int)
-    #print(map_matrixInt)
-    #map_jsons = json.dumps(mapMatrix.tolist())
-    map_jsons = json.dumps(map_matrixInt.tolist())
-    print(map_jsons)
-    ##print(map_jsons, file=child.stdin)
-
-    #Saving stuff to file, axel3
-    tofile = open('../src/mapfile.txt', 'w+')
-    tofile.write(map_jsons)
-    tofile.close()
-
-    player_pos_str = json.dumps(player_pos)#_tmp)
-    
-    tofile3 = open('../src/playerfile.txt', 'w+')
-    tofile3.write(player_pos_str)
-    tofile3.close()
-
-
-    fire_pos_str = json.dumps(fire_pos)#_tmp)
-    
-    tofile3 = open('../src/firefile.txt', 'w+')
-    tofile3.write(fire_pos_str)
-    tofile3.close()
-    
-    child = Popen('../src/main', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
     child.stdout.flush()
     child.stdin.flush()
-    
-    
-    # tmpprint = child.stdout.readline().rstrip('\n')
-    # if len(tmpprint) < 10:
-    #     print(json.loads(tmpprint))
-    #     tmpprint = child.stdout.readline().rstrip('\n')
-    # first ppl
-    json_ppl_bytes = child.stdout.readline().rstrip('\n')
-    print(json_ppl_bytes)
-    player_pos = json.loads(json_ppl_bytes)
-    for pos in player_pos:
-        players_movement.append([pos])
 
-    json_ppl = json.loads(json_ppl_bytes)
-    #print(type(json_temp))
-    counter_lol = 0
-    
-    # first fire
-    fromgo_json_fire = child.stdout.readline().rstrip('\n')
-    json_fire = json.loads(fromgo_json_fire)
+def colorSurface(surface, rgb):
+    """Description.
 
+    More...
 
-    fromgo_json_smoke = child.stdout.readline().rstrip('\n')
-    json_smoke = json.loads(fromgo_json_smoke)
-    
-    print("fire movement")
-    print(fire_movement)
-    
-    while len(json_ppl_bytes) > 5: #fromgo_json != []:
-        
-        # print((json_ppl_bytes))
-        json_ppl = json.loads(json_ppl_bytes)
-        json_fire = json.loads(fromgo_json_fire)
-        json_smoke = json.loads(fromgo_json_smoke)
-        
-        #players_movement_tmp.append(json_temp[0])
-        #players_movement_tmp.append(json_temp)
-        #print(fromgo_json)
-        json_ppl_bytes = child.stdout.readline().rstrip('\n')
-        #print('test2: ' + str(fromgo_json))
-        for i in range(len(json_ppl)):
-            players_movement[i].append(json_ppl[i])
-            print(json_ppl[i])
-            # counter_lol += 1
-       
-        
-        fromgo_json_fire = child.stdout.readline().rstrip('\n')
-        
-        #fromgo_json_fire = json.loads(child.stdout.readline().rstrip('\n'))
-       # print(len(json_fire))
-        fire_movement.append(json_fire)
+    """
+    arr = pygame.surfarray.pixels3d(surface)
+    arr[:,:,0] = rgb[0]
+    arr[:,:,1] = rgb[1]
+    arr[:,:,2] = rgb[2]
 
-        fromgo_json_smoke = child.stdout.readline().rstrip('\n')
-      #  print(len(json_smoke))
-        smoke_movement.append(json_smoke)
-        
-        #for i in range(len(json_fire)):
-        #   fire_movement[i].append(json_fire[i])
-        # fire_movement.append(json_fire[i])
-        
-        
-        
-        #fromgo_json_fire = json.loads(child.stdout.readline().rstrip('\n'))
-        
-    print("done")
+def rotateCenter(image, angle):
+    """Description.
+
+    More...
+
+    """
+    orig_rect = image.get_rect()
+    rot_image = pygame.transform.rotate(image, angle)
+    rot_rect = orig_rect.copy()
+    rot_rect.center = rot_image.get_rect().center
+    rot_image = rot_image.subsurface(rot_rect).copy()
+    return rot_image
+
+def repairMap(path):
+    img = Image.open(os.path.join('maps', pathToName(path) + '.png'))
+    img_data = img.load()
+    for y in range(img.size[1]):
+        for x in range(img.size[0]):
+            if img_data[x, y][3] != 255:
+                img_data[x, y] = (img_data[x, y][0], img_data[x, y][1], img_data[x, y][2] , 255)
+            if img_data[x, y][0:3] != COLOR_BLACK or img_data[x, y][0:3] != COLOR_WHITE or img_data[x, y][0:3] != COLOR_RED_PNG or img_data[x, y][0:3] != COLOR_KEY:
+            	_, result = color_tree.query(img_data[x, y][0:3])
+            	img_data[x, y] = valid_colors[result] + (255,)
+    img.save(os.path.join('maps', pathToName(path)) + '.png', "PNG")
+    return_path = str(pathToName)
+    return return_path
+
+def roundSig(x, sig=2):
+	return round(x, sig - int(math.floor(math.log10(abs(x)))) - 1)

@@ -15,6 +15,10 @@ The application is written in [Python 3.x](https://www.python.org/downloads/) an
     * [inflect](https://pypi.python.org/pypi/inflect)
     * [matplotlib](https://matplotlib.org/users/installing.html)
     * [Pillow](https://pillow.readthedocs.io/en/latest/installation.html)
+    * [psutil](https://pypi.python.org/pypi/psutil)
+    * [colorama](https://pypi.python.org/pypi/colorama)
+    * [termcolor](https://pypi.python.org/pypi/termcolor)
+    * [SciPy](https://www.scipy.org/install.html)
 * [Go](https://golang.org/)
 ### 1.2. Installing
 #### 1.2.1.  Linux
@@ -49,14 +53,33 @@ and [matplotlib](https://matplotlib.org/users/installing.html):
 ```
 $ sudo pip3 install matplotlib
 ```
+and [psutil](https://pypi.python.org/pypi/psutil):
+```
+$ sudo pip3 install psutil
+```
+and [colorama](https://pypi.python.org/pypi/colorama):
+```
+$ sudo pip3 install colorama
+```
+and [termcolor](https://pypi.python.org/pypi/termcolor):
+```
+$ sudo pip3 install termcolor
+```
+and [SciPy](https://www.scipy.org/install.html):
+```
+$ sudo pip3 install scipy
+```
+
 #### 1.2.2. Windows and macOS
 As long as [Python 3.x](https://www.python.org/downloads/), [Go](https://golang.org/) and [pip3](https://pypi.python.org/pypi/pip) are installed, use the [pip3](https://pypi.python.org/pypi/pip) commands in [1.2.1](https://github.com/TobiasHiort/TheGreatEscape#121--linux).
+
+Windows users will need to look at [Unofficial Windows Binaries for Python Extension Packages](http://www.lfd.uci.edu/~gohlke/pythonlibs/#scipy) for [SciPy](https://www.scipy.org/install.html) and [Numpy+MKL](http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy).
 
 macOS users will need to install (!TODO):
 ```
 pip3 install -U --pre -f https://wxpython.org/Phoenix/snapshot-builds/ wxPython_Phoenix
 ```
-if this is unsuccessful, you are pretty much out of luck.
+if this is unsuccessful, you are pretty much out of luck for choosing maps through the file dialog.
 
 
 ## 2. Deployment
