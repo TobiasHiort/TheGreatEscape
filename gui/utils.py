@@ -815,7 +815,7 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'firefile.txt' + ' '*7)
     
     # spawn Go subprocess
-    child = Popen('../src/main.exe', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+    child = Popen('../src/main', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
     pid_json = json.dumps(child.pid)
     tofile7 = open('../src/pid.txt', 'w+')
     tofile7.write(pid_json)
