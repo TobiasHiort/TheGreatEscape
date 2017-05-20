@@ -55,7 +55,7 @@ COLOR_BLUE = (0, 111, 162)
 COLOR_GREEN = (0, 166, 56)
 COLOR_RED = (162, 19, 24)
 COLOR_RED_PNG = (255, 0, 0)
-COLOR_RED_DEAD = (204, 0, 1)
+COLOR_RED_DEAD = (216, 0, 1)
 COLOR_YELLOW = (255, 238, 67)
 COLOR_BACKGROUND = (245, 245, 245)
 COLOR_KEY = (127, 127, 127)
@@ -209,12 +209,12 @@ def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord
     More...
     """
     playerSurface.fill((0, 0, 0, 0)) # remove last frame. Also black magic for AA gfxdraw blitting of players.
-
+    
     survived = 0 # reset for each draw
     dead = 0 # reset for each draw
 
     for player in range(len(player_pos)):
-        if player_pos[player][2] <= 0:
+        if player_pos[player][2] == 0:
             dead += 1
         if player_pos[player][0] == 0 and player_pos[player][1] == 0:
             survived += 1
@@ -227,7 +227,7 @@ def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord
                             coord_x,
                             coord_y,
                             math.floor(radius_scale*player_scale), COLOR_BLACK + (0,)) # round()?
-        else:
+        else:           
             if player_pos[player][2] < 1:
                 pygame.gfxdraw.aacircle(playerSurface,
                                 coord_x + tilesize * player_pos[player][0],
@@ -238,19 +238,19 @@ def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord
                                 coord_x + tilesize * player_pos[player][0],
                                 coord_y + tilesize * player_pos[player][1],
                                 math.floor(radius_scale*player_scale), COLOR_RED_DEAD) # round()?
-
+                
             # black magic
             elif player_pos[player][2] > 0:
                 pygame.gfxdraw.aacircle(playerSurface,
                                         coord_x + tilesize * player_pos[player][0],
                                         coord_y + tilesize * player_pos[player][1],
                                         math.floor(radius_scale*player_scale), COLOR_PLAYER_GRADIENT[player_pos[player][2]]) # round()?
-
+                
                 pygame.gfxdraw.filled_circle(playerSurface,
                                              coord_x + tilesize * player_pos[player][0],
                                              coord_y + tilesize * player_pos[player][1],
                                              math.floor(radius_scale*player_scale), COLOR_PLAYER_GRADIENT[player_pos[player][2]]) # round()?
-
+        
     return playerSurface, survived, dead
 
 def drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GRADIENT):
@@ -515,7 +515,7 @@ def populateMap(mapMatrix, pop_percent, init_fires):
         del floor_coords[rand_player] # delete player
         counter -= 1
         player_count = len(floor_coords)
-
+    
     for idx in range(player_count):
         floor_coords[idx].append(100,)
 
@@ -693,10 +693,10 @@ def rawPlot3():
     labels = 'Dead', 'Survived'
     sizes = [30, 70]
     colors = [(162/255, 19/255, 24/255), (0/255, 166/255, 56/255)]
-    explode = [0.1, 0]
+    #explode = [0.1, 0]
 
     # Plot
-    patches, texts, autotexts = plt.pie(sizes, labels=labels, explode=explode, colors=colors, autopct='%1.0f%%', shadow=True, startangle=45, labeldistance=1.25) # pctdistance=1.1
+    patches, texts, autotexts = plt.pie(sizes, labels=labels, colors=colors, autopct='%1.0f%%', shadow=True, startangle=45, labeldistance=1.25) # pctdistance=1.1
     texts[0].set_fontsize(9)
     texts[1].set_fontsize(9)
 
@@ -783,7 +783,7 @@ def startFire(fires):
     for i in range(fires):
         print("fire")
 
-
+    
 def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, child_pid):
     """Description.
 
@@ -792,7 +792,7 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     """
     print('\n')
     print(Fore.WHITE + Back.BLUE + Style.BRIGHT + ' '*9 + 'NEW SIM' + ' '*9)
-
+    
     # export json map matrix
     map_matrixInt = copy.deepcopy(mapMatrix).astype(int)
     map_jsons = json.dumps(map_matrixInt.tolist())
@@ -800,7 +800,7 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     tofile.write(map_jsons)
     tofile.close()
     print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'mapfile.txt' + ' '*8)
-
+    
     # export json people position list
     player_pos_str = json.dumps(player_pos)#_tmp)
     tofile3 = open('../src/playerfile.txt', 'w+')
@@ -813,9 +813,9 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     tofile3.write(fire_pos_str)
     tofile3.close()
     print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'firefile.txt' + ' '*7)
-
+    
     # spawn Go subprocess
-    child = Popen('../src/main', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+    child = Popen('../src/main.exe', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
     pid_json = json.dumps(child.pid)
     tofile7 = open('../src/pid.txt', 'w+')
     tofile7.write(pid_json)
@@ -825,16 +825,16 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     child.stdout.flush()
     child.stdin.flush()
     #print('\n')
-    print(Fore.WHITE + Back.CYAN + Style.DIM + 'go subprocess started' + ' '*4)
+    print(Fore.WHITE + Back.CYAN + Style.BRIGHT + 'go subprocess started' + ' '*4)
 
     # first people
     json_ppl_bytes = child.stdout.readline().rstrip('\n')
     player_pos = json.loads(json_ppl_bytes)
     for pos in player_pos:
         players_movement.append([pos])
-
+        
     json_ppl = json.loads(json_ppl_bytes)
-
+    
     # first fire
     fromgo_json_fire = child.stdout.readline().rstrip('\n')
     fire_pos = json.loads(fromgo_json_fire)
@@ -850,26 +850,26 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     json_smoke = json.loads(fromgo_json_smoke)
 
     #print('\n')
-    print(Fore.WHITE + Back.YELLOW + Style.DIM + 'calculating simulation...')
+    print(Fore.WHITE + Back.YELLOW + Style.BRIGHT + 'calculating simulation...')
     go_time_pre = time.clock()
     while len(json_ppl_bytes) > 0: #fromgo_json != []:
         json_ppl = json.loads(json_ppl_bytes)
         json_fire = json.loads(fromgo_json_fire)
         json_smoke = json.loads(fromgo_json_smoke)
-
+        
         json_ppl_bytes = child.stdout.readline().rstrip('\n')
         for i in range(len(json_ppl)):
             players_movement[i].append(json_ppl[i])
-
+            
         fromgo_json_fire = child.stdout.readline().rstrip('\n')
         fire_movement.append(json_fire)
 
         fromgo_json_smoke = child.stdout.readline().rstrip('\n')
         smoke_movement.append(json_smoke)
     #print('\n')
-    print(Fore.WHITE + Back.MAGENTA + Style.DIM + 'go subprocess done and' + ' '*3)
+    print(Fore.WHITE + Back.MAGENTA + Style.BRIGHT + 'go subprocess done and' + ' '*3)
     white_space_clock = 10 - len(str(roundSig(time.clock() - go_time_pre)))
-    print(Fore.WHITE + Back.MAGENTA + Style.DIM + 'terminated in ' + Back.MAGENTA + Style.BRIGHT + str(roundSig(time.clock() - go_time_pre)) + 's' + ' '*white_space_clock)
+    print(Fore.WHITE + Back.MAGENTA + Style.BRIGHT + 'terminated in ' + Back.MAGENTA + Style.BRIGHT + Fore.CYAN + str(roundSig(time.clock() - go_time_pre)) + 's' + ' '*white_space_clock)
     #print('\nGo subprocess done and \nterminated in ' + str(roundSig(time.clock() - go_time_pre)) + "s")
 
     os.remove('../src/mapfile.txt')
@@ -882,7 +882,7 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
 
     with open('../src/pid.txt', 'a') as out:
         out.write(json.dumps(0))
-    print(Fore.WHITE + Back.RED + Style.DIM + 'reset ' + Back.RED + Style.BRIGHT + 'pid.txt' + ' '*12)
+    print(Fore.WHITE + Back.RED + Style.DIM + 'reset ' + Back.RED + Style.BRIGHT + '  pid.txt' + ' '*10)
     
     print(Fore.WHITE + Back.BLUE + Style.BRIGHT + ' '*11 + 'END' + ' '*11)
 

@@ -92,7 +92,7 @@ player_pos = [] # might use this as indicator to not populate instead of players
 players_movement = []
 fire_pos = []
 fire_movement = []
-smoke_pos = []
+smoke_pos = []		
 smoke_movement = []
 
 init_fires = 1
@@ -131,9 +131,8 @@ current_map_sqm = 0
 current_map_exits = 0
 
 # create gradients, can not do this in utils...
-#COLOR_PLAYER_GRADIENT = interpolateTuple((46, 127, 0),(66, 181, 0), 100) # 2 steps == len 3
-COLOR_PLAYER_GRADIENT = interpolateTuple((181, 181, 0),(66, 181, 0), 100) # 2 steps == len 3
-COLOR_FIRE_GRADIENT = interpolateTuple((253, 207, 88), (128, 9, 9), 100) # 2 steps == len 3
+COLOR_PLAYER_GRADIENT = interpolateTuple((36, 102, 0),(66, 181, 0), 100) # 2 steps == len 3
+COLOR_FIRE_GRADIENT = interpolateTuple((253, 207, 88), (170, 6, 6), 100) # 2 steps == len 3
 COLOR_SMOKE_GRADIENT = interpolateTuple((254, 254, 254), (100, 100, 100), 100) # 2 steps == len 3
 
 # create the display surface, the overall main screen size that will be rendered
@@ -245,9 +244,9 @@ while True:
 
                         if len(fire_movement) > current_frame:
                             fire_pos = fire_movement[current_frame]
-
+			
                         if len(smoke_movement) > current_frame:
-                            smoke_pos = smoke_movement[current_frame]
+                            smoke_pos = smoke_movement[current_frame]                            
 
                         # pause if last frame, problem with go's pipe?
                         if current_frame == len(players_movement[0]) - 1:
@@ -256,7 +255,7 @@ while True:
                         playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
                         fireSurface = drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GRADIENT)
                         smokeSurface = drawSmoke(smokeSurface, smoke_pos, tilesize, mapheight, mapwidth, COLOR_SMOKE_GRADIENT)
-
+                        
                         fire_percent = len(fire_pos) / (current_map_sqm * 4) # shady?
                         smoke_percent = len(smoke_pos) / (current_map_sqm * 4) # shady?
         if event.type == TIMER1000: # just specific for clock animation, 10*100ms below instead?
@@ -273,7 +272,7 @@ while True:
                         if current_frame < len(players_movement[0]) - 1: # no (more) movement tuples
                             current_frame += 1
                             current_time_float += 0.1
-
+                            
                             for player in range(len(player_pos)):
                                 player_pos[player] = players_movement[player][current_frame]
 
@@ -310,7 +309,7 @@ while True:
                     if not go_running:
                         _thread.start_new_thread(goThread, (mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, child_pid) )
                         go_running = True
-                elif event.key == K_s and paused and player_pos != []:
+                elif event.key == K_s and paused and player_pos != []:                                  
                     if players_movement != [] and current_frame < len(players_movement[0]) - 1:  # do not start time frame clock if not pupulated.
                                                                                                  # problems if we have no people?
                                                                                                  # shaky logic with current frame, can otherwise
@@ -324,7 +323,7 @@ while True:
                 elif event.key == K_l: # for use with cursorHitBox
                     if pop_percent > 0.1:
                         pop_percent *= 0.8
-
+                    
                 ## testing fire
                 elif event.key == K_PLUS:
                     init_fires += 1
@@ -347,7 +346,7 @@ while True:
                     if surface_toggle[2]:
                         surface_toggle[2] = False
                     else:
-                        surface_toggle[2] = True
+                        surface_toggle[2] = True                   
                 elif event.key == K_a: # populate, warning. use after randomizing init pos
                     paused = True
                     player_scale = 1.0
@@ -423,8 +422,8 @@ while True:
                     #openFileDialog.ShowModal()
                     #active_map_path_tmp = openFileDialog.GetPath()
                     #openFileDialog.Destroy()
-                    #active_map_path_tmp = fileDialogPath()
-                    active_map_path_tmp = 'Map07.png'
+                    active_map_path_tmp = fileDialogPath()
+                    #active_map_path_tmp = 'Map07.png'
                     if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path_error = active_map_path_tmp
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
@@ -607,7 +606,7 @@ while True:
                             break
 
                 placeText(mapSurface, 'Repair and reload the map or try to', 'Roboto-Light.ttf', 18, COLOR_BLACK, 322, 427)
-
+                
                 # repair button hover/blank
                 if cursorBoxHit(mouse_x, mouse_y, 602, 738, 477, 507, active_tab_bools[0]):
                     mapSurface.blit(BUTTON_REPAIR_HOVER, (600, 420))
@@ -694,9 +693,9 @@ while True:
             placeCenterText(rmenuSurface, str(format(dead, ',d')).replace(',', ' '), 'Roboto-Regular.ttf', 22, COLOR_BLACK, 116, 504-3)
 
             placeCenterText(rmenuSurface, "Fire", 'Roboto-Regular.ttf', 13, COLOR_GREY2, 116, 539-3)
-            placeCenterText(rmenuSurface, "{:.0%}".format(fire_percent), 'Roboto-Regular.ttf', 22, COLOR_BLACK, 116, 560-3)
+            placeCenterText(rmenuSurface, "{:.0%}".format(fire_percent*0.98), 'Roboto-Regular.ttf', 22, COLOR_BLACK, 116, 560-3) # *0.98 nasty fix
             placeCenterText(rmenuSurface, "Smoke", 'Roboto-Regular.ttf', 13, COLOR_GREY2, 116, 583-3)
-            placeCenterText(rmenuSurface, "{:.0%}".format(smoke_percent), 'Roboto-Regular.ttf', 22, COLOR_BLACK, 116, 604-3)
+            placeCenterText(rmenuSurface, "{:.0%}".format(smoke_percent*0.98), 'Roboto-Regular.ttf', 22, COLOR_BLACK, 116, 604-3) # *0.98 nasty fix
 
             if current_frame > 0:
                 rmenuSurface.blit(TIMER_BACKGROUND, (2, 228+1))
@@ -706,14 +705,14 @@ while True:
             displaySurface.blit(rmenuSurface, (909, 45))
             displaySurface.blit(mapSurface, (0, 55))
             if surface_toggle[2]:
-                displaySurface.blit(smokeSurface, (0, 55))
+                displaySurface.blit(smokeSurface, (0, 55))        
             if surface_toggle[1]:
                 displaySurface.blit(fireSurface, (0, 55))
             if surface_toggle[0]:
                 displaySurface.blit(playerSurface, (0, 55))
             displaySurface.blit(throbberSurface, (952, 200))
 
-
+                
     elif active_tab_bools[1]: # settings tab
         # no chosen map
         if active_map_path == None or active_map_path == "": # if no active map (init), "" = cancel on choosing map
@@ -844,19 +843,12 @@ while True:
     placeText(displaySurface, "+pipe_in: " + str(pipe_input), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 910, 21)
     # /debugger
 
-  #  if go_running:
-#	    with open("../src/pid.txt", "rb") as json_pid:
-#	        json_pid_content = json.load(json_pid)
-#	    if not psutil.pid_exists(json_pid_content):
-#	    	go_running = False
-#	    	throbberSurface.fill((0, 0, 0, 0))
-
-    # update displaySurface
-
     if go_running:
         json_pid = open('../src/pid.txt', 'r').read()
         json_pid_content = json.loads(json_pid)
         if not psutil.pid_exists(json_pid_content):
             go_running = False
-            throbberSurface.fill((0, 0, 0, 0))   
+            throbberSurface.fill((0, 0, 0, 0))
+
+    # update displaySurface
     pygame.display.flip() # .update(<surface_args>) instead?
