@@ -362,12 +362,12 @@ def drawWarnings(fireSurface, fire_pos, tilesize, coord_x, coord_y):
     
     for idx in range(len(fire_pos)):
         pygame.gfxdraw.filled_trigon(fireSurface,
-            math.floor(0.5 * (coord_x + tilesize * fire_pos[idx][0])),
+            math.floor(0.5 * (coord_x + 2 * tilesize * fire_pos[idx][0])),
             math.floor(coord_y + tilesize * fire_pos[idx][1]),
-            math.floor(0.5 * (coord_x + tilesize * fire_pos[idx][0])),
+            math.floor(0.5 * (coord_x + 2 * tilesize * fire_pos[idx][0]))+tilesize,
             math.floor(coord_y + tilesize * fire_pos[idx][1]),
-            math.floor((0.5 * (coord_x + 2 * tilesize * fire_pos[idx][0]))/2),
-            math.floor(coord_y + tilesize * 2 * fire_pos[idx][1])+tilesize, COLOR_RED)
+            math.floor(0.5 * (coord_x + 2 * tilesize * fire_pos[idx][0]))+math.floor(tilesize/2),
+            math.floor(coord_y + tilesize * fire_pos[idx][1])+tilesize, COLOR_RED_DEAD)
 
     return fireSurface
 
