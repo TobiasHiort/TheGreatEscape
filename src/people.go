@@ -50,9 +50,9 @@ func makePerson(t *tile) *Person {
 func (p *Person) updateStats() {
 	currentTile := p.currentTile()
 	currentTile.occupied = p
-	if len(p.path) > 1 {
-		if p.path[len(p.path) - 2] != currentTile {p.path[len(p.path)-2].occupied = nil}
-	}
+//	if len(p.path) > 1 {
+//		if p.path[len(p.path) - 2] != currentTile {p.path[len(p.path)-2].occupied = nil}
+//	}
 	p.hp = p.hp - currentTile.getDamage()
 	if p.hp <= 0 {
 		p.kill()
@@ -106,7 +106,8 @@ func (p *Person) nextTile() *tile{
 func (p *Person) followPlan() {
 	if p.path[len(p.path) - 1] == nil { return} // TODO updatestats
 	if p.path[len(p.path) - 1].door {   // standing at the exit -> leave
-		(p.path[len(p.path) - 1].occupied) = nil
+//		(p.path[len(p.path) - 1].occupied) = nil
+		p.currentTile().occupied = nil
 		p.path = append(p.path, nil)  // replace with safezone?
 		p.updateTime()
 		p.save()
@@ -117,6 +118,7 @@ func (p *Person) followPlan() {
 		} else { // next step in plan is occupied -> redirect or w8
 			//	fmt.Println("redired")
 			if !p.redirect() {p.wait()}
+			//p.wait()
 			p.updateTime()	
 		}
 	}/*else {		

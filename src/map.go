@@ -202,31 +202,38 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	//sList := []Stats{}
 
-	//var wg sync.WaitGroup
+	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
-	//wg.Add(len(ppl))
+	wg.Add(len(ppl))
 	*statsList = [][]int{}
 	for _, pers := range ppl {
-		p := pers
-	//	go func(p *Person){//, ind int){
-	//		defer wg.Done()
-			p.MovePerson(m)
+	//	p := pers
+		go func(p *Person){//, ind int){
+			defer wg.Done()
+		mutex.Lock()
+		p.MovePerson(m)
 			sList := &[]int{}
 			p.getStats((sList))//(statsList[ind])
-			mutex.Lock()
-			*statsList = append(*statsList, *sList)
+		
+	// Below: check if there's more then 1 person on the same tile
+	/*	for _, st := range *statsList {
+			if st[0] == (*sList)[0] && st[1] == (*sList)[1] && st[0] != 0 && st[1] != 0 {
+				panic(fmt.Sprintf("Multiple occupants at: %v", p.currentTile()))}
+				//panic(fmt.Println(p.safe))}
+		}
+			*statsList = append(*statsList, *sList) */
 			mutex.Unlock()
-
-	//	}(pers)//, i)
+		
+		}(pers)//, i)
 	}
 	step++
-//	wg.Wait()
+	wg.Wait()
 
-	if math.Mod(float64(step), 2) == 0 {
+	if math.Mod(float64(step), 1) == 0 {
 		FireSpread(*m)
 		SmokeSpread(*m)
 		InitPlans(m)
-	} // MOVED!
+	} 	
 }
 
  func CheckFinish (peopleArray []*Person) bool {

@@ -167,7 +167,7 @@ func validTile(t *tile) bool {
 
 func canGo(t *tile) bool {
 	if t == nil {return false}
-	//if t.occupied != nil && t.occupied.screwed {return false}
+	if t.occupied != nil && t.occupied.screwed {return false}
 	return !t.wall && !t.outOfBounds && t.heat < 2 
 }
 
