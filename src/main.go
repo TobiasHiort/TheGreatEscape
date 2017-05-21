@@ -86,5 +86,6 @@ func singleSimulation() {
 }
 
 func main() {
+//	mainMap()
 	singleSimulation()
 }

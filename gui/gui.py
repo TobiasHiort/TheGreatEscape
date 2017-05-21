@@ -358,6 +358,7 @@ while True:
                                                                        # if respawn is needed, remove current_frame
                         player_pos, player_count, fire_pos = populateMap(mapMatrix, pop_percent, init_fires)
                         playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord_y, radius_scale, COLOR_PLAYER_GRADIENT)
+                        fireSurface = drawWarnings(fireSurface, fire_pos, tilesize, player_scale, coord_x, coord_y, radius_scale)
                        # fireSurface = drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GRADIENT)
                     else:
                         print('Depop first')

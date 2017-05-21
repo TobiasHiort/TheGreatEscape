@@ -3,6 +3,7 @@ package main
 import (
 	"math"
 	"sync"
+	"fmt"
 )
 
 type Direction struct {
@@ -166,7 +167,8 @@ func validTile(t *tile) bool {
 
 func canGo(t *tile) bool {
 	if t == nil {return false}
-	return !t.wall && !t.outOfBounds && t.heat < 2
+	if t.occupied != nil && t.occupied.screwed {return false}
+	return !t.wall && !t.outOfBounds && t.heat < 2 
 }
 
 func compactPath(parentOf map[*tile]*tile, from *tile, to *tile) ([]*tile, bool) {
@@ -591,11 +593,15 @@ func setPlan(parentOf map[*tile]*tile, pers *tile) {
 		lastDir = curDir
 		
 		if !ok {
-			break
+			fmt.Println("nope?")
+			pers.occupied.plan = []*tile{pers.safestTile()}
+			return
 		}
 	}
 	if ok {
-		pers.occupied.plan = path} else {pers.occupied.plan = []*tile{}}
+		pers.occupied.plan = path} else {
+			fmt.Println("nope?2")
+			pers.occupied.plan = []*tile{pers.safestTile()}}
 
 
 	/*else if len(pers.occupied.plan) > 0 && pers.occupied.dir != getDir(pers, pers.occupied.plan[0]){
@@ -806,7 +812,8 @@ func (p *Person) redSE() bool {
 		if p.moveTo(current.neighborSouth) {return true}}
 	if p.moveTo(current.neighborEast) {return true}
 	if p.moveTo(current.neighborSouth) {return true}
-	return false
+	return p.moveTo(current.safestTile())
+	//	return false
 }
 
 func (p *Person) redSW() bool {
@@ -815,7 +822,8 @@ func (p *Person) redSW() bool {
 		if p.moveTo(current.neighborSouth) {return true}}
 	if p.moveTo(current.neighborWest) {return true}	
 	if p.moveTo(current.neighborSouth) {return true}
-	return false
+	return p.moveTo(current.safestTile())
+	//return false
 }
 
 func (p *Person) redNW() bool {
@@ -824,7 +832,8 @@ func (p *Person) redNW() bool {
 		if p.moveTo(current.neighborNorth) {return true}}
 	if p.moveTo(current.neighborWest) {return true}
 	if p.moveTo(current.neighborNorth) {return true}
-	return false
+	return p.moveTo(current.safestTile())
+//	return false
 }
 
 func (p *Person) redNE() bool {
@@ -833,7 +842,8 @@ func (p *Person) redNE() bool {
 		if p.moveTo(current.neighborNorth) {return true}}
 	if p.moveTo(current.neighborEast) {return true}
 	if p.moveTo(current.neighborNorth) {return true}
-	return false
+	return p.moveTo(current.safestTile())
+	//	return false
 }
 
 func (p *Person) redE() bool {
@@ -842,7 +852,8 @@ func (p *Person) redE() bool {
 		if p.moveTo(current.neighborSouth) {return true}}
 	if p.moveTo(current.neighborNorth) {return true}
 	if p.moveTo(current.neighborSouth) {return true}
-	return false
+	return p.moveTo(current.safestTile())
+//	return false
 }
 
 func (p *Person) redS() bool {
@@ -851,7 +862,8 @@ func (p *Person) redS() bool {
 		if p.moveTo(current.neighborWest) {return true}}
 	if p.moveTo(current.neighborEast) {return true}
 	if p.moveTo(current.neighborWest) {return true}
-	return false
+	return p.moveTo(current.safestTile())
+	//return false
 }
 
 func (p *Person) redW() bool {
@@ -860,7 +872,8 @@ func (p *Person) redW() bool {
 		if p.moveTo(current.neighborSouth) {return true}}
 	if p.moveTo(current.neighborNorth) {return true}
 	if p.moveTo(current.neighborSouth) {return true}
-	return false
+	return p.moveTo(current.safestTile())
+	//	return false
 }
 
 func (p *Person) redN() bool {
@@ -869,7 +882,8 @@ func (p *Person) redN() bool {
 		if p.moveTo(current.neighborWest) {return true}}
 	if p.moveTo(current.neighborEast) {return true}
 	if p.moveTo(current.neighborWest) {return true}
-	return false
+	return p.moveTo(current.safestTile())   //TODO: obs unsure if 'safestfile' makes for a wierd looking redirect? 
+	//	return false
 }
 
 func (t *tile) endOfLine(dir Direction) *tile {

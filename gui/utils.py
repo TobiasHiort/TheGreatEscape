@@ -63,6 +63,8 @@ COLOR_GREY1 = (226, 226, 226) # lighter
 COLOR_GREY2 = (145, 145, 145) # darker, org: 221
 COLOR_GREY3 = (120, 120, 120)
 
+COLOR_WARNING = (242, 219, 16)
+
 # dictionary for map matrix to color
 colors = {
                 0 : COLOR_WHITE,        # floor
@@ -216,7 +218,7 @@ def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord
     for player in range(len(player_pos)):
         if player_pos[player][2] <= 0:
             dead += 1
-        if player_pos[player][0] == 0 and player_pos[player][1] == 0:
+        if player_pos[player][0] == 0 and player_pos[player][1] == 0 and player_pos[player][2] > 0:
             survived += 1
             pygame.gfxdraw.aacircle(playerSurface,
                             coord_x,
@@ -319,6 +321,29 @@ def drawSmoke(smokeSurface, smoke_pos, tilesize, mapheight, mapwidth, COLOR_SMOK
                                     math.floor((sh - p)/2 - (h * t)/2 + t * smoke_pos[idx][1]),
                                  tilesize, tilesize))
     return smokeSurface
+
+def drawWarnings(fireSurface, fire_pos, tilesize, player_scale, coord_x, coord_y, radius_scale):
+    
+    fireSurface.fill((0, 0, 0, 0))
+    for fire in fire_pos:
+        pygame.gfxdraw.filled_trigon(fireSurface,
+                              coord_x + tilesize * (fire[0] - 1),
+                              coord_y + tilesize * (fire[1] + 1),
+                              coord_x + tilesize * (fire[0] + 1),
+                              coord_y + tilesize * (fire[1] + 1),
+                              coord_x + tilesize * (fire[0]),
+                              coord_y + tilesize * (fire[1] - 1),
+                                     COLOR_WARNING) # round()?        
+        pygame.gfxdraw.trigon(fireSurface,
+                              coord_x + tilesize * (fire[0] - 1),
+                              coord_y + tilesize * (fire[1] + 1),
+                              coord_x + tilesize * (fire[0] + 1),
+                              coord_y + tilesize * (fire[1] + 1),
+                              coord_x + tilesize * (fire[0]),
+                              coord_y + tilesize * (fire[1] - 1),
+                              COLOR_RED_DEAD) # round()?
+
+    return fireSurface
 
 def placeText(surface, text, font, size, color, x, y):
     """Description.

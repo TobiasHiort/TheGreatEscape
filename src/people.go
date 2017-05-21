@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
-	"math/rand"
+//	"math/rand"
 	"time"
 	"sync"
 )
@@ -13,6 +13,7 @@ var step = float32(0)
 type Person struct {
 	alive bool
 	safe  bool
+	screwed bool
 	hp    int
 	path  []*tile
 	plan  []*tile
@@ -39,6 +40,7 @@ func StartStats(ppl []*Person) [][]int{
 func makePerson(t *tile) *Person {
 	var person = Person{}
 	person.alive = true
+	person.screwed = false
 	person.path = append(person.path, t)
 	person.hp = 100 
 	t.occupied = &person
@@ -47,7 +49,7 @@ func makePerson(t *tile) *Person {
 
 func (p *Person) updateStats() {
 	currentTile := p.currentTile()
-	(p.path[len(p.path)-1]).occupied = p
+//	(p.path[len(p.path)-1]).occupied = p
 	if len(p.path) > 1 {
 		if p.path[len(p.path) - 2] != currentTile {p.path[len(p.path)-2].occupied = nil}
 	}
@@ -66,6 +68,7 @@ func (t *tile) getDamage() int {
 
 func (p *Person) moveTo(t *tile) bool {
 	if canGo(t) && t.occupied == nil {
+		t.occupied = p
 		p.path = append(p.path, t)
 		return true
 	} else {
@@ -74,6 +77,7 @@ func (p *Person) moveTo(t *tile) bool {
 }
 
 func (p *Person) followDir() bool{
+	if len(p.plan) == 0 {return p.moveTo(p.currentTile().safestTile())}
 	if p.currentTile() == p.plan[0] {
 		if len(p.plan) > 1 {p.dir = getDir(p.plan[0], p.plan[1])}
 		p.plan = p.plan[1:]
@@ -103,9 +107,11 @@ func (p *Person) followPlan() {
 		p.updateTime()
 		p.save()
 	} else /*if len(p.plan) > 0 */{ // follow tha plan!
-		if p.followDir() {   // next step in plan is available -> move		
+		if p.followDir() {   // next step in plan is available -> move
+		//	fmt.Println("followeddir")
 			p.updateTime()  
 		} else { // next step in plan is occupied -> redirect or w8
+		//	fmt.Println("redired")
 			if !p.redirect() {p.wait()}
 			p.updateTime()	
 		}
@@ -129,6 +135,8 @@ func (p *Person)IsWaiting() bool{
 
 func (p *Person) kill() {
 	p.alive = false
+	p.screwed = true
+	p.hp = 0
 //	p.currentTile().occupied = nil // If u wanna run over corpses.
 }
 
@@ -139,17 +147,23 @@ func (p *Person) save() {
 
 func (p *Person) updatePlan(m *[][]tile) {  //OBS: Function has been reduced greatly, is more like 'updateDir' right now.., 
 	if len(p.plan) > 0 {
+		if !canGo(p.plan[0]) {
+			p.screwed = true
+			sf := p.currentTile().safestTile()
+			if sf != nil {p.plan = []*tile{sf}}				
+		}
 		p.dir = getDir(p.currentTile(), p.plan[0])
 	} else {
-		xDir := rand.Intn(1) - rand.Intn(1)
-		yDir := rand.Intn(1) - rand.Intn(1)
-		p.dir = Direction{xDir, yDir}
+	//	fmt.Println("problem?")
+		//	xDir := rand.Intn(1) - rand.Intn(1)
+		//	yDir := rand.Intn(1) - rand.Intn(1)
+		//	p.dir = Direction{xDir, yDir}
 	}
 } 
 
 func (p *Person) MovePerson(m *[][]tile) {	
 	if p == nil {return}
-	if p.safe || !p.alive {
+		if p.safe || !p.alive {
 		return
 	}
 	if p.time <= step {
@@ -164,7 +178,7 @@ func MovePeople(m *[][]tile, ppl []*Person) {
 	InitPlans(m)
 	for !CheckFinish(ppl) {
 		wg.Add(len(ppl))
-		print("\033[H\033[2J")
+	//	print("\033[H\033[2J")
 		PrintTileMapP(*m)
 		for _, pers := range ppl {
 			if pers.path[0].xCoord == 32 && pers.path[0].yCoord == 86 {fmt.Println("buggy's at: ", pers.currentTile())}
@@ -180,7 +194,7 @@ func MovePeople(m *[][]tile, ppl []*Person) {
 			SmokeSpread(*m)
 			InitPlans(m)
 		}
-		time.Sleep(70 * time.Millisecond)
+		time.Sleep(700 * time.Millisecond)
 	}	
 }
 

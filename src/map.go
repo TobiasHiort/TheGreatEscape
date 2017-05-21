@@ -239,7 +239,26 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
  }
 
 func mainMap() {
-	debugging()
+	matrix := [][]int {
+		{1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,0,0,0,0,1,0,0,0,0,0,1},
+		{1,0,0,0,0,0,1,0,0,1,0,0,1},
+		{1,0,0,0,0,0,1,1,1,1,0,0,1},
+		{1,1,1,0,0,0,1,0,0,0,0,0,1},
+		{2,0,0,0,0,0,0,0,0,0,0,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1}}
+
+//	list := [][]int{{3,2}, {5,5}}
+//	testmap := TileConvert(matrix)
+//	SetFire(&testmap[2][2])
+//	SmokeSpread(testmap)
+
+//	fmt.Println((&testmap[3][3]).safestTile())
+
+	ppl := [][]int{{1,1}, {1,2}, {2,1}, {1,3}}
+	tryThis(matrix, ppl, 4, 4)
+	
+	//debugging()
 }
 
 func tryThis(matrix [][]int, ppl [][]int, x, y int) {
@@ -420,4 +439,41 @@ func DoorCoord(inMap [][]tile) [][]int {
 			}
 		}
 	return door
+}
+
+func (t *tile) safestTile() *tile {
+
+//	fmt.Println("here?")
+//	cst1 := math.Min(float64(t.neighborNorth.smoke), float64(t.neighborWest.smoke))
+//	cst2 := math.Min(float64(t.neighborSouth.smoke), float64(t.neighborEast.smoke))
+//	if int(cst1) < tmp1.smoke {tmp1 = t.neighborWest}
+	tmp1 := safest(t.neighborNorth, t.neighborWest) //t.neighborNorth
+	tmp2 := safest(t.neighborSouth, t.neighborEast)
+
+//	if int(cst2) < tmp2.smoke {tmp2 = t.neighborEast}
+
+//	if tmp1.wall || tmp2.wall {fmt.Println("no good")}
+	
+//	cst := math.Min(float64(tmp1.smoke), float64(tmp2.smoke))
+//	if int(cst) < tmp1.smoke {tmp1 = tmp2}
+
+	//fmt.Println("oh nooo")
+
+	
+	
+	return safest(tmp1, tmp2)
+}
+
+func safest(t1, t2 *tile) *tile {
+	if !validTile(t1) {//|| t.occupied != nil {
+		if validTile(t2) {// && t.occupied == nil {
+			return t2} else {return nil}}
+	if !validTile(t2) /*&& t1.occupied == nil*/ {return t1}
+	
+	cst1 := math.Min(float64(t1.smoke), float64(t2.smoke))
+	tmp1 := t1
+	if int(cst1) < tmp1.smoke {tmp1 = t2}
+
+	//if !validTile(tmp1) {return nil}
+	return tmp1
 }
