@@ -49,7 +49,7 @@ func makePerson(t *tile) *Person {
 
 func (p *Person) updateStats() {
 	currentTile := p.currentTile()
-//	(p.path[len(p.path)-1]).occupied = p
+	currentTile.occupied = p
 	if len(p.path) > 1 {
 		if p.path[len(p.path) - 2] != currentTile {p.path[len(p.path)-2].occupied = nil}
 	}
@@ -67,7 +67,9 @@ func (t *tile) getDamage() int {
 }
 
 func (p *Person) moveTo(t *tile) bool {
+	if t == nil {return false}
 	if canGo(t) && t.occupied == nil {
+		p.path[len(p.path) - 1].occupied = nil
 		t.occupied = p
 		p.path = append(p.path, t)
 		return true
@@ -79,7 +81,7 @@ func (p *Person) moveTo(t *tile) bool {
 func (p *Person) followDir() bool{
 	if len(p.plan) == 0 {return p.moveTo(p.currentTile().safestTile())}
 	if p.currentTile() == p.plan[0] {
-		if len(p.plan) > 1 {p.dir = getDir(p.plan[0], p.plan[1])}
+		if len(p.plan) > 1 {p.dir = getDir(p.plan[0], p.plan[1])} //else {panic("plan?")}
 		p.plan = p.plan[1:]
 	}
 	return p.moveTo(p.nextTile())   
@@ -96,6 +98,8 @@ func (p *Person) nextTile() *tile{
 	if p.dir == se {return p.currentTile().neighborSE}
 	if p.dir == sw {return p.currentTile().neighborSW}
 
+//	return p.currentTile().safestTile()
+//	panic("Invalid dir")
 	return nil // default?
 }
 
@@ -108,10 +112,10 @@ func (p *Person) followPlan() {
 		p.save()
 	} else /*if len(p.plan) > 0 */{ // follow tha plan!
 		if p.followDir() {   // next step in plan is available -> move
-		//	fmt.Println("followeddir")
+			//	fmt.Println("followeddir")
 			p.updateTime()  
 		} else { // next step in plan is occupied -> redirect or w8
-		//	fmt.Println("redired")
+			//	fmt.Println("redired")
 			if !p.redirect() {p.wait()}
 			p.updateTime()	
 		}
@@ -150,10 +154,14 @@ func (p *Person) updatePlan(m *[][]tile) {  //OBS: Function has been reduced gre
 		if !canGo(p.plan[0]) {
 			p.screwed = true
 			sf := p.currentTile().safestTile()
-			if sf != nil {p.plan = []*tile{sf}}				
+			if sf != nil {
+				p.plan = []*tile{sf}
+				p.dir = getDir(p.currentTile(), p.plan[0])
+			}				
 		}
 		p.dir = getDir(p.currentTile(), p.plan[0])
 	} else {
+		//panic("No plan")
 	//	fmt.Println("problem?")
 		//	xDir := rand.Intn(1) - rand.Intn(1)
 		//	yDir := rand.Intn(1) - rand.Intn(1)

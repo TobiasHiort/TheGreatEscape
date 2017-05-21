@@ -202,14 +202,14 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	//sList := []Stats{}
 
-	var wg sync.WaitGroup
+	//var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
-	wg.Add(len(ppl))
+	//wg.Add(len(ppl))
 	*statsList = [][]int{}
 	for _, pers := range ppl {
-
-		go func(p *Person){//, ind int){
-			defer wg.Done()
+		p := pers
+	//	go func(p *Person){//, ind int){
+	//		defer wg.Done()
 			p.MovePerson(m)
 			sList := &[]int{}
 			p.getStats((sList))//(statsList[ind])
@@ -217,10 +217,10 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 			*statsList = append(*statsList, *sList)
 			mutex.Unlock()
 
-		}(pers)//, i)
+	//	}(pers)//, i)
 	}
 	step++
-	wg.Wait()
+//	wg.Wait()
 
 	if math.Mod(float64(step), 2) == 0 {
 		FireSpread(*m)
@@ -449,6 +449,12 @@ func (t *tile) safestTile() *tile {
 //	if int(cst1) < tmp1.smoke {tmp1 = t.neighborWest}
 	tmp1 := safest(t.neighborNorth, t.neighborWest) //t.neighborNorth
 	tmp2 := safest(t.neighborSouth, t.neighborEast)
+
+	tmp3 := safest(t.neighborNW, t.neighborNE)
+	tmp4 := safest(t.neighborSW, t.neighborSE)
+
+	tmp1 = safest(tmp1, tmp2)
+	tmp2 = safest(tmp3, tmp4)
 
 //	if int(cst2) < tmp2.smoke {tmp2 = t.neighborEast}
 

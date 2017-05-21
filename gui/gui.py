@@ -248,6 +248,7 @@ while True:
                         if len(smoke_movement) > current_frame:
                             smoke_pos = smoke_movement[current_frame]                            
 
+                            
                         # pause if last frame, problem with go's pipe?
                         if current_frame == len(players_movement[0]) - 1:
                             paused = True
