@@ -705,33 +705,33 @@ while True:
             statisticsSurface.blit(BG_STATISTICS, (6, 1))
             placeCenterText(statisticsSurface, pathToName(active_map_path), FONT_ROBOTOREGULAR_26, COLOR_BLACK, 530, 30)
 
-            if not plot_rendered:
+            if plot_rendered:
                 raw_data = rawPlotRender(rawPlot())
                 raw_data2 = rawPlotRender(rawPlot2())
-                raw_data3 = rawPlotRender(rawPlot3())
+                raw_data3 = rawPlotRender(rawPlot3(json_stat_content[0]))
                 plot_rendered = True
+                
+                # quadrant 1
+                #surf = pygame.image.fromstring(raw_data, (plot_x, plot_y), "RGB")
+                #statisticsSurface.blit(surf, (10, 5))
+                
+                # quadrant 2
+                surf = pygame.image.fromstring(raw_data3, (150, 120), "RGB")
+                statisticsSurface.blit(surf, (345, 60))
+                
+                surf = pygame.image.fromstring(raw_data3, (150, 120), "RGB")
+                statisticsSurface.blit(surf, (345, 200))
+                
+                # quadrant 3
+                surf = pygame.image.fromstring(raw_data2, (plot_x, plot_y), "RGB")
+                statisticsSurface.blit(surf, (10, 361))
 
-            # quadrant 1
-            #surf = pygame.image.fromstring(raw_data, (plot_x, plot_y), "RGB")
-            #statisticsSurface.blit(surf, (10, 5))
-
-            # quadrant 2
-            surf = pygame.image.fromstring(raw_data3, (150, 120), "RGB")
-            statisticsSurface.blit(surf, (345, 60))
-
-            surf = pygame.image.fromstring(raw_data3, (150, 120), "RGB")
-            statisticsSurface.blit(surf, (345, 200))
-
-            # quadrant 3
-            surf = pygame.image.fromstring(raw_data2, (plot_x, plot_y), "RGB")
-            statisticsSurface.blit(surf, (10, 361))
-
-            # quadrant 4
-            surf = pygame.image.fromstring(raw_data, (plot_x, plot_y), "RGB")
-            statisticsSurface.blit(surf, (517, 361))
-
-            minimapSurface.fill(COLOR_WHITE)
-            minimapSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapSurface)
+                # quadrant 4
+                surf = pygame.image.fromstring(raw_data, (plot_x, plot_y), "RGB")
+                statisticsSurface.blit(surf, (517, 361))
+                
+                minimapSurface.fill(COLOR_WHITE)
+                minimapSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapSurface)
 
             if player_pos != []:
                 placeText(statisticsSurface, "Populated sim, but paused, id05", FONT_ROBOTOREGULAR_14, COLOR_BLACK, 100, 200)
@@ -755,6 +755,11 @@ while True:
         if not psutil.pid_exists(json_pid_content):
             go_running = False
             throbberSurface.fill((0, 0, 0, 0))
+            
+            json_stat = open('peopleStats.txt', 'r').read()
+            json_stat_content = json.loads(json_stat)
+            plot_rendered = True
+
 
     # update displaySurface
     pygame.display.flip() # .update(<surface_args>) instead?

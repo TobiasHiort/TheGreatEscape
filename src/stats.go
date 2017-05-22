@@ -1,21 +1,26 @@
 package main
 
 import (
-  "fmt"
-  "log"
-  //"strconv"
-  "encoding/json"
-  "os"
+	"fmt"
+	"log"
+	//"strconv"
+	"encoding/json"
+	"os"
+	"math"
 )
 
 func readStats(peopleArray []*Person, inmap [][]tile) {
-
+	
+	// or create
   pplfile, err := os.Create("peopleStats.txt") //[alive, deaths, injured],[average exit time], [average health]
   if err != nil {
     log.Fatal("Cannot create file, ppl")
   }
-  defer pplfile.Close()
-
+	defer pplfile.Close()
+//	toPpl := [][]float32{}
+	toPpl := [][]float32{PeopleStats(peopleArray)}
+	toPpl = append(toPpl, []float32{averageExitTime(peopleArray)}, []float32{averageExitHealth(peopleArray)})
+/*	
   pplStats := PeopleStats(peopleArray)
   bytes2, err2 := json.Marshal(pplStats)
   if err2 != nil {
@@ -23,9 +28,9 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
   }
   s := string(bytes2[:])
   //alive dead injured
-  fmt.Fprintf(pplfile, s)
-
-  exitTime := [1]float32{averageExitTime(peopleArray)} 
+ // fmt.Fprintf(pplfile, s)
+	toPpl = append(toPpl, s)
+  exitTime := []float32{averageExitTime(peopleArray)} 
   
   bytes2, err2 = json.Marshal(exitTime)
   if err2 != nil {
@@ -33,9 +38,10 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
   }
   s = string(bytes2[:])
   //average exit time
-  fmt.Fprintf(pplfile, s)
-
-  exitHealth := [1]int{averageExitHealth(peopleArray)} 
+ // fmt.Fprintf(pplfile, s)
+	toPpl = append(toPpl, s)
+	
+  exitHealth := []int{averageExitHealth(peopleArray)} 
   
   bytes2, err2 = json.Marshal(exitHealth)
   if err2 != nil {
@@ -43,10 +49,18 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
   }
   s = string(bytes2[:])
   //average exit health
-  fmt.Fprintf(pplfile, s)
+ // fmt.Fprintf(pplfile, s)
+	toPpl = append(toPpl, s)
+*/	
+  bytes2, err2 := json.Marshal(toPpl)
+  if err2 != nil {
+    panic(err2)
+  }
+  s := string(bytes2[:])
+	
+	fmt.Fprintf(pplfile, s)
 
-
-
+// mapstats
   mapfile, err2 := os.Create("mapStats.txt")
   //[how many tiles are on fire?], [amount exited per door], [exit-doorcordinates]
   if err2 != nil {
@@ -54,6 +68,17 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
   }
   defer mapfile.Close()
 
+	toMap := [][][]int{}
+	ds1, ds2 := doorStats(peopleArray, inmap)
+	toMap = append(toMap, [][]int{MapStats(inmap)}, [][]int{ds1}, ds2) 
+
+	bytes2, err2 = json.Marshal(toMap)
+	if err2 != nil {
+		panic(err2)
+	}
+	s = string(bytes2[:])
+	fmt.Fprintf(mapfile, s)
+/*	
   //burning tiles
   burningTiles := MapStats(inmap)
 
@@ -73,9 +98,9 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
   }
 
   str2 := string(bytes2[:])
-  fmt.Println(str2)
+ // fmt.Println(str2)
   fmt.Fprintf(mapfile, str2)
-  fmt.Print(str2)
+  //fmt.Print(str2)
 
   bytes2, err2 = json.Marshal(doorCoord)
   if err2 != nil {
@@ -83,10 +108,30 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
   }
 
   str3 := string(bytes2[:])
-  fmt.Println(str3)
+ // fmt.Println(str3)
   fmt.Fprintf(mapfile, str3)
-  fmt.Print(str3)
-  //mapfile.Close()
+ // fmt.Print(str3)
+  //mapfile.Close() */
+
+	// escaped/died times
+  timefile, err2 := os.Create("timeStats.txt")
+  //[how many tiles are on fire?], [amount exited per door], [exit-doorcordinates]
+  if err2 != nil {
+    log.Fatal("Cannot create file, map")
+  }
+  defer timefile.Close()
+
+//	toTime := [][]int{}
+	escaped, died := exitTimes(peopleArray)
+	toTime := [][]int{escaped, died}
+
+	bytes2, err2 = json.Marshal(toTime)
+	if err2 != nil {
+		panic(err2)
+	}
+	s = string(bytes2[:])
+	fmt.Fprintf(timefile, s)	
+	
 }
 
 //TODO most used exit door
@@ -129,7 +174,7 @@ func averageExitTime(peopleArray []*Person) float32 {
 
 
 //TODO average health impact
-func averageExitHealth(peopleArray []*Person) int {
+func averageExitHealth(peopleArray []*Person) float32 {
 
   var totalHealth int
   var alive int
@@ -145,15 +190,37 @@ func averageExitHealth(peopleArray []*Person) int {
     }
   }
   if alive != 0 {
-    return (totalHealth/alive)
+	  return (float32(totalHealth/alive))
   }else {return 0}
+}
+
+func smokeVSFireDmg(peopleArray []*Person) (int, int){
+	smoke := 0
+	fire := 0
+	for _, p := range peopleArray {
+		if !p.alive {
+			if p.smokedmg > 50 {
+				smoke++} else {fire++}
+		}
+	}
+	return smoke, fire
+}
+
+func exitTimes(peopleArray []*Person) ([]int, []int){  // finishedtimes?? I dunno
+	var escaped = make([]int, int(step))
+//	escaped := [int(step)] int{}
+	var died = make([]int, int(step))
+	for _, p := range peopleArray {
+		if p.alive {escaped[int(math.Floor(float64(p.time)))] ++} else {died[int(math.Floor(float64(p.time)))] ++ }
+	}
+	return escaped, died
 }
 
 //TODO death y [....] per time x [....] in file
 //TODO average time spent waiting
 //TODO took most damage from smoke/fire
 //relevant? on individual lvl? 
-
+/*
 func main() {
 
   matrix := [][]int{
@@ -175,15 +242,21 @@ func main() {
       pplArray:= PeopleInit(testmap,ppl)
 
       SetFire(&testmap[3][4])
-      //SetFire(&testmap[3][6])
-      for i := 0 ; i < 100 ; i++ {
-        Run(&testmap, pplArray, &ppl)
+	(&testmap[3][4]).smoke = 40
+	//SetFire(&testmap[3][6])
+     for i := 0 ; i < 7 ; i++ {
+//	for CheckFinish(pplArray){
+	Run(&testmap, pplArray, &ppl)
       }
       readStats(pplArray, testmap)
-      averageExitTime(pplArray)
+	averageExitTime(pplArray)
+
+	smoke, fire := smokeVSFireDmg(pplArray)
+	println("Smoke:", smoke)
+	println("Fire:", fire)
 
       for i, p := range pplArray {
         fmt.Println("Person", i, "time:  ", p.time, "\n         health:", p.hp)
       }
     }
-
+*/

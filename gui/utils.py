@@ -700,7 +700,7 @@ def rawPlot2():
 
     return fig
 
-def rawPlot3():
+def rawPlot3(stats):
     """Description.
 
     More...
@@ -743,13 +743,16 @@ def rawPlot3():
     #ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
     # Data to plot
-    labels = 'Dead', 'Survived'
-    sizes = [30, 70]
-    colors = [(162/255, 19/255, 24/255), (0/255, 166/255, 56/255)]
+    labels = 'Dead', 'Harmed', 'Unharmed'
+   # sizes = [30, 70]
+    colors = [(162/255, 19/255, 24/255), (0/255, 100/255, 56/255), (0/255, 166/255, 56/255)]
     #explode = [0.1, 0]
 
     # Plot
-    patches, texts, autotexts = plt.pie(sizes, labels=labels, colors=colors, autopct='%1.0f%%', shadow=True, startangle=45, labeldistance=1.25) # pctdistance=1.1
+   
+   # lst = [stats[1], stats[0] - stats[2], stats[2]]
+    lst = [stats[1], stats[2], stats[0] - stats[2]]
+    patches, texts, autotexts = plt.pie(lst, labels=labels, colors=colors, autopct='%1.0f%%', shadow=True, startangle=45, labeldistance=1.25) # pctdistance=1.1
     texts[0].set_fontsize(9)
     texts[1].set_fontsize(9)
 
@@ -831,12 +834,7 @@ def interpolateTuple(startcolor, goalcolor, steps):
 
 def pathToName(path):
     return path[path.rfind('/') + 1:-4]
-
-def startFire(fires):
-    for i in range(fires):
-        print("fire")
-
-    
+  
 def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, child_pid):
     """Description.
 

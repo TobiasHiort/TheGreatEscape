@@ -43,4 +43,5 @@ func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos [][]int) {
 		//smokeList = SmokeStats(&currentMap)
 		SendToPipe(&statsList, &fireList, &smokeList)
 	}
+	readStats(peopleArray, currentMap)
 }

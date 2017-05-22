@@ -210,8 +210,8 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 		//	p := pers
 		go func(p *Person){//, ind int){
 			defer wg.Done()
-			mutex.Lock()
 			p.MovePerson(m)
+			mutex.Lock()
 			sList := &[]int{}
 			p.getStats((sList))//(statsList[ind])
 			
@@ -231,9 +231,13 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 
 	if math.Mod(float64(step), 2) == 0 {
 		FireSpread(*m)
-		if math.Mod(float64(step), 4) == 0 {SmokeSpread(*m)}
+		if math.Mod(float64(step), 4) == 0 {
+			SmokeSpread(*m)
+			//InitPlans(m)
+		}
+		if math.Mod(float64(step), 2) == 0 {InitPlans(m)}   // change it up?
 //		SmokeSpread(*m)
-		InitPlans(m)
+//		InitPlans(m)
 	} 	
 }
 
@@ -406,7 +410,7 @@ func FireInit(currentMap [][]tile, fireList [][]int) [][]int {
 	return fireStats
 }
 
-func PeopleStats(peopleArray []*Person) []int {
+func PeopleStats(peopleArray []*Person) []float32 {
 
 	aliveAmount := 0
 	deadAmount := 0
@@ -421,7 +425,7 @@ func PeopleStats(peopleArray []*Person) []int {
 			deadAmount++
 		}
 	}
-	return []int{aliveAmount, deadAmount, injuredAmount}
+	return []float32{float32(aliveAmount), float32(deadAmount), float32(injuredAmount)}
 }
 
 func MapStats(inMap [][]tile) []int{

@@ -21,8 +21,8 @@ clear:
 people:
 	go build people.go
 
-all: main.go gameMaster.go map.go people.go queue.go print.go pathfinder.go
-	go build main.go gameMaster.go map.go people.go queue.go print.go pathfinder.go
+all: main.go gameMaster.go map.go people.go queue.go print.go pathfinder.go stats.go
+	go build main.go gameMaster.go map.go people.go queue.go print.go pathfinder.go stats.go
 
 gameMaster: clock.go gameMaster.go map.go
 	go build clock.go gameMaster.go map.go

@@ -166,9 +166,14 @@ func validTile(t *tile) bool {
 }
 
 func canGo(t *tile) bool {
-	if t == nil {return false}
+	if validTile(t) {
+		if t.occupied != nil {return !t.occupied.screwed}
+		return true
+	}
+	return false
+/*	if t == nil {return false}
 	if t.occupied != nil && t.occupied.screwed {return false}
-	return !t.wall && !t.outOfBounds && t.heat < 2 
+	return !t.wall && !t.outOfBounds && t.heat < 2 */
 }
 
 func compactPath(parentOf map[*tile]*tile, from *tile, to *tile) ([]*tile, bool) {
