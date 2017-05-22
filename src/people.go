@@ -15,6 +15,7 @@ type Person struct {
 	safe  bool
 	screwed bool
 	hp    int
+	smokedmg int
 	path  []*tile
 	plan  []*tile
 	dir Direction
@@ -62,7 +63,10 @@ func (p *Person) updateStats() {
 func (t *tile) getDamage() int {
 	damage := int(0)
 	damage += 10*int(t.fireLevel) 
-//	if t.smoke > 2 {damage += 1}
+	if t.smoke > 10 {
+		damage += 1
+		t.occupied.smokedmg += 1
+	}
 	return damage
 }
 
@@ -113,10 +117,8 @@ func (p *Person) followPlan() {
 		p.save()
 	} else /*if len(p.plan) > 0 */{ // follow tha plan!
 		if p.followDir() {   // next step in plan is available -> move
-			//	fmt.Println("followeddir")
 			p.updateTime()  
 		} else { // next step in plan is occupied -> redirect or w8
-			//	fmt.Println("redired")
 			if !p.redirect() {p.wait()}
 			//p.wait()
 			p.updateTime()	

@@ -884,7 +884,7 @@ func (p *Person) redN() bool {
 	if p.moveTo(current.neighborEast) {return true}
 	if p.moveTo(current.neighborWest) {return true}
 //	return p.moveTo(current.safestTile())   //TODO: obs unsure if 'safestfile' makes for a wierd looking redirect? 
-		return false
+	return false
 }
 
 func (t *tile) endOfLine(dir Direction) *tile {

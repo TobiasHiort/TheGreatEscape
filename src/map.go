@@ -229,9 +229,10 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	step++
 	wg.Wait()
 
-	if math.Mod(float64(step), 1) == 0 {
+	if math.Mod(float64(step), 2) == 0 {
 		FireSpread(*m)
-		SmokeSpread(*m)
+		if math.Mod(float64(step), 4) == 0 {SmokeSpread(*m)}
+//		SmokeSpread(*m)
 		InitPlans(m)
 	} 	
 }
@@ -478,11 +479,13 @@ func (t *tile) safestTile() *tile {
 }
 
 func safest(t1, t2 *tile) *tile {
-	if !validTile(t1) {//|| t.occupied != nil {
-		if validTile(t2) {// && t.occupied == nil {
-			return t2} else {return nil}}
-	if !validTile(t2) /*&& t1.occupied == nil*/ {return t1}
-	
+//	if !validTile(t1) {//|| t.occupied != nil {
+	if !canGo(t1) {//|| t.occupied != nil {
+//		if validTile(t2) {// && t.occupied == nil {
+		if canGo(t2) {// && t.occupied == nil {
+		return t2} else {return nil}}
+//	if !validTile(t2) /*&& t1.occupied == nil*/ {return t1}
+	if !canGo(t2) /*&& t1.occupied == nil*/ {return t1}	
 	cst1 := math.Min(float64(t1.smoke), float64(t2.smoke))
 	tmp1 := t1
 	if int(cst1) < tmp1.smoke {tmp1 = t2}

@@ -16,13 +16,13 @@ tests: queue.go queue_test.go map.go pathfinder.go pathfinder_test.go
 	#go build stats.go
 
 clear:
-	rm map
+	rm main
 
 people:
 	go build people.go
 
-all: map 
-	go build gameMaster.go
+all: main.go gameMaster.go map.go people.go queue.go print.go pathfinder.go
+	go build main.go gameMaster.go map.go people.go queue.go print.go pathfinder.go
 
 gameMaster: clock.go gameMaster.go map.go
 	go build clock.go gameMaster.go map.go
