@@ -207,23 +207,23 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	wg.Add(len(ppl))
 	*statsList = [][]int{}
 	for _, pers := range ppl {
-	//	p := pers
+		//	p := pers
 		go func(p *Person){//, ind int){
 			defer wg.Done()
-		mutex.Lock()
-		p.MovePerson(m)
+			mutex.Lock()
+			p.MovePerson(m)
 			sList := &[]int{}
 			p.getStats((sList))//(statsList[ind])
-		
-	// Below: check if there's more then 1 person on the same tile
-	/*	for _, st := range *statsList {
+			
+			// Below: check if there's more then 1 person on the same tile
+			/*	for _, st := range *statsList {
 			if st[0] == (*sList)[0] && st[1] == (*sList)[1] && st[0] != 0 && st[1] != 0 {
 				panic(fmt.Sprintf("Multiple occupants at: %v", p.currentTile()))}
 				//panic(fmt.Println(p.safe))}
-		}
-			*statsList = append(*statsList, *sList) */
+		}*/
+			*statsList = append(*statsList, *sList) 
 			mutex.Unlock()
-		
+			
 		}(pers)//, i)
 	}
 	step++

@@ -27,6 +27,8 @@ func SendToPipe(posList *[][]int, fireList *[][]int, smokeList *[][]int) {
 	toPipe(posList)
 	toPipe(fireList)
 	toPipe(smokeList)
+
+	if posList == nil || fireList == nil || smokeList == nil {panic("whyy?")}
 }
 
 func fromPipe() ([][]int, [][]int, [][]int) {

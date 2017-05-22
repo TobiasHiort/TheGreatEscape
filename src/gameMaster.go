@@ -23,13 +23,8 @@ func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos [][]int) {
 			if j > i {
 				if st[0] == st2[0] && st[1] == st2[1] {panic(fmt.Sprintf("%v", st))}
 			}
-			
 		}
-		
 	}
-		
-	
-	
 	currentMap := MapInit(peopleList, inMap)
 	peopleArray := PeopleInit(currentMap, peopleList)
 	statsList := StatsStart(peopleArray)
@@ -42,12 +37,10 @@ func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos [][]int) {
 		/*		peopleArray = *///Run(&currentMap, peopleArray, &statsList)
 	//	fmt.Print((currentMap))
 	//	statsList = StatsStart(peopleArray)
-	//	fmt.Println(statsList)	
+
 		Run(&currentMap, peopleArray, &statsList)
 		fireList, smokeList = FireStats(&currentMap)		
 		//smokeList = SmokeStats(&currentMap)
 		SendToPipe(&statsList, &fireList, &smokeList)
-		//} //PrintTileMapP(aMap)
 	}
-
 }
