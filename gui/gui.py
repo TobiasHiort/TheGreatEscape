@@ -707,8 +707,8 @@ while True:
 
             if plot_rendered:
                 raw_data = rawPlotRender(rawPlot())
-                raw_data2 = rawPlotRender(rawPlot2())
-                raw_data3 = rawPlotRender(rawPlot3(json_stat_content[0]))
+                raw_data2 = rawPlotRender(rawPlot2(json_stat_time_escaped_content, json_stat_time_died_content))
+                raw_data3 = rawPlotRender(rawPlot3(json_stat_people_content[0]))
                 plot_rendered = True
                 
                 # quadrant 1
@@ -756,8 +756,11 @@ while True:
             go_running = False
             throbberSurface.fill((0, 0, 0, 0))
             
-            json_stat = open('peopleStats.txt', 'r').read()
-            json_stat_content = json.loads(json_stat)
+            json_stat_people = open('peopleStats.txt', 'r').read()
+            json_stat_people_content = json.loads(json_stat_people)
+
+            json_stat_time = open('timeStats.txt', 'r').read()
+            json_stat_time_escaped_content, json_stat_time_died_content = json.loads(json_stat_time)
             plot_rendered = True
 
 

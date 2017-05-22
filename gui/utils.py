@@ -653,7 +653,7 @@ def rawPlot():
     p2.spines['top'].set_visible(False)
     return fig
 
-def rawPlot2():
+def rawPlot2(escaped, died):
     """Description.
 
     More...
@@ -672,8 +672,31 @@ def rawPlot2():
     ax = fig.gca()
     plt.gcf().subplots_adjust(bottom=0.15, top=0.90, left=0.12, right=0.95)
 
-    l1, = ax.plot([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [1, 2, 4, 8, 15, 17, 18, 22, 23, 23, 24, 24, 25, 25], label = 'label1', linestyle = '--')
-    l2, = ax.plot([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [1, 2, 4, 8, 15, 17, 18, 22, 23, 23, 24, 24, 25, 25][::-1], label = 'label2')
+    #
+    escaped_counter = 0
+    escaped_list = []
+    time_list = []
+    t = 0
+    for e in escaped:
+        escaped_counter += e
+        t += 1
+        escaped_list.append(escaped_counter)
+        time_list.append(t)
+        
+    l1, = ax.plot(time_list, escaped_list, label = 'Escaped') #, linestyle = '--')
+       
+    died_counter = 0
+    died_list = []
+    for d in died:
+        died_counter += d
+        died_list.append(died_counter)
+        
+    l2, = ax.plot(time_list, died_list, label = 'Died')
+    #
+   # print(escaped_list)
+    
+  #  l1, = ax.plot([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [1, 2, 4, 8, 15, 17, 18, 22, 23, 23, 24, 24, 25, 25], label = 'label1', linestyle = '--')
+  #  l2, = ax.plot([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [1, 2, 4, 8, 15, 17, 18, 22, 23, 23, 24, 24, 25, 25][::-1], label = 'label2')
     #l1, = ax.plot(numpy.sin(numpy.linspace(0, 2 * numpy.pi)), 'r-o')
     #t1 = numpy.arange(0.0, 5.0, 0.10)
     #t2 = numpy.arange(0.0, 5.0, 0.02)
@@ -686,11 +709,14 @@ def rawPlot2():
     #plt.subplot(212)
     #l2, = plt.plot(t2, numpy.cos(2*numpy.pi*t2), 'r--')
 
-    l1.set_color((162/255, 19/255, 24/255))
-    l2.set_color((0/255, 166/255, 56/255))
+    l1.set_color((0/255, 166/255, 56/255))
+    l2.set_color((162/255, 19/255, 24/255))
 
-    plt.xlabel('X label', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
-    plt.ylabel('Y label', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
+#    plt.xlabel('X label', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
+#    plt.ylabel('Y label', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
+#    plt.title("Title", fontname = "Roboto", fontweight = 'medium', fontsize = 16)
+    plt.xlabel('Time', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
+    plt.ylabel('People', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
     plt.title("Title", fontname = "Roboto", fontweight = 'medium', fontsize = 16)
 
     ax.spines['right'].set_visible(False)

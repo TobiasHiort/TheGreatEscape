@@ -156,7 +156,7 @@ func (p *Person) save() {
 func (p *Person) updatePlan(m *[][]tile) {  //OBS: Function has been reduced greatly, is more like 'updateDir' right now.., 
 	if len(p.plan) > 0 {
 		if !canGo(p.plan[0]) {
-			p.screwed = true
+			p.screwed = true //nööööo, blir la knas? TODO: fixifix! redirectas annorlunda in case of annan available väg.
 			sf := p.currentTile().safestTile()
 			if sf != nil {
 				p.plan = []*tile{sf}

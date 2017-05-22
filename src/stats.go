@@ -207,11 +207,14 @@ func smokeVSFireDmg(peopleArray []*Person) (int, int){
 }
 
 func exitTimes(peopleArray []*Person) ([]int, []int){  // finishedtimes?? I dunno
-	var escaped = make([]int, int(step))
-//	escaped := [int(step)] int{}
-	var died = make([]int, int(step))
+	var escaped = make([]int, int(step+10))
+	var died = make([]int, int(step+10))  
 	for _, p := range peopleArray {
-		if p.alive {escaped[int(math.Floor(float64(p.time)))] ++} else {died[int(math.Floor(float64(p.time)))] ++ }
+	//	if p.time > step {panic(fmt.Sprintf("step: %v, time: %v", step, p.time ))}
+		if p.alive {
+			escaped[int(math.Floor(float64(p.time))) - 1]++ //= escaped[int(math.Floor(float64(p.time)))] + 1
+		} else {
+			died[int(math.Floor(float64(p.time))) - 1]++} // = died[int(math.Floor(float64(p.time)))] + 1 }
 	}
 	return escaped, died
 }
