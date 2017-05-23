@@ -710,7 +710,7 @@ while True:
                 raw_data2 = rawPlotRender(rawPlot2(json_stat_time_escaped_content, json_stat_time_died_content))
                 raw_data3 = rawPlotRender(rawPlot3(json_stat_people_content[0]))
                 raw_data3b = rawPlotRender(rawPlot3b(json_stat_people_content[3]))
-               # raw_data3c = rawPlotRender(tablePlot())
+                raw_data3c = rawPlotRender(tablePlot(json_stat_people_content))
                 plot_rendered = True
                 
                 # quadrant 1
@@ -725,8 +725,8 @@ while True:
                 statisticsSurface.blit(surf, (345, 200))
 
                 #
-              #  surf = pygame.image.fromstring(raw_data3c, (150, 120), "RGB")
-               # statisticsSurface.blit(surf, (245, 100))
+                surf = pygame.image.fromstring(raw_data3c, (250, 300), "RGB")
+                statisticsSurface.blit(surf, (75, 20))
                 #
                 
                 # quadrant 3
@@ -740,10 +740,10 @@ while True:
                 minimapSurface.fill(COLOR_WHITE)
                 minimapSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapSurface)
 
-            if player_pos != []:
-                placeText(statisticsSurface, "Populated sim, but paused, id05", FONT_ROBOTOREGULAR_14, COLOR_BLACK, 100, 200)
+            #if player_pos != []:
+             #   placeText(statisticsSurface, "Populated sim, but paused, id05", FONT_ROBOTOREGULAR_14, COLOR_BLACK, 100, 200)
             paused = True
-            placeText(statisticsSurface, "Placeholder statisticsSurface, id06", FONT_ROBOTOREGULAR_14, COLOR_BLACK, 100, 270)
+            #placeText(statisticsSurface, "Placeholder statisticsSurface, id06", FONT_ROBOTOREGULAR_14, COLOR_BLACK, 100, 270)
 
         displaySurface.blit(statisticsSurface, (0, 55))
         displaySurface.blit(MENU_FADE, (0, 45))

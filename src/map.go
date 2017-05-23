@@ -354,16 +354,16 @@ func SmokeSpreadTile(thisTile *tile) {
 	smoke := thisTile.smoke
 	if smoke >= 1 {smoke = 1}
 
-	if thisTile.neighborNorth != nil && !thisTile.neighborNorth.wall {
+	if thisTile.neighborNorth != nil && !thisTile.neighborNorth.wall && !thisTile.neighborNorth.outOfBounds {
 		(thisTile.neighborNorth.smoke) += smoke //thisTile.smoke/30
 	}
-	if thisTile.neighborEast != nil && !thisTile.neighborEast.wall {
+	if thisTile.neighborEast != nil && !thisTile.neighborEast.wall && !thisTile.neighborEast.outOfBounds {
 		(thisTile.neighborEast.smoke) += smoke //thisTile.smoke/30
 	}
-	if thisTile.neighborWest != nil && !thisTile.neighborWest.wall {
+	if thisTile.neighborWest != nil && !thisTile.neighborWest.wall && !thisTile.neighborWest.outOfBounds {
 		(thisTile.neighborWest.smoke) += smoke //thisTile.smoke/30
 	}
-	if thisTile.neighborSouth != nil && !thisTile.neighborSouth.wall {
+	if thisTile.neighborSouth != nil && !thisTile.neighborSouth.wall && !thisTile.neighborSouth.outOfBounds {
 		(thisTile.neighborSouth.smoke) += smoke //thisTile.smoke/30
 	}
 /*	

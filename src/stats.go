@@ -12,7 +12,7 @@ import (
 func readStats(peopleArray []*Person, inmap [][]tile) {
 	
 	// or create
-  pplfile, err := os.Create("peopleStats.txt") //[alive, deaths, injured],[average exit time], [average health]
+  pplfile, err := os.Create("peopleStats.txt") //[alive, deaths, injured],[average exit time], [average health], [died from smoke, died from fire]
   if err != nil {
     log.Fatal("Cannot create file, ppl")
   }
@@ -21,6 +21,7 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
 	toPpl := [][]float32{PeopleStats(peopleArray)}
 //	smoke, fire := smokeVSFireDmg(peopleArray)
 	toPpl = append(toPpl, []float32{averageExitTime(peopleArray)}, []float32{averageExitHealth(peopleArray)}, smokeVSFireDmg(peopleArray))
+	// 
 /*	
   pplStats := PeopleStats(peopleArray)
   bytes2, err2 := json.Marshal(pplStats)
