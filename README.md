@@ -92,13 +92,15 @@ A few sample maps are included, but it is possible to add custom maps in `/gui/m
 
 Each pixel represents an area of 0.5m × 0.5m. Make sure that every room has an inner door and that there exists a valid path from every room to at least one exit door.
 
-### 2.2. Build Back End
-Run `MAKEFILE` (!TODO) to compile the [Go](https://golang.org/) packages and dependencies.
-
 ### 2.2. Run Program
-Run the Python front end from `/gui` (!TODO: `root/thegreatescape.py`) with:
+Run the program from `/TheGreatEscape` with:
 ```
-$ python3 gui.py
+$ make run
+```
+### 2.2. Run Tests
+Run the backend tests from `/TheGreatEscape` with:
+```
+$ make test
 ```
 
 ## 3. Created With
