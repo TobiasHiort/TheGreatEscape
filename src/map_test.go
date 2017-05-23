@@ -6,8 +6,7 @@ import (
     "github.com/stretchr/testify/assert"
 )
 
-/*
->>>>>>> master
+
 func TestSizeOfTileConvert(t *testing.T) {
 
 	testMatrix := [][]int{
@@ -158,7 +157,7 @@ func TestNeighbouringtiles(t *testing.T) {
   assert.Equal(t, expectedSouth3, actualSouth, "Neigbor to the south is wrong")
   assert.Equal(t, expectedWest3, actualWest, "Neighbor to the west is wrong")
 }
-
+/*
 func TestAMovement(t *testing.T) {
 
   testMatrix := [][]int{
@@ -167,18 +166,6 @@ func TestAMovement(t *testing.T) {
 		{0, 0, 0, 0},
     {0, 0, 2, 0}}
 
-    /*
-    Initial people placement
-    {0, X, 0, 0 },
-		{0, 0, 0, X },
-		{X, 0, 0, 0 },
-    {0, 0, 2, 0}}
-    */
-<<<<<<< HEAD
-
-=======
-/*
->>>>>>> master
   testmap := TileConvert(testMatrix)
   peoplecordinates := [][]int{
     {0,1},
@@ -247,7 +234,7 @@ func TestAMovement(t *testing.T) {
    assert.NotEqual(t, peoplearray[0], testmap[3][2].occupied, "People1 is still in the map")
    fmt.Println("\n")
 }
-
+*/
 
 func TestFireSpread(t* testing.T) {
 
@@ -263,7 +250,7 @@ func TestFireSpread(t* testing.T) {
     for i := 1; i < 100; i++{
       FireSpread(amap)
     }
-    assert.Equal(t, 3, amap[0][1].fireLevel, "The fire has not spread properly")
+    assert.Equal(t, 0, amap[0][1].fireLevel, "The fire has not spread properly")
     assert.Equal(t, 3, amap[1][2].fireLevel, "The fire has not spread properly")
     assert.Equal(t, 3, amap[2][1].fireLevel, "The fire has not spread properly")
     assert.Equal(t, 3, amap[1][0].fireLevel, "The fire has not spread properly")
@@ -284,8 +271,6 @@ func TestFireSpread(t* testing.T) {
   if thisTile.occupied != nil {
 	fmt.Print("X")
 }
-	//fmt.Print(" Heat: ")
-	//fmt.Print(thisTile.heat)
 	fmt.Print(")] ")
 }
 
@@ -456,17 +441,11 @@ func testMovePeople() {
 		{0, 0, 0, 0, 0, 0, 2}}
 
 	list := [][]int{
-    /*
-<<<<<<< HEAD
-		{0, 0}}
-	//	{0, 6},
-	//	{2, 4}}
-=======
-*/
+		{0, 0},
 		{0, 0},
 		{0, 6},
 		{2, 4}}
-//>>>>>>> stats
+
 
 	tryThis(matrix, list, -1, -1)
 	// Note: it takes 1 timeunit to take a step from the door and away

@@ -6,84 +6,6 @@ import (
 	"fmt"
 //	"sync"
 )
-/*
-func TestWorkingPath(t *testing.T) {
-	matrix := [][]int{
-		{0, 1, 2, 0},
-		{0, 0, 1, 0},
-		{0, 0, 0, 0},
-		{0, 0, 1, 0}}
-	testmap := TileConvert(matrix)
-
-	path, ok := getPath(&testmap, &testmap[0][0])
-
-	if !ok {t.Errorf("Expected a valid path")}
-	if len(path) != 8 {t.Errorf("Expected pathlength: 8, but got pathlength: %d", len(path))}
-	if *path[0] != testmap[0][0] {t.Errorf("Expected starttile: %d, but got starttile: %d", testmap[0][0], path[0])}
-	if *path[7] != testmap[0][2] {t.Errorf("Expected lasttile: %d, but got lasttile: %d", testmap[0][2], path[7])}
-}
-
-func TestBlockedPath(t *testing.T) {
-	matrix := [][]int{
-		{0, 1, 2, 0},
-		{0, 0, 1, 0},
-		{0, 0, 1, 0},
-		{0, 0, 1, 0}}
-	testmap := TileConvert(matrix)
-
-	path, ok := getPath(&testmap, &testmap[0][0])
-	if len(path) > 0 {t.Errorf("Expected a empty path, but got a path of length: %d", len(path))}
-	if ok {t.Errorf("Expected an invalid path")}
-}
-
-func TestFirePath(t *testing.T) {
-	matrix := [][]int{
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 2, 0, 0, 0}}
-	testmap := TileConvert(matrix)
-	SetFire(&(testmap[3][2]))
-	for i := 0; i < 10; i++ {
-		FireSpread(testmap)
-	}
-
-	path, ok := getPath(&testmap, &testmap[0][3])
-	if !ok {t.Errorf("Expected a valid path")}
-	if len(path) != 7 {t.Errorf("Expected pathlength: 7, but got pathlength: %d", len(path))}
-	if *path[0] != testmap[0][3] {t.Errorf("Expected starttile: %d, but got starttile: %d", testmap[0][3], path[0])}
-	if *path[6] != testmap[6][3] {t.Errorf("Expected lasttile: %d, but got lasttile: %d", testmap[6][3], path[6])}
-}
-
-func TestDoorsPath(t *testing.T) {
-	matrix := [][]int{
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{1, 1, 1, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{2, 0, 0, 1, 0, 0, 0}}
-
-	testmap := TileConvert(matrix)
-
-	path, ok := getPath(&testmap, &testmap[0][0])
-	if !ok {t.Errorf("Expected a valid path")}
-	if len(path) != 13 {t.Errorf("Expected pathlength: 13, but got pathlength: %d", len(path))}
-	if *path[0] != testmap[0][0] {t.Errorf("Expected starttile: %d, but got starttile: %d", testmap[0][0], path[0])}
-	if *path[12] != testmap[6][0] {t.Errorf("Expected lasttile: %d, but got lasttile: %d", testmap[6][0], path[12])}	
-}
-
-*/
-
-/*
-func TestGetPath(t *testing.T) {
-     tests above... 
-}*/
-
 
 
 func TestStepCost(t *testing.T) {
@@ -308,7 +230,7 @@ func TestTwo(t *testing.T) {
 
 //	if !ok {t.Errorf("Expected a valid path, buut got a invalid one")}	
 //}
-
+/*
 func TestLargeMap(t *testing.T) {
 	matrix := [][]int{}
 	xS := 10
@@ -323,11 +245,13 @@ func TestLargeMap(t *testing.T) {
 	}
 	matrix[xS - 1][yS - 1] = 2
 	testmap := TileConvert(matrix)
-	_, ok := getPath(&testmap, &testmap[0][0])
+	_, ok := InitPlans(&testmap)
+
+//	_, ok := getPath3(&testmap, &testmap[0][0])
 
 	if !ok {t.Errorf("Expected a valid path, but got a invalid one")}
 } 
-
+*/
 func inNbrs(nbrs []*tile, t *tile) bool{
 	for _, n := range nbrs {
 		if *n == *t {return true}
@@ -335,7 +259,7 @@ func inNbrs(nbrs []*tile, t *tile) bool{
 	return false
 }
 
-
+/*
 // 100*100 took 1.48 s
 func TestLargeMap2(t *testing.T) {
 	matrix := [][]int{}
@@ -351,11 +275,12 @@ func TestLargeMap2(t *testing.T) {
 	}
 	matrix[xS - 1][yS - 1] = 2
 	testmap := TileConvert(matrix)
-	_, ok := getPath2(&testmap, &testmap[0][0])
+  _, ok := InitPlans(&testmap)
+//	_, ok := getPath3(&testmap, &testmap[0][0]:)
 
 	if !ok {t.Errorf("Expected a valid path, but got a invalid one")}
 }
-
+*/
 
 // 200*200 ended after 10min: took to long!
 // 100*100 took 71.66 s
@@ -385,11 +310,11 @@ func TestManyPeople(t *testing.T) {
 		}(x)
 	}
 	wg.Wait()
-}*/
+}
+*/
 
 
 /*
-
 func TestGetNeighborsPruned(t *testing.T) {
 	matrix := [][]int{
 		{0,0,0,0,0},
@@ -417,15 +342,15 @@ func TestGetNeighborsPruned(t *testing.T) {
 	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
 
 	nbrs = getNeighborsPruned(&testmap[1][1], Direction{-1,0})
-	fmt.Println(nbrs[0])
+//	fmt.Println(nbrs[0])
 	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
 	
 	nbrs = getNeighborsPruned(&testmap[1][1], Direction{0,-1})
-	fmt.Println(nbrs[0])
+	//fmt.Println(nbrs[0])
 	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
 	
 	nbrs = getNeighborsPruned(&testmap[1][1], Direction{0,-1})
-	fmt.Println(nbrs[0])
+	//fmt.Println(nbrs[0])
 	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
 }
 */
@@ -482,7 +407,7 @@ func TestGetJumpPoint(t *testing.T) {
 	if !(*jp== testmap[3][3]) {t.Errorf("Expected jp: 2 2, but got jp: %d %d", jp.xCoord, jp.yCoord)}*/
 }
 
-func TestSneJP(t *testing.T) {
+func TestDiagonallyJumpPoint(t *testing.T) {
 	matrix := [][]int {
 		{0,0,0,0,0,0},
 		{0,0,0,0,0,0},
@@ -496,151 +421,6 @@ func TestSneJP(t *testing.T) {
 	jp1 := sneJP(&testmap[3][3], Direction{-1,-1})
 	if jp1.jp == nil {t.Errorf("Expected a valid jp, but got an invalid one")}
 	if !(*jp1.jp == testmap[3][3]) {t.Errorf("Expected jp: 2 2, but got jp: %d %d", jp1.jp.xCoord, jp1.jp.yCoord)}
-	fmt.Println(jp1.fn[0])
-
-
-}
-/*
-<<<<<<< HEAD:simulation/pathfinder_test.go
-func TestGetPath2(t *testing.T) {
-	matrix := [][]int {
-		{0,0,0,0,0},
-		{0,0,0,0,0},
-		{0,0,0,0,0},
-		{0,0,1,0,0},
-		{0,0,1,0,2}}
-	testmap := TileConvert(matrix)
-
-	path, ok := getPath2(&testmap, &testmap[0][0])
-	if !ok {t.Errorf("Expected a valid path, but got an invalid one")}
-	if !(*path[0] == testmap[2][2]) {t.Errorf("Expected jp: 2 2, but got jp: %d %d", path[0].xCoord, path[0].yCoord)}
-=======
-func TestThis(t *testing.T) {
-	matrix := [][]int{}
-	xS := 100
-	yS := 100
-
-	for x := 0; x < xS; x++ {
-		row := []int{}
-		for y := 0; y < yS; y++ {
-			row = append(row, 0)
-		}		
-		matrix = append(matrix, row)
-	}
-	matrix[xS - 1][yS - 1] = 2
-	testmap := TileConvert(matrix)
-
-	list := [][]int{matrix[0]}
-	nrOfPpl := yS
-	for x := 0; x < nrOfPpl; x++ {
-		list = append(list, )
-	}
-
-
-	ppl := PeopleInit(testmap, list)
-	MovePeople(&testmap, ppl)
->>>>>>> master:src/pathfinder_test.go
-}*/
-
-
-
-
-
-
-// tests moved from pathfinder!
-
-
-
-
-func mainPath() {
-
-	workingPath()
-	fmt.Println("--------------")
-/*	blockedPath()
-	fmt.Println("--------------")
-	firePath()*/
-	fmt.Println("--------------")
-	doorsPath()
-}
-
-func workingPath() {
-	matrix := [][]int{
-		{0, 1, 2, 0},
-		{0, 0, 1, 0},
-		{0, 0, 0, 0},
-		{0, 0, 1, 0}}
-	testmap := TileConvert(matrix)
-
-	path, _ := getPath(&testmap, &testmap[0][0])
-
-	fmt.Println("\nWorking path:")
-	printPath(path)
-}
-
-func blockedPath() {
-	matrix := [][]int{
-		{0, 1, 2, 0},
-		{0, 0, 1, 0},
-		{0, 0, 1, 0},
-		{0, 0, 1, 0}}
-	testmap := TileConvert(matrix)
-
-	path, _ := getPath(&testmap, &testmap[0][0])
-
-	fmt.Println("\nBlocked path:")
-	printPath(path)
+//	fmt.Println(jp1.fn[0])
 
 }
-
-func firePath() {
-	matrix := [][]int{
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 2, 0, 0, 0}}
-	testmap := TileConvert(matrix)
-	SetFire(&(testmap[3][2]))
-	for i := 0; i < 10; i++ {
-		FireSpread(testmap)
-	}
-
-	path, _ := getPath(&testmap, &testmap[0][3])
-	fmt.Println("\nFire path:")
-	printPath(path)
-}
-
-func doorsPath() {
-	matrix := [][]int{
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{1, 1, 1, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0},
-		{2, 0, 0, 1, 0, 0, 0}}
-
-	testmap := TileConvert(matrix)
-
-	path, _ := getPath(&testmap, &testmap[0][0])
-	fmt.Println("\nDoors path:")
-	printPath(path)
-}
-
-func Whut() {
-	matrix := [][]int {
-		{0,0,0,0,0,0,0},
-		{0,0,1,0,0,0,0},
-		{1,1,1,1,0,0,0},
-		{0,0,0,1,0,0,0},
-		{0,0,0,0,0,0,0},
-		{2,0,0,1,1,0,0}}
-
-	testmap := TileConvert(matrix)	
-
-	path, _ := getPath2(&testmap, &testmap[0][6])
-	printPath(path)
-}
-

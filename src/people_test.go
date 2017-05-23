@@ -2,7 +2,7 @@ package main
 
 import "testing"
 
-import "fmt"
+//import "fmt"
 
 func TestCurrentTile(t *testing.T) {
 	matrix := [][]int {
@@ -12,7 +12,7 @@ func TestCurrentTile(t *testing.T) {
 	mappis := TileConvert(matrix)
 
 	p1 := makePerson(&mappis[1][0])
-	fmt.Println(p1.currentTile())
+//	fmt.Println(p1.currentTile())
 	p1.MovePerson(&mappis)
-	fmt.Println(p1.currentTile())
+//	fmt.Println(p1.currentTile())
 }
