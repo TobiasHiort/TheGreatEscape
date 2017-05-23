@@ -786,6 +786,41 @@ def rawPlot3(stats):
 
     return fig
 
+def rawPlot3b(stats):
+    """Description.
+
+    More...
+    """
+    def f(t):
+        return numpy.exp(-t) * numpy.cos(2*numpy.pi*-t)
+
+    plot_x = 150
+    plot_y = 120
+    fig = plt.figure(figsize=[plot_x * 0.01, plot_y * 0.01], # inches
+                       dpi=100,        # 100 dots per inch, so the resulting buffer is 150x120 pixels
+                       )
+
+    fig.set_size_inches(plot_x * 0.01, plot_y * 0.01)
+
+    ax = fig.gca()
+    plt.gcf().subplots_adjust(bottom=0.15, top=0.90, left=0.12, right=0.95)
+
+    # Data to plot
+    labels = 'Smoke', 'Fire'
+   # sizes = [30, 70]
+    colors = [(124/255, 124/255, 124/255), (162/255, 19/255, 24/255)] #fix colors
+    #explode = [0.1, 0]
+
+    # Plot
+    patches, texts, autotexts = plt.pie(stats, labels=labels, colors=colors, autopct='%1.0f%%', shadow=True, startangle=45, labeldistance=1.25) # pctdistance=1.1
+    texts[0].set_fontsize(9)
+    texts[1].set_fontsize(9)
+
+    plt.axis('equal')
+
+    return fig
+
+
 def rawPlotRender(fig):
     """Description.
 

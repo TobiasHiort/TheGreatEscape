@@ -520,12 +520,11 @@ func getPath3(m *[][]tile, from []*tile) {    //INIT!
 		}
 	}
 
-	for _, f := range from {
-		cq.Update(f, 0)
-	}
+	for _, f := range from {cq.Update(f, 0)}
 	v := float32(0)
 	current := tileCost{&tile{}, &v}
-	currentDir := Direction{0,0}	
+	currentDir := Direction{0,0}
+	
 	for len(cq) != 0 {
 		current = (&cq).Pop()
 		if *current.cost == float32(math.Inf(1)) {break}
@@ -601,6 +600,7 @@ func setPlan(parentOf map[*tile]*tile, pers *tile) {
 		if !ok {
 			//fmt.Println("nope?")
 			//pers.occupied.plan = []*tile{pers.safestTile()}
+			//pers.occupied.plan = []*tile{}
 			return
 		}
 	}

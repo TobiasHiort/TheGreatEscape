@@ -19,7 +19,8 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
 	defer pplfile.Close()
 //	toPpl := [][]float32{}
 	toPpl := [][]float32{PeopleStats(peopleArray)}
-	toPpl = append(toPpl, []float32{averageExitTime(peopleArray)}, []float32{averageExitHealth(peopleArray)})
+//	smoke, fire := smokeVSFireDmg(peopleArray)
+	toPpl = append(toPpl, []float32{averageExitTime(peopleArray)}, []float32{averageExitHealth(peopleArray)}, smokeVSFireDmg(peopleArray))
 /*	
   pplStats := PeopleStats(peopleArray)
   bytes2, err2 := json.Marshal(pplStats)
@@ -194,27 +195,34 @@ func averageExitHealth(peopleArray []*Person) float32 {
   }else {return 0}
 }
 
-func smokeVSFireDmg(peopleArray []*Person) (int, int){
-	smoke := 0
-	fire := 0
+func smokeVSFireDmg(peopleArray []*Person) []float32{
+	smoke := float32(0)
+	fire := float32(0)
 	for _, p := range peopleArray {
 		if !p.alive {
-			if p.smokedmg > 50 {
+			if p.smokedmg > (100 - p.hp)/2 {
 				smoke++} else {fire++}
 		}
 	}
-	return smoke, fire
+	return []float32{smoke, fire}
 }
 
 func exitTimes(peopleArray []*Person) ([]int, []int){  // finishedtimes?? I dunno
 	var escaped = make([]int, int(step+10))
 	var died = make([]int, int(step+10))  
-	for _, p := range peopleArray {
-	//	if p.time > step {panic(fmt.Sprintf("step: %v, time: %v", step, p.time ))}
+	for _, p := range peopleArray {          //Obs not 100% on the indexing here, in case of bug, break the glass.
+		//	if p.time > step {panic(fmt.Sprintf("step: %v, time: %v", step, p.time ))}
+		ind := int(math.Floor(float64(p.time))) 
+		if ind > len(escaped) {
+			for i := len(escaped); i <= ind; i++ {
+				escaped = append(escaped, 0)
+				died = append(died, 0)
+			}
+		}
 		if p.alive {
-			escaped[int(math.Floor(float64(p.time))) - 1]++ //= escaped[int(math.Floor(float64(p.time)))] + 1
+			escaped[ind]++ //= escaped[int(math.Floor(float64(p.time)))] + 1
 		} else {
-			died[int(math.Floor(float64(p.time))) - 1]++} // = died[int(math.Floor(float64(p.time)))] + 1 }
+			died[ind]++} // = died[int(math.Floor(float64(p.time)))] + 1 }
 	}
 	return escaped, died
 }

@@ -108,7 +108,7 @@ func (p *Person) nextTile() *tile{
 }
 
 func (p *Person) followPlan() {
-	if p.path[len(p.path) - 1] == nil { return} // TODO updatestats
+	if p.path[len(p.path) - 1] == nil { return} // person escaped, this case should never happen though
 	if p.path[len(p.path) - 1].door {   // standing at the exit -> leave
 //		(p.path[len(p.path) - 1].occupied) = nil
 		p.currentTile().occupied = nil
@@ -153,7 +153,16 @@ func (p *Person) save() {
 	p.path[len(p.path) - 1] = &tile{}
 }
 
-func (p *Person) updatePlan(m *[][]tile) {  //OBS: Function has been reduced greatly, is more like 'updateDir' right now.., 
+func (p *Person) updatePlan(m *[][]tile) {  //OBS: Function has been reduced greatly, is more like 'updateDir' right now..,
+	if len(p.plan) == 0 || (len(p.plan) > 0 && !canGo(p.plan[0])) {
+		p.screwed = true
+		sf := p.currentTile().safestTile()
+		if sf != nil {
+			p.plan = []*tile{sf}		
+		}
+	}
+	if len(p.plan) > 0 {p.dir = getDir(p.currentTile(), p.plan[0])}
+	/*
 	if len(p.plan) > 0 {
 		if !canGo(p.plan[0]) {
 			p.screwed = true //nööööo, blir la knas? TODO: fixifix! redirectas annorlunda in case of annan available väg.
@@ -170,7 +179,7 @@ func (p *Person) updatePlan(m *[][]tile) {  //OBS: Function has been reduced gre
 		//	xDir := rand.Intn(1) - rand.Intn(1)
 		//	yDir := rand.Intn(1) - rand.Intn(1)
 		//	p.dir = Direction{xDir, yDir}
-	}
+	}*/
 } 
 
 func (p *Person) MovePerson(m *[][]tile) {	
