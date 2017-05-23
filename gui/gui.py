@@ -709,6 +709,7 @@ while True:
                 raw_data = rawPlotRender(rawPlot())
                 raw_data2 = rawPlotRender(rawPlot2(json_stat_time_escaped_content, json_stat_time_died_content))
                 raw_data3 = rawPlotRender(rawPlot3(json_stat_people_content[0]))
+                raw_data3b = rawPlotRender(rawPlot3b(json_stat_people_content[3]))
                 plot_rendered = True
                 
                 # quadrant 1
@@ -719,7 +720,7 @@ while True:
                 surf = pygame.image.fromstring(raw_data3, (150, 120), "RGB")
                 statisticsSurface.blit(surf, (345, 60))
                 
-                surf = pygame.image.fromstring(raw_data3, (150, 120), "RGB")
+                surf = pygame.image.fromstring(raw_data3b, (150, 120), "RGB")
                 statisticsSurface.blit(surf, (345, 200))
                 
                 # quadrant 3

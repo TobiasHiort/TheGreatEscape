@@ -129,7 +129,6 @@ func makeNewTile(thisPoint int, x int, y int) tile {
 	if thisPoint == 0 {
 		//make normal floor
 		//helt normalt flour
-
 		//append to tilemap
 	} else if thisPoint == 1 {
 		//wall
@@ -141,7 +140,6 @@ func makeNewTile(thisPoint int, x int, y int) tile {
 		//out of bounds
 		newTile.outOfBounds = true
 	}
-
 	return newTile
 }
 
@@ -162,19 +160,15 @@ func TileConvert(inMap [][]int) [][]tile {
 
 			//inserts tile into 2d slice
 			tileMap[x][y] = newTile
-
 		}
 	}
-
 	//Assigns 4 neighbors to each tile
 	for x := 0; x < mapXSize; x++ {
 		for y := 0; y < mapYSize; y++ {
 			assignNeighbor(&(tileMap[x][y]), x, y, mapXSize, mapYSize, tileMap)
 		}
 	}
-
 	return tileMap
-
 }
 
 func GetTile(inMap [][]tile, x int, y int) *tile {
@@ -316,7 +310,6 @@ func debugging() {
 
 //send heat
 func FireStats(m *[][]tile) ([][]int, [][]int){
-	//func FireStats(start []*tile, dir Direction) [][]int{
 	fire := [][]int{}
 	smoke := [][]int{}
 
@@ -454,12 +447,7 @@ func DoorCoord(inMap [][]tile) [][]int {
 }
 
 func (t *tile) safestTile() *tile {
-
-//	fmt.Println("here?")
-//	cst1 := math.Min(float64(t.neighborNorth.smoke), float64(t.neighborWest.smoke))
-//	cst2 := math.Min(float64(t.neighborSouth.smoke), float64(t.neighborEast.smoke))
-//	if int(cst1) < tmp1.smoke {tmp1 = t.neighborWest}
-	tmp1 := safest(t.neighborNorth, t.neighborWest) //t.neighborNorth
+	tmp1 := safest(t.neighborNorth, t.neighborWest)
 	tmp2 := safest(t.neighborSouth, t.neighborEast)
 
 	tmp3 := safest(t.neighborNW, t.neighborNE)
@@ -467,17 +455,6 @@ func (t *tile) safestTile() *tile {
 
 	tmp1 = safest(tmp1, tmp2)
 	tmp2 = safest(tmp3, tmp4)
-
-//	if int(cst2) < tmp2.smoke {tmp2 = t.neighborEast}
-
-//	if tmp1.wall || tmp2.wall {fmt.Println("no good")}
-	
-//	cst := math.Min(float64(tmp1.smoke), float64(tmp2.smoke))
-//	if int(cst) < tmp1.smoke {tmp1 = tmp2}
-
-	//fmt.Println("oh nooo")
-
-	
 	
 	return safest(tmp1, tmp2)
 }
@@ -493,7 +470,6 @@ func safest(t1, t2 *tile) *tile {
 	cst1 := math.Min(float64(t1.smoke), float64(t2.smoke))
 	tmp1 := t1
 	if int(cst1) < tmp1.smoke {tmp1 = t2}
-
 	//if !validTile(tmp1) {return nil}
 	return tmp1
 }
