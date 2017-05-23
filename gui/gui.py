@@ -725,8 +725,8 @@ while True:
                 statisticsSurface.blit(surf, (345, 200))
 
                 #
-                surf = pygame.image.fromstring(raw_data3c, (250, 300), "RGB")
-                statisticsSurface.blit(surf, (75, 20))
+                surf = pygame.image.fromstring(raw_data3c, (320, 320), "RGB")
+                statisticsSurface.blit(surf, (35, 20))
                 #
                 
                 # quadrant 3

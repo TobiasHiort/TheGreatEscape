@@ -821,14 +821,15 @@ def rawPlot3b(stats):
     return fig
 
 def tablePlot(stats):
-    plot_x = 250
-    plot_y = 300
+    plot_x = 320
+    plot_y = 320
     #    fig = table(cellText=clust_data,colLabels=collabel,loc='center')
     fig = plt.figure(figsize=[plot_x * 0.01, plot_y * 0.01], # inches
-                     dpi=100,        # 100 dots per inch, so the resulting buffer is 150x120 pixels
+                     dpi = 100,        # 100 dots per inch, so the resulting buffer is 150x120 pixels
                      )
+ 
 #    plt.figure()
-    ax = fig.gca(frame_on=False)
+    ax = fig.gca(frame_on = False)
 
     # remove x/y-axis
     ax.xaxis.set_visible(False)
@@ -836,7 +837,8 @@ def tablePlot(stats):
 
     # remove padding around graph
     # TODO
-
+    size = [0.85] #[plot_x/100]
+    
    # y=[1,2,3,4,5,4,3,2,1,1,1,1,1,1,1,1]
     #plt.plot([10,10,14,14,10],[2,4,4,2,2],'r')
     col_labels = ['Average escape values']
@@ -845,17 +847,18 @@ def tablePlot(stats):
     table_vals = [stats[1],stats[2]]
     # the rectangle is where I want to place the table
     exit_table = plt.table(cellText = table_vals,
-                         # colWidths = [0.1]*3,
-                          rowLabels = row_labels,
-                          colLabels = col_labels,
-                          loc = 'center')
+                           colWidths = size,
+                         #  rowWidths = size,
+                           rowLabels = row_labels,
+                           colLabels = col_labels,
+                           loc = 'center')
     #plt.text(10,10,'Table Title',size = 70)
     col_labels = ['Exit values']
     row_labels = ['Alive','Dead','Injured']
     table_vals = [[stats[0][0]], [stats[0][1]], [stats[0][2]]]
     # the rectangle is where I want to place the table
     the_table = plt.table(cellText = table_vals,
-                         # colWidths = [0.1]*3,
+                          colWidths = size,
                           rowLabels = row_labels,
                           colLabels = col_labels,
                           loc = 'upper center')
@@ -865,7 +868,7 @@ def tablePlot(stats):
     table_vals=[[stats[3][0]], [stats[3][1]]] 
     # the rectangle is where I want to place the table
     the_table = plt.table(cellText = table_vals,
-                         # colWidths = [0.1]*3,
+                          colWidths = size,
                           rowLabels = row_labels,
                           colLabels = col_labels,
                           loc = 'lower center')
