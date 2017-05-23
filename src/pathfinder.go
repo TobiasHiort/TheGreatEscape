@@ -511,16 +511,25 @@ func getPath3(m *[][]tile, from []*tile) {    //INIT!
 	var parentOf map[*tile]*tile
 	parentOf = make(map[*tile]*tile)
 
+	// map över costOf, in beta!
+	var costOf map[*tile]float32
+	costOf = make(map[*tile]float32)
+	//
+	
 	cq := queue{}
 
 	for i, list := range *m {
 		for j, _ := range list {
 			val := float32(math.Inf(1))
 			cq = append(cq, tileCost{&(*m)[i][j], &val})
+			costOf[&(*m)[i][j]] = val  //beta
 		}
 	}
 
-	for _, f := range from {cq.Update(f, 0)}
+	for _, f := range from {
+		cq.Update(f, 0)
+		costOf[f] = 0  //beta
+	}
 	v := float32(0)
 	current := tileCost{&tile{}, &v}
 	currentDir := Direction{0,0}
@@ -550,9 +559,12 @@ func getPath3(m *[][]tile, from []*tile) {    //INIT!
 						mutex.Lock()
 						cost := *current.cost + smplCost(current.tile, jp.jp) + 100*float32(jp.jp.smoke)
 						p, ok := parentOf[jp.jp]
-						if !ok || (ok && cost < cq.costOf(jp.jp) && p.smoke >= current.tile.smoke) {
+						//if !ok || (ok && cost < cq.costOf(jp.jp) && p.smoke >= current.tile.smoke) {
+						if !ok || (ok && cost < costOf[jp.jp] && p.smoke >= current.tile.smoke) {  //beta
 							parentOf[jp.jp] = current.tile
 							cq.Update(jp.jp, cost)
+							costOf[jp.jp] = cost  //beta
+							
 							if jp.jp.occupied != nil {
 								setPlan(parentOf, jp.jp) 
 							}
@@ -560,10 +572,11 @@ func getPath3(m *[][]tile, from []*tile) {    //INIT!
 						for _, n := range jp.fn {
 							fnCost := cost + smplCost(jp.jp, n) + 100*float32(n.smoke)//float32(math.Mod(float64(n.smoke), 50))
 							p, ok := parentOf[n]
-							if jp.jp != n && (!ok || (n != nil && fnCost < cq.costOf(n) && p.smoke >= n.smoke)) {
+//							if jp.jp != n && (!ok || (n != nil && fnCost < cq.costOf(n) && p.smoke >= n.smoke)) {
+							if jp.jp != n && (!ok || (n != nil && fnCost < costOf[n] && p.smoke >= n.smoke)) { //beta
 								parentOf[n] = jp.jp
 								cq.Update(n, fnCost)
-
+								costOf[n] = fnCost  //beta
 								if n.occupied != nil {
 									setPlan(parentOf, n)
 								}
@@ -854,6 +867,9 @@ func (p *Person) redNE() bool {
 
 func (p *Person) redE() bool {
 	current := p.currentTile()
+	if current.neighborSouth == nil {return p.moveTo(current.neighborNorth)}
+	if current.neighborNorth == nil {return p.moveTo(current.neighborSouth)}
+	
 	if current.neighborSouth.smoke <= current.neighborNorth.smoke {
 		if p.moveTo(current.neighborSouth) {return true}}
 	if p.moveTo(current.neighborNorth) {return true}
@@ -864,6 +880,9 @@ func (p *Person) redE() bool {
 
 func (p *Person) redS() bool {
 	current := p.currentTile()
+	if current.neighborWest == nil {return p.moveTo(current.neighborEast)}
+	if current.neighborEast == nil {return p.moveTo(current.neighborWest)}
+	
 	if current.neighborWest.smoke <= current.neighborEast.smoke {
 		if p.moveTo(current.neighborWest) {return true}}
 	if p.moveTo(current.neighborEast) {return true}
@@ -874,6 +893,9 @@ func (p *Person) redS() bool {
 
 func (p *Person) redW() bool {
 	current := p.currentTile()
+	if current.neighborSouth == nil {return p.moveTo(current.neighborNorth)}
+	if current.neighborNorth == nil {return p.moveTo(current.neighborSouth)}
+	
 	if current.neighborSouth.smoke <= current.neighborNorth.smoke {
 		if p.moveTo(current.neighborSouth) {return true}}
 	if p.moveTo(current.neighborNorth) {return true}
@@ -884,6 +906,9 @@ func (p *Person) redW() bool {
 
 func (p *Person) redN() bool {
 	current := p.currentTile()
+	if current.neighborWest == nil {return p.moveTo(current.neighborEast)}
+	if current.neighborEast == nil {return p.moveTo(current.neighborWest)}
+	
 	if current.neighborWest.smoke <= current.neighborEast.smoke {
 		if p.moveTo(current.neighborWest) {return true}}
 	if p.moveTo(current.neighborEast) {return true}
