@@ -69,6 +69,14 @@ and [SciPy](https://www.scipy.org/install.html):
 ```
 $ sudo pip3 install scipy
 ```
+Install Go
+```
+$ sudo apt-get install golang-go
+```
+Install testing in go
+```
+$ go get github.com/stretchr/testify/assert
+```
 
 #### 1.2.2. Windows and macOS
 As long as [Python 3.x](https://www.python.org/downloads/), [Go](https://golang.org/) and [pip3](https://pypi.python.org/pypi/pip) are installed, use the [pip3](https://pypi.python.org/pypi/pip) commands in [1.2.1](https://github.com/TobiasHiort/TheGreatEscape#121--linux).
