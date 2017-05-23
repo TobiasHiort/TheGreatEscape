@@ -2,18 +2,17 @@ map: map.go
 	go build map.go people.go pathfinder.go queue.go print.go
 	./map
 
-test: map.go map_test.go
-	go test -v map.go people.go map_test.go pathfinder.go queue.go
+#test: map.go map_test.go
+#	go test -v map.go people.go map_test.go pathfinder.go queue.go
+
+con: concurrency_test.go
+	go test -v concurrency_test.go map.go people.go pathfinder.go queue.go print.go
 
 path: map.go queue.go pathfinder.go
 	go run map.go queue.go pathfinder.go
 
-tests: queue.go queue_test.go map.go pathfinder.go pathfinder_test.go
-	go test -v queue.go pathfinder.go map.go people.go print.go queue_test.go pathfinder_test.go people_test.go
-
-#stats:
-#	go build map.go people.go pathfinder.go queue.go print.go
-	#go build stats.go
+test: queue.go queue_test.go map.go pathfinder.go pathfinder_test.go map_test.go print.go
+	go test -v queue.go pathfinder.go map.go people.go print.go queue_test.go map_test.go pathfinder_test.go people_test.go
 
 clear:
 	rm main

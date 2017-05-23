@@ -69,6 +69,14 @@ and [SciPy](https://www.scipy.org/install.html):
 ```
 $ sudo pip3 install scipy
 ```
+Install Go
+```
+$ sudo apt-get install golang-go
+```
+Install testing in go
+```
+$ go get github.com/stretchr/testify/assert
+```
 
 #### 1.2.2. Windows and macOS
 As long as [Python 3.x](https://www.python.org/downloads/), [Go](https://golang.org/) and [pip3](https://pypi.python.org/pypi/pip) are installed, use the [pip3](https://pypi.python.org/pypi/pip) commands in [1.2.1](https://github.com/TobiasHiort/TheGreatEscape#121--linux).
@@ -92,13 +100,15 @@ A few sample maps are included, but it is possible to add custom maps in `/gui/m
 
 Each pixel represents an area of 0.5m × 0.5m. Make sure that every room has an inner door and that there exists a valid path from every room to at least one exit door.
 
-### 2.2. Build Back End
-Run `MAKEFILE` (!TODO) to compile the [Go](https://golang.org/) packages and dependencies.
-
 ### 2.2. Run Program
-Run the Python front end from `/gui` (!TODO: `root/thegreatescape.py`) with:
+Run the program from `/TheGreatEscape` with:
 ```
-$ python3 gui.py
+$ make run
+```
+### 2.2. Run Tests
+Run the backend tests from `/TheGreatEscape` with:
+```
+$ make test
 ```
 
 ## 3. Created With
