@@ -447,6 +447,17 @@ func DoorCoord(inMap [][]tile) [][]int {
 }
 
 func (t *tile) safestTile() *tile {
+	nbrs := getNeighbors(t)
+
+	if len(nbrs) == 0 {return nil}
+	
+	safest := nbrs[0]
+
+	for _, nbr := range nbrs {
+		if nbr.smoke < safest.smoke {safest = nbr}
+	}
+	return safest 
+	/*
 	tmp1 := safest(t.neighborNorth, t.neighborWest)
 	tmp2 := safest(t.neighborSouth, t.neighborEast)
 
@@ -456,7 +467,7 @@ func (t *tile) safestTile() *tile {
 	tmp1 = safest(tmp1, tmp2)
 	tmp2 = safest(tmp3, tmp4)
 	
-	return safest(tmp1, tmp2)
+	return safest(tmp1, tmp2)*/
 }
 
 func safest(t1, t2 *tile) *tile {

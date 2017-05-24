@@ -75,6 +75,8 @@ fire_movement = []
 smoke_pos = []		
 smoke_movement = []
 
+result_matrix = []
+
 init_fires = 1
 
 fire_percent = 0
@@ -112,6 +114,7 @@ current_map_exits = 0
 COLOR_PLAYER_GRADIENT = interpolateTuple(( 36, 102,   0), ( 66, 181,   0), 100) # 2 steps == len 3
 COLOR_FIRE_GRADIENT   = interpolateTuple((253, 207,  88), (170,   6,   6), 100) # 2 steps == len 3
 COLOR_SMOKE_GRADIENT  = interpolateTuple((254, 254, 254), (100, 100, 100), 100) # 2 steps == len 3
+COLOR_HEAT_GRADIENT  = interpolateTuple((0, 199, 255), COLOR_RED_DEAD, 99)
 
 # create the display surface, the overall main screen size that will be rendered
 displaySurface = pygame.display.set_mode((GAME_RES)) # FULLSCREEN, DOUBLEBUF?
@@ -435,7 +438,7 @@ while True:
                             players_movement = []
 
                             playerSurface, _, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
-                # upload button map error
+                            # upload button map error
                 if cursorBoxHit(mouse_x, mouse_y, 450, 574, 335+250, 459+250, active_tab_bools[0]) and map_error:
                     active_map_path_tmp = fileDialogPath()
                     if active_map_path_tmp != "": #and active_map_path != "/":
@@ -684,7 +687,7 @@ while True:
             placeText(settingsSurface, "Placeholder settingsSurface, id03", FONT_ROBOTOREGULAR_14, COLOR_BLACK, 100, 200)
 
             minimapSurface.fill(COLOR_WHITE)
-            minimapSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapSurface)
+            minimapSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapSurface, result_matrix, COLOR_HEAT_GRADIENT, False)
 
         displaySurface.blit(settingsSurface, (0, 55))
         displaySurface.blit(MENU_FADE, (0, 45))
@@ -706,11 +709,12 @@ while True:
             placeCenterText(statisticsSurface, pathToName(active_map_path), FONT_ROBOTOREGULAR_26, COLOR_BLACK, 530, 30)
 
             if plot_rendered:
-                raw_data = rawPlotRender(rawPlot())
+                raw_data = rawPlotRender(rawPlot4(smoke_movement, fire_movement, current_map_sqm*4))
                 raw_data2 = rawPlotRender(rawPlot2(json_stat_time_escaped_content, json_stat_time_died_content))
                 raw_data3 = rawPlotRender(rawPlot3(json_stat_people_content[0]))
                 raw_data3b = rawPlotRender(rawPlot3b(json_stat_people_content[3]))
                 raw_data3c = rawPlotRender(tablePlot(json_stat_people_content))
+              
                 plot_rendered = True
                 
                 # quadrant 1
@@ -718,16 +722,15 @@ while True:
                 #statisticsSurface.blit(surf, (10, 5))
                 
                 # quadrant 2
-                surf = pygame.image.fromstring(raw_data3, (150, 120), "RGB")
-                statisticsSurface.blit(surf, (345, 60))
-                
-                surf = pygame.image.fromstring(raw_data3b, (150, 120), "RGB")
-                statisticsSurface.blit(surf, (345, 200))
-
-                #
-                surf = pygame.image.fromstring(raw_data3c, (320, 320), "RGB")
+                surf = pygame.image.fromstring(raw_data3c, (300, 320), "RGB")
                 statisticsSurface.blit(surf, (35, 20))
-                #
+                
+                surf = pygame.image.fromstring(raw_data3, (200, 120), "RGB")
+                statisticsSurface.blit(surf, (290, 60))
+
+                if json_stat_people_content[3][0] != 0 or json_stat_people_content[3][1] != 0:
+                    surf = pygame.image.fromstring(raw_data3b, (200, 120), "RGB")
+                    statisticsSurface.blit(surf, (290, 200))
                 
                 # quadrant 3
                 surf = pygame.image.fromstring(raw_data2, (plot_x, plot_y), "RGB")
@@ -738,7 +741,7 @@ while True:
                 statisticsSurface.blit(surf, (517, 361))
                 
                 minimapSurface.fill(COLOR_WHITE)
-                minimapSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapSurface)
+                minimapSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapSurface, result_matrix, COLOR_HEAT_GRADIENT, True)
 
             #if player_pos != []:
              #   placeText(statisticsSurface, "Populated sim, but paused, id05", FONT_ROBOTOREGULAR_14, COLOR_BLACK, 100, 200)
@@ -770,6 +773,7 @@ while True:
             json_stat_time_escaped_content, json_stat_time_died_content = json.loads(json_stat_time)
             plot_rendered = True
 
-
+            result_matrix = heatMap(players_movement, mapMatrix)
+            
     # update displaySurface
     pygame.display.flip() # .update(<surface_args>) instead?

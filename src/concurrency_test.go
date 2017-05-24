@@ -29,11 +29,11 @@ func Test_10 (t *testing.T) {
     	statsList[i] = make([]int, 3)}
 
     	for !CheckFinish(peopleArray) {
-    		Run (&amap, peopleArray, &statsList)
+    		Run1 (&amap, peopleArray, &statsList)
     	}
 }
   
-  /*
+  
   func Test_25 (t *testing.T) {
 	testMatrix := [][]int{
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -74,12 +74,12 @@ func Test_10 (t *testing.T) {
     	statsList[i] = make([]int, 3)}
 
     	for !CheckFinish(peopleArray) {
-    		Run (&amap, peopleArray, &statsList)
+    		Run1 (&amap, peopleArray, &statsList)
     	}
 
-  }*/
+  }
 
-/*
+
   func Test_50 (t *testing.T) {
 	testMatrix := [][]int {
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -158,10 +158,10 @@ func Test_10 (t *testing.T) {
     	statsList[i] = make([]int, 3)}
 		
     	for !CheckFinish(peopleArray) {
-    		Run (&amap, peopleArray, &statsList)
+    		Run1 (&amap, peopleArray, &statsList)
     	}
- }*/
-  /*
+ }
+  
   func Test_60 (t *testing.T) {
 	testMatrix := [][]int {
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -249,10 +249,10 @@ func Test_10 (t *testing.T) {
     	statsList[i] = make([]int, 3)}
 		
     	for !CheckFinish(peopleArray) {
-    		Run (&amap, peopleArray, &statsList)
+    		Run1 (&amap, peopleArray, &statsList)
     	}
-  } */
-/*
+  } 
+
 func Test_70 (t *testing.T) {
 	testMatrix := [][]int {
 		
@@ -352,10 +352,10 @@ func Test_70 (t *testing.T) {
   		for i := range statsList {
     	statsList[i] = make([]int, 3)}
     	for !CheckFinish(peopleArray) {
-    		Run (&amap, peopleArray, &statsList)
+    		Run1 (&amap, peopleArray, &statsList)
     	}
-  }*/
- /*
+  }
+ 
   func Test_75 (t *testing.T) {
 	testMatrix := [][]int {
 		
@@ -464,11 +464,11 @@ func Test_70 (t *testing.T) {
     	statsList[i] = make([]int, 3)}
 
     	for !CheckFinish(peopleArray) {
-    		Run (&amap, peopleArray, &statsList)
+    		Run1 (&amap, peopleArray, &statsList)
     	}
-  }*/
+  }
 
-/*
+
   func Test_80 (t *testing.T) {
 	testMatrix := [][]int {
 		
@@ -581,14 +581,14 @@ func Test_70 (t *testing.T) {
     	statsList[i] = make([]int, 3)}
 		
     	for !CheckFinish(peopleArray) {
-    		Run (&amap, peopleArray, &statsList)
+    		Run1 (&amap, peopleArray, &statsList)
     		
     	}
- }*/
+ }
 
 
 //not worked max 10 min (before optimizaion a star)
-/*
+
 func Test_90 (t *testing.T) {
 	testMatrix := [][]int {
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -709,10 +709,10 @@ func Test_90 (t *testing.T) {
     	statsList[i] = make([]int, 3)}
 		
     	for !CheckFinish(peopleArray) {
-    		Run (&amap, peopleArray, &statsList)
+    		Run1 (&amap, peopleArray, &statsList)
     	}
 
-  }*/
+  }
 
 
 

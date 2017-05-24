@@ -56,7 +56,7 @@ func getNeighborsPruned(current *tile, dir Direction) []*tile{
 	south := validTile(current.neighborSouth)   // replace !?
 	
 	if dir.yDir == 0 { 
-		if dir.xDir == 0 {return getNeighbors(current, queue{})}
+		if dir.xDir == 0 {return getNeighbors(current)}
 		if dir.xDir == -1 {  // går rakt uppåt
 			if north {neighbors = append(neighbors, current.neighborNorth)}
 			if !validTile(current.neighborSW) && west {
@@ -131,7 +131,7 @@ func getNeighborsPruned(current *tile, dir Direction) []*tile{
 	return neighbors
 }
 
-func getNeighbors(current *tile, costQueue queue) []*tile {
+func getNeighbors(current *tile) []*tile {
 	neighbors := []*tile{}
 
 	north := validTile(current.neighborNorth) 
@@ -465,13 +465,13 @@ func northJP(current *tile) jp{
 }
 
 func smplCost(t1 *tile, t2 *tile) float32{
-	cost := needName(t1, t2)
+	cost := smplDistance(t1, t2)
 	if t1.occupied != nil {cost += 10}
 	if t2.occupied != nil {cost += 10}
 	return cost
 }
 
-func needName(t1 *tile, t2 *tile) float32{
+func smplDistance(t1 *tile, t2 *tile) float32{
 	xDif := math.Max(float64(t1.xCoord), float64(t2.xCoord)) - math.Min(float64(t1.xCoord), float64(t2.xCoord))
 	yDif := math.Max(float64(t1.yCoord), float64(t2.yCoord)) - math.Min(float64(t1.yCoord), float64(t2.yCoord))
 	if xDif == 0 {return float32(yDif)}

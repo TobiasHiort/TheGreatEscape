@@ -145,7 +145,7 @@ def buildMap(path, mapSurface):
                                  tilesize, tilesize))
     return mapSurface, mapMatrix, tilesize, mapwidth, mapheight, map_error
 
-def buildMiniMap(path, mapSurface): # ~duplicate^
+def buildMiniMap(path, mapSurface, result_matrix, COLOR_HEAT_GRADIENT, heatMap_bool): # ~duplicate^
     """Returns mapSurface, mapMatrix, tilesize,
    mapwidth, mapheight after building map
    from png.
@@ -197,6 +197,13 @@ def buildMiniMap(path, mapSurface): # ~duplicate^
                              (math.floor(0.5 * (sw - w * t + 2 * t * column)),
                                 math.floor((sh - p)/2 - (h * t)/2 + t * row),
                              tilesize, tilesize))
+            if heatMap_bool :
+                if result_matrix[row][column] != 0:
+                    pygame.draw.rect(mapSurface, COLOR_HEAT_GRADIENT[result_matrix[row][column] - 1],
+                                     (math.floor(0.5 * (sw - w * t + 2 * t * column)),
+                                      math.floor((sh - p)/2 - (h * t)/2 + t * row),
+                                      tilesize, tilesize))            
+            
     return mapSurface, mapMatrix, tilesize, mapwidth, mapheight
 
 def calcScalingCircle(PADDING_MAP, tilesize, mapheight, mapwidth):
@@ -679,7 +686,7 @@ def rawPlot2(escaped, died):
     t = 0
     for e in escaped:
         escaped_counter += e
-        t += 1
+        t += 0.1
         escaped_list.append(escaped_counter)
         time_list.append(t)
         
@@ -715,14 +722,14 @@ def rawPlot2(escaped, died):
 #    plt.xlabel('X label', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
 #    plt.ylabel('Y label', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
 #    plt.title("Title", fontname = "Roboto", fontweight = 'medium', fontsize = 16)
-    plt.xlabel('Time', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
+    plt.xlabel('Time [s]', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
     plt.ylabel('People', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
-    plt.title("Title", fontname = "Roboto", fontweight = 'medium', fontsize = 16)
+    plt.title("Escapes and deaths over time", fontname = "Roboto", fontweight = 'medium', fontsize = 16)
 
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
 
-    plt.legend(bbox_to_anchor=(1.00, 1), loc=1, borderaxespad=0.)
+    plt.legend(loc=2, borderaxespad=0.5)
 
     return fig
 
@@ -734,7 +741,7 @@ def rawPlot3(stats):
     def f(t):
         return numpy.exp(-t) * numpy.cos(2*numpy.pi*-t)
 
-    plot_x = 150
+    plot_x = 200
     plot_y = 120
     fig = plt.figure(figsize=[plot_x * 0.01, plot_y * 0.01], # inches
                        dpi=100,        # 100 dots per inch, so the resulting buffer is 150x120 pixels
@@ -781,6 +788,7 @@ def rawPlot3(stats):
     patches, texts, autotexts = plt.pie(lst, labels=labels, colors=colors, autopct='%1.0f%%', shadow=True, startangle=45, labeldistance=1.25) # pctdistance=1.1
     texts[0].set_fontsize(9)
     texts[1].set_fontsize(9)
+    texts[2].set_fontsize(9)
 
     plt.axis('equal')
 
@@ -794,7 +802,7 @@ def rawPlot3b(stats):
     def f(t):
         return numpy.exp(-t) * numpy.cos(2*numpy.pi*-t)
 
-    plot_x = 150
+    plot_x = 200
     plot_y = 120
     fig = plt.figure(figsize=[plot_x * 0.01, plot_y * 0.01], # inches
                        dpi=100,        # 100 dots per inch, so the resulting buffer is 150x120 pixels
@@ -808,7 +816,7 @@ def rawPlot3b(stats):
     # Data to plot
     labels = 'Smoke', 'Fire'
    # sizes = [30, 70]
-    colors = [(124/255, 124/255, 124/255), (162/255, 19/255, 24/255)] #fix colors
+    colors = [(124/255, 124/255, 124/255), (162/255, 19/255, 24/255)] 
     #explode = [0.1, 0]
 
     # Plot
@@ -820,8 +828,66 @@ def rawPlot3b(stats):
 
     return fig
 
+def rawPlot4(smoke, fire, scale):  # movementlists
+    """Description.
+
+    More...
+    """
+    def f(t):
+        return numpy.exp(-t) * numpy.cos(2*numpy.pi*-t)
+
+    plot_x = 495
+    plot_y = 344
+    fig = plt.figure(figsize=[plot_x * 0.01, plot_y * 0.01], # Inches.
+                       dpi=100,        # 100 dots per inch, so the resulting buffer is 495x344 pixels
+                       )
+
+    fig.set_size_inches(plot_x * 0.01, plot_y * 0.01)
+
+    ax = fig.gca()
+    plt.gcf().subplots_adjust(bottom=0.15, top=0.90, left=0.12, right=0.95)
+
+    #
+    #smoke_counter = 0
+    smoke_list = []
+    time_list = []
+    t = 0
+    for s in smoke:
+     #   smoke_counter += s
+        t += 0.1
+        smoke_list.append(98*(len(s)/scale))
+        time_list.append(t)
+ #       
+    l1, = ax.plot(time_list, smoke_list, label = 'Smoke') #, linestyle = '--')
+       
+    #fire_counter = 0
+    fire_list = []
+    for f in fire:
+      #  fire_counter += d
+        fire_list.append(98*(len(f)/scale))
+        
+    l2, = ax.plot(time_list, fire_list, label = 'Fire')
+
+    l1.set_color((120/255, 120/255, 120/255))
+    l2.set_color((162/255, 19/255, 24/255))
+
+#    plt.xlabel('X label', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
+#    plt.ylabel('Y label', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
+#    plt.title("Title", fontname = "Roboto", fontweight = 'medium', fontsize = 16)
+    plt.xlabel('Time [s]', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
+    plt.ylabel('% covered', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
+    plt.title("Area covered in smoke and fire", fontname = "Roboto", fontweight = 'medium', fontsize = 16)
+
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+    plt.legend(loc=2, borderaxespad=0.5)
+
+    return fig
+
+
 def tablePlot(stats):
-    plot_x = 320
+    plot_x = 300
     plot_y = 320
     #    fig = table(cellText=clust_data,colLabels=collabel,loc='center')
     fig = plt.figure(figsize=[plot_x * 0.01, plot_y * 0.01], # inches
@@ -837,21 +903,23 @@ def tablePlot(stats):
 
     # remove padding around graph
     # TODO
-    size = [0.85] #[plot_x/100]
+    size = [0.7] #[plot_x/100]
     
    # y=[1,2,3,4,5,4,3,2,1,1,1,1,1,1,1,1]
     #plt.plot([10,10,14,14,10],[2,4,4,2,2],'r')
-    col_labels = ['Average escape values']
-    row_labels = ['Time','Health']
+    col_labels = ['Av. escape values']
+    row_labels = ['Time','Health', 'Moved']
 #    table_vals=[[11,12,13],[21,22,23],[31,32,33]]
-    table_vals = [stats[1],stats[2]]
+    table_vals = [[str(round(stats[1][0], 2)) + ' [s]'], [str(stats[2][0]) + ' [%]'], [str(round(stats[4][0]/2, 2)) + ' [m]']]
+  #  table_vals = [['1'], ['2'], ['hej3']]
     # the rectangle is where I want to place the table
     exit_table = plt.table(cellText = table_vals,
-                           colWidths = size,
-                         #  rowWidths = size,
+                           colWidths = size,                         
+                           cellLoc = 'center',
                            rowLabels = row_labels,
                            colLabels = col_labels,
                            loc = 'center')
+    
     #plt.text(10,10,'Table Title',size = 70)
     col_labels = ['Exit values']
     row_labels = ['Alive','Dead','Injured']
@@ -859,6 +927,7 @@ def tablePlot(stats):
     # the rectangle is where I want to place the table
     the_table = plt.table(cellText = table_vals,
                           colWidths = size,
+                          cellLoc = 'center',
                           rowLabels = row_labels,
                           colLabels = col_labels,
                           loc = 'upper center')
@@ -869,6 +938,7 @@ def tablePlot(stats):
     # the rectangle is where I want to place the table
     the_table = plt.table(cellText = table_vals,
                           colWidths = size,
+                          cellLoc = 'center',
                           rowLabels = row_labels,
                           colLabels = col_labels,
                           loc = 'lower center')
@@ -1191,3 +1261,34 @@ def calcFPS(prev_time, target_fps, caption_bool):
     if caption_bool:
         pygame.display.set_caption("{0}: {1:.2f}".format(GAME_NAME, fps))
     return prev_time, fps
+
+
+def heatMap(player_movement, mapMatrix):
+
+    result_matrix = copy.deepcopy(mapMatrix).astype(int).tolist()
+   # map_matrix = map_matrixInt.tolist()
+    
+   # result_matrix = copy.deepcopy(map_matrix)
+    for row in range(len(result_matrix)):
+        for col in range(len(result_matrix[0])):
+            result_matrix[row][col] = 0 #.append([0,])
+            
+    for player in player_movement:
+        for frame in player:
+            result_matrix[frame[1]][frame[0]] += 1
+
+    result_matrix[0][0] = 0
+
+    heat_max = 0 #max([sublist[-1] for sublist in result_matrix])
+    for row in range(len(result_matrix)):
+        for col in range(len(result_matrix[0])):
+            if result_matrix[row][col] > heat_max:
+                heat_max = result_matrix[row][col]
+    
+    #max(map(lambda x: x[-1], result_matrix))
+
+    for row in range(len(result_matrix)):
+        for col in range(len(result_matrix[0])):
+            result_matrix[row][col] =  round(100*(result_matrix[row][col]/heat_max))
+            
+    return result_matrix
