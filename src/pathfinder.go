@@ -518,13 +518,13 @@ func getPath3(m *[][]tile, from []*tile) {    //INIT!
 	
 	cq := queue{}
 
-	for i, list := range *m {
+	/*for i, list := range *m {
 		for j, _ := range list {
 			val := float32(math.Inf(1))
 			cq = append(cq, tileCost{&(*m)[i][j], &val})
 			costOf[&(*m)[i][j]] = val  //beta
 		}
-	}
+	}*/
 
 	for _, f := range from {
 		cq.Update(f, 0)
@@ -536,10 +536,13 @@ func getPath3(m *[][]tile, from []*tile) {    //INIT!
 	
 	for len(cq) != 0 {
 		current = (&cq).Pop()
-		if *current.cost == float32(math.Inf(1)) {break}
+		if *current.cost == float32(math.Inf(1)) {return}
 		_, ok := parentOf[current.tile]
+
+	//	if !ok || (ok && (current.tile.occupied == nil || (current.tile.occupied != nil && len(current.tile.occupied.plan) == 0))) {	
 		if ok {
 			currentDir = getDir(parentOf[current.tile], current.tile)
+		
 		} else {currentDir = Direction{0,0}}
 		neighbors := /*getNeighbors(current.tile, cq)*/ getNeighborsPruned(current.tile, currentDir)
 
@@ -553,9 +556,7 @@ func getPath3(m *[][]tile, from []*tile) {    //INIT!
 				//	n := neighbor
 				jps := JpInit(n, getDir(current.tile, n))
 				for _, jp := range jps {
-					
-					if jp.jp != nil {
-						
+					if jp.jp != nil {	
 						mutex.Lock()
 						cost := *current.cost + smplCost(current.tile, jp.jp) + 100*float32(jp.jp.smoke)
 						p, ok := parentOf[jp.jp]
@@ -587,7 +588,8 @@ func getPath3(m *[][]tile, from []*tile) {    //INIT!
 				}
 			}(neighbor)						
 		}
-		wg.Wait()		
+			wg.Wait()
+	//}		
 	}
 }
 

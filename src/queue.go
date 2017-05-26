@@ -74,9 +74,11 @@ func (q *queue) Update(t *tile, c float32) {
 		if *tc.tile == *t {
 			*tc.cost = c
 			sortQueue(q)
-			break
+			return
 		}
 	}
+	*q = append(*q, tileCost{t, &c})
+	sortQueue(q)
 	
 	/*
 	if q.inQueue(t) {

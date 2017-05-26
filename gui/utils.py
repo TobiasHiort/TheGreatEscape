@@ -1279,11 +1279,14 @@ def heatMap(player_movement, mapMatrix):
 
     result_matrix[0][0] = 0
 
-    heat_max = 0 #max([sublist[-1] for sublist in result_matrix])
+    print(result_matrix)
+    
+    heat_max = 1 #max([sublist[-1] for sublist in result_matrix])
     for row in range(len(result_matrix)):
         for col in range(len(result_matrix[0])):
             if result_matrix[row][col] > heat_max:
                 heat_max = result_matrix[row][col]
+
     
     #max(map(lambda x: x[-1], result_matrix))
 

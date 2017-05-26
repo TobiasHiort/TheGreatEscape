@@ -262,7 +262,7 @@ func mainMap() {
 //	fmt.Println((&testmap[3][3]).safestTile())
 
 	ppl := [][]int{{1,1}, {1,2}, {2,1}, {1,3}}
-	tryThis(matrix, ppl, 4, 4)
+	tryThis(matrix, ppl, -1, -1)
 	
 	//debugging()
 }

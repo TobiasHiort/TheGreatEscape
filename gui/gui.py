@@ -308,7 +308,7 @@ while True:
                     if not go_running:
                         _thread.start_new_thread(goThread, (mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, child_pid))
                         go_running = True
-                        pygame.time.wait(20)
+                        pygame.time.wait(100)
                 elif event.key == K_s and paused and player_pos != []:                                  
                     if players_movement != [] and current_frame < len(players_movement[0]) - 1:  # do not start time frame clock if not pupulated.
                         paused = False

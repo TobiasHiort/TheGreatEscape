@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 )
-
+/*
 func Test_10 (t *testing.T) {
 		testMatrix := [][]int {
 		{0, 0, 0, 0, 2, 0, 0, 0, 0, 0},
@@ -586,7 +586,7 @@ func Test_70 (t *testing.T) {
     	}
  }
 
-
+*/
 //not worked max 10 min (before optimizaion a star)
 
 func Test_90 (t *testing.T) {
@@ -709,11 +709,90 @@ func Test_90 (t *testing.T) {
     	statsList[i] = make([]int, 3)}
 		
     	for !CheckFinish(peopleArray) {
-    		Run1 (&amap, peopleArray, &statsList)
+    		Run (&amap, peopleArray, &statsList)
     	}
 
-  }
+}
+/*
+func makeTestMatrix(xSize, ySize int) [][]int{
+	testMatrix := [][]int{}
+
+	for x := 0; x < xSize; x++ {
+		row := []int{}
+		for y := 0; y < ySize; y++ {
+			row = append(row, y)
+		}
+		testMatrix = append(testMatrix, row)
+	}
+		
+	return testMatrix
+}
+
+func Test_90b (t *testing.T) {
+	testMatrix := makeTestMatrix(90, 900)
+	testMatrix[0][10] = 2
+	testMatrix[89][10] = 2
+	if true {t.Errorf("whoopsie: %d", (testMatrix[0][0]))}
+	amap := TileConvert(testMatrix)
+	SetFire(&(amap[2][2]))
+	
+	peopleList := make([][] int,90)
+	for i := range peopleList{
+		peopleList[i] = make([]int,2)
+	}
+	
+	acc := 0
+	for i := 0; i < 90; i++ {
+		
+		peopleList[acc][0]=i
+		peopleList[acc][1]=i
+		acc++
+	}
+	
+	peopleArray := PeopleInit(amap, peopleList)
+
+	size := len(peopleList)
+	statsList := make([][]int, size)
+	for i := range statsList {
+		statsList[i] = make([]int, 3)}
+	
+    	for !CheckFinish(peopleArray) {
+    		Run (&amap, peopleArray, &statsList)
+    	}	
+}
+
+func Test_150 (t *testing.T) {
+	testMatrix := makeTestMatrix(150, 150)
+	testMatrix[0][10] = 2
+	testMatrix[149][10] = 2
+	amap := TileConvert(testMatrix)
+	SetFire(&(amap[2][2]))
+	
+	peopleList := make([][] int,150)
+	for i := range peopleList{
+		peopleList[i] = make([]int,2)
+	}
+	
+	acc := 0
+	for i := 0; i < 150; i++ {
+		
+		peopleList[acc][0]=i
+		peopleList[acc][1]=i
+		acc++
+	}
+	
+	peopleArray := PeopleInit(amap, peopleList)
+
+	size := len(peopleList)
+	statsList := make([][]int, size)
+	for i := range statsList {
+		statsList[i] = make([]int, 3)}
+	
+    	for !CheckFinish(peopleArray) {
+    		Run (&amap, peopleArray, &statsList)
+    	}	
+}
 
 
 
-
+*/
