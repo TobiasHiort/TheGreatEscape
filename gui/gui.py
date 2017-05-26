@@ -85,6 +85,7 @@ survived = 0
 dead = 0
 
 place_fire = False
+sk = True
 
 
 #statistics_ready = False
@@ -232,6 +233,9 @@ file_opt = fileDialogInit()
 
 # game loop
 while True:
+    if sk:
+        printShortKeys()
+        sk = False
     # event logic
     for event in pygame.event.get():
         if event.type == QUIT:

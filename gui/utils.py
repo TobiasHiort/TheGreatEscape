@@ -1317,3 +1317,25 @@ def findMapCoord(mouse_x, mouse_y, mapheight, mapwidth, t, tab):
     #print(getTile(mouse_x, mouse_y))
 
    
+def printShortKeys():
+    def printSK(s):
+        ln = 29 - len(s)
+        print(Fore.WHITE + Back.MAGENTA + Style.BRIGHT + s + ' '*ln)
+
+    print(Fore.WHITE + Back.BLUE + Style.BRIGHT + ' '*10 + 'SHORTKEYS' + ' '*10) # 10->9 change desc. below?
+    printSK('r: restart program')
+    print(Fore.WHITE + Back.YELLOW + Style.BRIGHT + ' ' *8 + 'In Simulation'+ ' '*8)
+    printSK('o: increase population')
+    printSK('l: decrease population')
+    printSK('+: increase number of fires')
+    printSK('-: decrease number of fires')
+    printSK('a: repopulate map')
+    printSK('z: depopulate map')
+    printSK('m: initiate simulation')
+    printSK('s: run simulation')
+    printSK('p: pause simulation')
+    printSK('g: step simulation forwards')
+    printSK('f: step simulation backwards')
+    print(Fore.WHITE + Back.YELLOW + Style.BRIGHT + ' '*9 + 'In Settings'+ ' '*9)
+    printSK('q: switch place ppl/fire')
+    print(Fore.WHITE + Back.BLUE + Style.BRIGHT + ' '*10 + '         ' + ' '*10)
