@@ -36,7 +36,7 @@ func SendToPipe(posList *[][]int, fireList *[][]int, smokeList *[][]int) {
 
 func fromPipe() ([][]int, [][]int, [][]int) {
 	//TODO: Get fire start position*/
-	b, err3 := ioutil.ReadFile("../src/mapfile.txt")
+	b, err3 := ioutil.ReadFile("../tmp/mapfile.txt")
 	if err3 != nil {
 		panic(err3)
 	}
@@ -47,7 +47,7 @@ func fromPipe() ([][]int, [][]int, [][]int) {
 		panic(err)
 	}
 
-	c, err4 := ioutil.ReadFile("../src/playerfile.txt")
+	c, err4 := ioutil.ReadFile("../tmp/playerfile.txt")
 	if err4 != nil {
 		panic(err4)
 	}
@@ -57,7 +57,7 @@ func fromPipe() ([][]int, [][]int, [][]int) {
 	if err5 != nil {
 		panic(err5)
 	}
-	d, err6 := ioutil.ReadFile("../src/firefile.txt")
+	d, err6 := ioutil.ReadFile("../tmp/firefile.txt")
 	if err6 != nil {
 		panic(err6)
 	}

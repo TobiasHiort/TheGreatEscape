@@ -16,7 +16,7 @@ func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos [][]int) {
 	//statsList := StatsInit(len(peopleList))
 
 	//	toPipe(&[][]int{})
-
+	
 	for i, st := range peopleList {
 	//	if st[0] == peopleList[0] && st[1] == (*sList)[1] && st[0] != 0 && st[1] != 0 {
 		for j, st2 := range peopleList {

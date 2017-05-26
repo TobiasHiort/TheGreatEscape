@@ -536,7 +536,7 @@ func getPath3(m *[][]tile, from []*tile) {    //INIT!
 	
 	for len(cq) != 0 {
 		current = (&cq).Pop()
-		if *current.cost == float32(math.Inf(1)) {return}
+		if *current.cost == float32(math.Inf(1)) {break}
 		_, ok := parentOf[current.tile]
 
 	//	if !ok || (ok && (current.tile.occupied == nil || (current.tile.occupied != nil && len(current.tile.occupied.plan) == 0))) {	

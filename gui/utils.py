@@ -206,13 +206,13 @@ def buildMiniMap(path, mapSurface, result_matrix, COLOR_HEAT_GRADIENT, heatMap_b
             
     return mapSurface, mapMatrix, tilesize, mapwidth, mapheight
 
-def calcScalingCircle(PADDING_MAP, tilesize, mapheight, mapwidth):
+def calcScalingCircle(PADDING_MAP, tilesize, mapheight, mapwidth, width, height):
     """Description.
 
     More...
     """
-    coord_x = math.floor(0.5 * (907 - mapwidth * tilesize)) + math.floor(tilesize / 2)
-    coord_y = math.floor(0.5 * (-mapheight * tilesize + 713 - PADDING_MAP)) + math.floor(tilesize / 2)
+    coord_x = math.floor(0.5 * (width - mapwidth * tilesize)) + math.floor(tilesize / 2)
+    coord_y = math.floor(0.5 * (-mapheight * tilesize + height - PADDING_MAP)) + math.floor(tilesize / 2)
     radius_scale = math.floor(tilesize/2)
     return coord_x, coord_y, radius_scale
 
@@ -267,15 +267,15 @@ def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord
         
     return playerSurface, survived, dead
 
-def calcScalingSquare(PADDING_MAP, tilesize, mapheight, mapwidth):
+def calcScalingSquare(PADDING_MAP, tilesize, mapheight, mapwidth, width, height):
     """Description.
 
     More...
     """
     #coord_x = math.floor(0.5 * (907 - mapwidth * tilesize)) + math.floor(tilesize / 2)
     #coord_y = math.floor(0.5 * (-mapheight * tilesize + 713 - PADDING_MAP)) + math.floor(tilesize / 2)
-    coord_x = math.floor(907 - mapwidth * tilesize)
-    coord_y = math.floor((713 - PADDING_MAP)/2 - (mapheight * tilesize)/2)
+    coord_x = math.floor(width - mapwidth * tilesize)
+    coord_y = math.floor((height - PADDING_MAP)/2 - (mapheight * tilesize)/2)
 
     #math.floor(0.5 * (coord_x + 2 * t * fire_pos[idx][0]))
     #math.floor(coord_y + t * fire_pos[idx][1])
@@ -290,6 +290,7 @@ def drawFire(fireSurface, fire_pos, tilesize, coord_x, coord_y, COLOR_FIRE_GRADI
 
     More...
     """
+    print(fire_pos)
     # fireSurface.fill(COLOR_KEY) # remove last frame. Not needed?
     fireSurface.fill((0, 0, 0, 0))
 
@@ -578,6 +579,7 @@ def populateMap(mapMatrix, pop_percent, init_fires):
     
     for idx in range(player_count):
         floor_coords[idx].append(100,)
+    print(fire_coords)
 
     return floor_coords, player_count, fire_coords
 
@@ -1034,20 +1036,20 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     # export json map matrix
     map_matrixInt = copy.deepcopy(mapMatrix).astype(int)
     map_jsons = json.dumps(map_matrixInt.tolist())
-    tofile = open('../src/mapfile.txt', 'w+')
+    tofile = open('../tmp/mapfile.txt', 'w+')
     tofile.write(map_jsons)
     tofile.close()
     print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'mapfile.txt' + ' '*8)
 
     # export json people position list
     player_pos_str = json.dumps(player_pos)#_tmp)
-    tofile3 = open('../src/playerfile.txt', 'w+')
+    tofile3 = open('../tmp/playerfile.txt', 'w+')
     tofile3.write(player_pos_str)
     tofile3.close()
     print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'playerfile.txt' + ' '*5)
 
     fire_pos_str = json.dumps(fire_pos)#_tmp)
-    tofile3 = open('../src/firefile.txt', 'w+')
+    tofile3 = open('../tmp/firefile.txt', 'w+')
     tofile3.write(fire_pos_str)
     tofile3.close()
     print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'firefile.txt' + ' '*7)
@@ -1055,7 +1057,7 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     # spawn Go subprocess
     child = Popen('../src/main', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
     pid_json = json.dumps(child.pid)
-    tofile7 = open('../src/pid.txt', 'w+')
+    tofile7 = open('../tmp/pid.txt', 'w+')
     tofile7.write(pid_json)
     tofile7.close()
     print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'pid.txt' + ' '*12)
@@ -1076,15 +1078,17 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     # first fire
     fromgo_json_fire = child.stdout.readline().rstrip('\n')
     fire_pos = json.loads(fromgo_json_fire)
-    for pos in fire_pos:
-        fire_movement.append([pos])
+    fire_movement.append(fire_pos)
+    #for pos in fire_pos:
+    #    fire_movement.append([pos])
     json_fire = json.loads(fromgo_json_fire)
 
     # first smoke
     fromgo_json_smoke = child.stdout.readline().rstrip('\n')
     smoke_pos = json.loads(fromgo_json_smoke)
-    for pos in smoke_pos:
-        smoke_movement.append([pos])
+    smoke_movement.append(smoke_pos)
+    #for pos in smoke_pos:
+    #    smoke_movement.append([pos])
     json_smoke = json.loads(fromgo_json_smoke)
 
     #print('\n')
@@ -1110,15 +1114,15 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     print(Fore.WHITE + Back.MAGENTA + Style.BRIGHT + 'terminated in ' + Back.MAGENTA + Style.BRIGHT + Fore.CYAN + str(roundSig(time.clock() - go_time_pre)) + 's' + ' '*white_space_clock)
     #print('\nGo subprocess done and \nterminated in ' + str(roundSig(time.clock() - go_time_pre)) + "s")
 
-    os.remove('../src/mapfile.txt')
+    os.remove('../tmp/mapfile.txt')
     #print('\n')
     print(Fore.WHITE + Back.RED + Style.DIM + 'removed ' + Back.RED + Style.BRIGHT + 'mapfile.txt' + ' '*6)
-    os.remove('../src/playerfile.txt')
+    os.remove('../tmp/playerfile.txt')
     print(Fore.WHITE + Back.RED + Style.DIM + 'removed ' + Back.RED + Style.BRIGHT + 'playerfile.txt' + ' '*3)
-    os.remove('../src/firefile.txt')
+    os.remove('../tmp/firefile.txt')
     print(Fore.WHITE + Back.RED + Style.DIM + 'removed ' + Back.RED + Style.BRIGHT + 'firefile.txt' + ' '*5)
 
-    with open('../src/pid.txt', 'a') as out:
+    with open('../tmp/pid.txt', 'a') as out:
         out.write(json.dumps(0))
     print(Fore.WHITE + Back.RED + Style.DIM + 'reset ' + Back.RED + Style.BRIGHT + '  pid.txt' + ' '*10)
     
@@ -1126,7 +1130,7 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
 
     child.stdout.flush()
     child.stdin.flush()
-
+    
 def colorSurface(surface, rgb):
     """Description.
 
@@ -1278,8 +1282,6 @@ def heatMap(player_movement, mapMatrix):
             result_matrix[frame[1]][frame[0]] += 1
 
     result_matrix[0][0] = 0
-
-    print(result_matrix)
     
     heat_max = 1 #max([sublist[-1] for sublist in result_matrix])
     for row in range(len(result_matrix)):
@@ -1295,3 +1297,25 @@ def heatMap(player_movement, mapMatrix):
             result_matrix[row][col] =  round(100*(result_matrix[row][col]/heat_max))
             
     return result_matrix
+
+def findMapCoord(mouse_x, mouse_y, mapheight, mapwidth, t, tab):
+    
+    sw = 495
+    sh = 344
+
+    h = mapheight
+    w = mapwidth
+    
+    def findX(column):
+        return math.floor(0.5 * (sw - w * t + 2 * t * column))
+    
+    def findY(row):
+        return  math.floor((sh - PADDING_MAP)/2 - (h * t)/2 + t * row)
+    print([math.floor(((mouse_x - 517) - findX(0))/t), math.floor(((mouse_y - 60) - findY(0))/t), 0])
+    return [math.floor(((mouse_x - 517) - findX(0))/t), math.floor(((mouse_y - 60) - findY(0))/t), 0]
+
+   # print(findX(0))
+    #print(findX(1))
+    #print(getTile(mouse_x, mouse_y))
+
+   

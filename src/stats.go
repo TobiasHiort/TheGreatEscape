@@ -12,7 +12,7 @@ import (
 func readStats(peopleArray []*Person, inmap [][]tile) {
 	
 	// or create
-  pplfile, err := os.Create("peopleStats.txt") //[alive, deaths, injured],[average exit time], [average health], [died from smoke, died from fire]
+  pplfile, err := os.Create("../tmp/peopleStats.txt") //[alive, deaths, injured],[average exit time], [average health], [died from smoke, died from fire]
   if err != nil {
     log.Fatal("Cannot create file, ppl")
   }
@@ -63,7 +63,7 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
 	fmt.Fprintf(pplfile, s)
 
 // mapstats
-  mapfile, err2 := os.Create("mapStats.txt")
+  mapfile, err2 := os.Create("../tmp/mapStats.txt")
   //[how many tiles are on fire?], [amount exited per door], [exit-doorcordinates]
   if err2 != nil {
     log.Fatal("Cannot create file, map")
@@ -116,7 +116,7 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
   //mapfile.Close() */
 
 	// escaped/died times
-  timefile, err2 := os.Create("timeStats.txt")
+  timefile, err2 := os.Create("../tmp/timeStats.txt")
   //[how many tiles are on fire?], [amount exited per door], [exit-doorcordinates]
   if err2 != nil {
     log.Fatal("Cannot create file, map")
