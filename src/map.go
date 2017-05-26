@@ -75,16 +75,16 @@ func fireSpreadTile(thisTile *tile) { //TODO: fixa tiles på riktigt!!
 	fire := thisTile.fireLevel
 	if fire > 10 {fire = 10}
 
-	if thisTile.neighborNorth != nil && !thisTile.neighborNorth.wall && thisTile.fireLevel != 0 {
+	if thisTile.neighborNorth != nil && !thisTile.neighborNorth.wall && thisTile.fireLevel != 0 && !thisTile.neighborNorth.outOfBounds {
 		(thisTile.neighborNorth.heat) += fire//thisTile.fireLevel
 	}
-	if thisTile.neighborEast != nil && !thisTile.neighborEast.wall && thisTile.fireLevel != 0 {
+	if thisTile.neighborEast != nil && !thisTile.neighborEast.wall && thisTile.fireLevel != 0 && !thisTile.neighborEast.outOfBounds {
 		(thisTile.neighborEast.heat) += fire//thisTile.fireLevel
 	}
-	if thisTile.neighborWest != nil && !thisTile.neighborWest.wall && thisTile.fireLevel != 0 {
+	if thisTile.neighborWest != nil && !thisTile.neighborWest.wall && thisTile.fireLevel != 0 && !thisTile.neighborWest.outOfBounds {
 		(thisTile.neighborWest.heat) += fire//thisTile.fireLevel
 	}
-	if thisTile.neighborSouth != nil && !thisTile.neighborSouth.wall && thisTile.fireLevel != 0 {
+	if thisTile.neighborSouth != nil && !thisTile.neighborSouth.wall && thisTile.fireLevel != 0 && !thisTile.neighborSouth.outOfBounds {
 		(thisTile.neighborSouth.heat) += fire//thisTile.fireLevel
 	}
 }
@@ -352,7 +352,7 @@ func SmokeSpread(tileMap [][]tile) {
 
 func SmokeSpreadTile(thisTile *tile) {
 	smoke := thisTile.smoke
-	if smoke >= 1 {smoke = 1}
+	if smoke >= 2 {smoke = 2}
 
 	if thisTile.neighborNorth != nil && !thisTile.neighborNorth.wall && !thisTile.neighborNorth.outOfBounds {
 		(thisTile.neighborNorth.smoke) += smoke //thisTile.smoke/30
@@ -451,12 +451,14 @@ func (t *tile) safestTile() *tile {
 
 	if len(nbrs) == 0 {return nil}
 	
-	safest := nbrs[0]
+	safest1 := nbrs[0]
 
 	for _, nbr := range nbrs {
-		if nbr.smoke < safest.smoke {safest = nbr}
+		//if nbr.smoke < safest.smoke {safest = nbr}
+	//	tmp := safest(nbr, safest1)
+		safest1 = safest(nbr, safest1)
 	}
-	return safest 
+	return safest1 
 	/*
 	tmp1 := safest(t.neighborNorth, t.neighborWest)
 	tmp2 := safest(t.neighborSouth, t.neighborEast)

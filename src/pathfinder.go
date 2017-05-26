@@ -3,6 +3,7 @@ package main
 import (
 	"math"
 	"sync"
+	"math/rand"
 //	"fmt"
 )
 
@@ -927,4 +928,10 @@ func (t *tile) endOfLine(dir Direction) *tile {
 		next = tmp
 	}
 	return nil
+}
+
+func randomDirection() Direction {
+	xDir := rand.Intn(1) - rand.Intn(1)
+	yDir := rand.Intn(1) - rand.Intn(1)
+	return Direction{xDir, yDir}
 }

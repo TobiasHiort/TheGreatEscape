@@ -484,7 +484,7 @@ while True:
 
 
                 if active_tab_bools[1] and (cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, True) and (active_map_path is not None or active_map_path != "")): # if no active map (init), "" = cancel on choosing map
-                     print("??")
+                 #    print("??")
                      #place_fire = True
                      exists = False
                      # player_pos = []

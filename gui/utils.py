@@ -290,7 +290,6 @@ def drawFire(fireSurface, fire_pos, tilesize, coord_x, coord_y, COLOR_FIRE_GRADI
 
     More...
     """
-    print(fire_pos)
     # fireSurface.fill(COLOR_KEY) # remove last frame. Not needed?
     fireSurface.fill((0, 0, 0, 0))
 
@@ -579,7 +578,6 @@ def populateMap(mapMatrix, pop_percent, init_fires):
     
     for idx in range(player_count):
         floor_coords[idx].append(100,)
-    print(fire_coords)
 
     return floor_coords, player_count, fire_coords
 
@@ -1311,7 +1309,7 @@ def findMapCoord(mouse_x, mouse_y, mapheight, mapwidth, t, tab):
     
     def findY(row):
         return  math.floor((sh - PADDING_MAP)/2 - (h * t)/2 + t * row)
-    print([math.floor(((mouse_x - 517) - findX(0))/t), math.floor(((mouse_y - 60) - findY(0))/t), 0])
+  #  print([math.floor(((mouse_x - 517) - findX(0))/t), math.floor(((mouse_y - 60) - findY(0))/t), 0])
     return [math.floor(((mouse_x - 517) - findX(0))/t), math.floor(((mouse_y - 60) - findY(0))/t), 0]
 
    # print(findX(0))
