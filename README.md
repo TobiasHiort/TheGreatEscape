@@ -132,41 +132,36 @@ This project is licensed under the MIT License. See the [LICENSE.md](https://git
 ## 7. Repository Directory Tree (!TODO)
 ```
 The Great Escape
-│   .gitignore
-|   thegreatescape.py (?)
+|   Makefile
 │   LICENSE.md
 |   README.md
 |
-└─── maps
-|   |   ...
-|
-└─── gui
+└─── gui/
+|   |   Makefile
 │   │   gui.py
 │   │   utils.py
 │   │
-│   └─── fonts
+│   └─── fonts/
 │   |   │   ...
 │   |
-│   └─── gui
-|   |   |   ...
+│   └─── gui/
+|   |   |   ... 
 |   |
-│   └─── unit_tests
+|   └─── maps/
 |       |   ...
 |
-└─── src
-|   │   fire.go
-|   |   gameMaster.go (camelcase?)
-|   |   gotest.go (replace?)
-|   |   main.go
-|   |   map.go
-|   |   pathfinder.go
-|   |   people.go
-|   |   print.go (needed later?)
-|   |   queue.go
-|   |
-|   └─── unit_tests
-|       |   ...
-|
-└─── tmp
-    |   ...
+└─── src/
+    |   Makefile
+    |   gameMaster.go 
+    |   main.go
+    |   map.go
+    |   map_test.go
+    |   pathfinder.go
+    |   pathfinder_test.go
+    |   people.go
+    |   people_test.go
+    |   print.go 
+    |   queue.go
+    |   queue_test.go
+    |   concurrency_test.go
 ```
