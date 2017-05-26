@@ -86,6 +86,7 @@ dead = 0
 
 place_fire = False
 
+
 #statistics_ready = False
 
 surface_toggle = [True, True, True]
@@ -328,8 +329,6 @@ while True:
                     playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
                 elif event.key == K_m and paused and current_frame == 0:
                     if not go_running:
-                        print("maybe?")
-                        print(fire_pos)
                         _thread.start_new_thread(goThread, (mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, child_pid))
                         go_running = True
                         pygame.time.wait(100)
@@ -483,21 +482,20 @@ while True:
                         plot_rendered = True
 
 
+
                 if active_tab_bools[1] and (cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, True) and (active_map_path is not None or active_map_path != "")): # if no active map (init), "" = cancel on choosing map
                      print("??")
                      #place_fire = True
                      exists = False
                      # player_pos = []
-                     click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
 
-                    # print(click)
-                     
+                     click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
                      if place_fire:
                          click[2] = 10                                       
                          for f in fire_pos:
                              if f[0] == click[0] and f[1] == click[1]:
                                  exists = True
-                     
+                                 
                          if mapMatrix[click[1]][click[0]] == 0 and not exists:
                              fire_pos.append(click)
                              init_fires += 1
@@ -510,10 +508,6 @@ while True:
                                  
                          if mapMatrix[click[1]][click[0]] == 0 and not exists:
                              player_pos.append(click)
-
-                     print("fp")
-                     print(fire_pos)
-                    
            
                         
      #       if player_pos != []:
@@ -663,6 +657,22 @@ while True:
                     if player_scale < 5: # not to big?
                         player_scale *= 1.25
                         playerSurface, _, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
+
+           
+            # right click
+            if event.button == 3:
+                if active_tab_bools[1] and (cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, True) and (active_map_path is not None or active_map_path != "")): # if no active map (init), "" = cancel on choosing map                
+                     click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
+                    
+                     for i in range(len(fire_pos)):
+                         if fire_pos[i][0] == click[0] and fire_pos[i][1] == click[1]:
+                             del fire_pos[i]
+                             break
+
+                     for i in range(len(player_pos)):
+                         if player_pos[i][0] == click[0] and player_pos[i][1] == click[1]:
+                             del player_pos[i]
+                             break
 
     # render logic
     if active_tab_bools[0]: # simulation tab
