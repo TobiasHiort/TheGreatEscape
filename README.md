@@ -105,7 +105,7 @@ Run the program from `/TheGreatEscape` with:
 ```
 $ make run
 ```
-### 2.2. Run Tests
+### 2.3. Run Tests
 Run the backend tests from `/TheGreatEscape` with:
 ```
 $ make test
