@@ -87,8 +87,8 @@ dead = 0
 place_fire = False
 sk = True
 
-down = False
-
+button_down = False
+remove = False
 
 #statistics_ready = False
 
@@ -392,6 +392,7 @@ while True:
                     else:
                         print('Depop first')
                 elif event.key == K_z: # depopulate
+                    init_fires = 1
                     _, current_frame, current_time_float, paused, player_pos, players_movement, player_count, fire_movement, fire_pos, survived, fire_percent, smoke_pos, smoke_movement, smoke_percent, dead = resetState()
                     playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
                     fireSurface = drawFire(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
@@ -400,10 +401,59 @@ while True:
         elif event.type == MOUSEMOTION:
             mouse_x, mouse_y = event.pos
 
+            ##
+            if cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, active_tab_bools[1]) and button_down:
+                click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
+                print(click)
+                print(mapMatrix)
+
+                if click[0] < 0 or click[1] < 0 or click[0] >= len(mapMatrix[0]) or click[1] >= len(mapMatrix):
+                    break
+
+                if not remove:
+                    exists = False
+                    
+                    #click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
+                    if place_fire:
+                        click[2] = 10                                       
+                        for f in fire_pos:
+                            if f[0] == click[0] and f[1] == click[1]:
+                                exists = True
+                            
+                        if mapMatrix[click[1]][click[0]] == 0 and not exists:
+                        #if mapMatrix[click[0]][click[1]] == 0 and not exists:
+                            fire_pos.append(click)
+                            init_fires += 1
+                         
+                    else:
+                        click[2] = 100                                         
+                        for player in player_pos:
+                            if player == click:
+                                exists = True
+                            
+                        if mapMatrix[click[1]][click[0]] == 0 and not exists:
+                        #if mapMatrix[click[0]][click[1]] == 0 and not exists:
+                            player_pos.append(click)
+                            player_count += 1
+                        
+                else:
+                    for i in range(len(fire_pos)):
+                         if fire_pos[i][0] == click[0] and fire_pos[i][1] == click[1]:
+                             del fire_pos[i]
+                             break
+
+                    for i in range(len(player_pos)):
+                         if player_pos[i][0] == click[0] and player_pos[i][1] == click[1]:
+                             del player_pos[i]
+                             player_count -= 1
+                             break
+
 ##
+           #     if active_tab_bools[1] and (cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, True) and (active_map_path is not None or active_map_path != "")): # if no active map (init), "" = cancel on choosing map                
+                 #    click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
+                    
 
-
-
+                       
 ##
             
             # simulation button
@@ -446,6 +496,7 @@ while True:
 
             # left click
             if event.button == 1:
+                remove = False
                 mouse_x, mouse_y = event.pos
                 # simulation button
                 if cursorBoxHit(mouse_x, mouse_y, 0, 202, 0, 45, not(active_tab_bools[0])):
@@ -522,32 +573,32 @@ while True:
 
 
 
-                if active_tab_bools[1] and (cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, True) and (active_map_path is not None or active_map_path != "")): # if no active map (init), "" = cancel on choosing map
+             #   if active_tab_bools[1] and (cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, True) and (active_map_path is not None or active_map_path != "")): # if no active map (init), "" = cancel on choosing map
                  #    print("??")
                      #place_fire = True
-                     exists = False
+              #       exists = False
                      # player_pos = []
 
-                     click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
-                     if place_fire:
-                         click[2] = 10                                       
-                         for f in fire_pos:
-                             if f[0] == click[0] and f[1] == click[1]:
-                                 exists = True
+               #      click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
+                #     if place_fire:
+                 #        click[2] = 10                                       
+                  #       for f in fire_pos:
+                   #          if f[0] == click[0] and f[1] == click[1]:
+                    #             exists = True
                                  
-                         if mapMatrix[click[1]][click[0]] == 0 and not exists:
-                             fire_pos.append(click)
-                             init_fires += 1
+                     #    if mapMatrix[click[1]][click[0]] == 0 and not exists:
+                      #       fire_pos.append(click)
+                       #      init_fires += 1
                          
-                     else:
-                         click[2] = 100                                         
-                         for player in player_pos:
-                             if player == click:
-                                 exists = True
+                    # else:
+                     #    click[2] = 100                                         
+                      #   for player in player_pos:
+                       #      if player == click:
+                        #         exists = True
                                  
-                         if mapMatrix[click[1]][click[0]] == 0 and not exists:
-                             player_pos.append(click)
-                             player_count += 1
+                         #if mapMatrix[click[1]][click[0]] == 0 and not exists:
+                          #   player_pos.append(click)
+                           #  player_count += 1
            
                         
      #       if player_pos != []:
@@ -697,24 +748,31 @@ while True:
                     if player_scale < 5: # not to big?
                         player_scale *= 1.25
                         playerSurface, _, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
-
-           
+                elif cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, active_tab_bools[1]):
+                    button_down = True
+    
             # right click
             if event.button == 3:
-                if active_tab_bools[1] and (cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, True) and (active_map_path is not None or active_map_path != "")): # if no active map (init), "" = cancel on choosing map                
-                     click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
+                button_down = True
+                remove = True
+                
+              #  if active_tab_bools[1] and (cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, True) and (active_map_path is not None or active_map_path != "")): # if no active map (init), "" = cancel on choosing map                
+               #      click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
                     
-                     for i in range(len(fire_pos)):
-                         if fire_pos[i][0] == click[0] and fire_pos[i][1] == click[1]:
-                             del fire_pos[i]
-                             break
+                #     for i in range(len(fire_pos)):
+                 #        if fire_pos[i][0] == click[0] and fire_pos[i][1] == click[1]:
+                  #           del fire_pos[i]
+                   #          break
 
-                     for i in range(len(player_pos)):
-                         if player_pos[i][0] == click[0] and player_pos[i][1] == click[1]:
-                             del player_pos[i]
-                             player_count -= 1
-                             break
+                    # for i in range(len(player_pos)):
+                     #    if player_pos[i][0] == click[0] and player_pos[i][1] == click[1]:
+                      #       del player_pos[i]
+                       #      player_count -= 1
+                        #     break
 
+        elif event.type == MOUSEBUTTONUP: # import as function?
+            button_down = False
+                         
     # render logic
     if active_tab_bools[0]: # simulation tab
         # no chosen map

@@ -1340,6 +1340,7 @@ def printShortKeys():
     printSK('p: pause simulation')
     printSK('g: step simulation forwards')
     printSK('f: step simulation backwards')
+    printSK('2: reset simulation')
     print(Fore.WHITE + Back.YELLOW + Style.BRIGHT + ' '*9 + 'In Settings'+ ' '*9)
     printSK('q: switch place ppl/fire')
     print(Fore.WHITE + Back.BLUE + Style.BRIGHT + ' '*10 + '         ' + ' '*10)
