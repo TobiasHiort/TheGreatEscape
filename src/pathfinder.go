@@ -12,6 +12,7 @@ type Direction struct {
 	yDir int   //-1,0,1
 }
 
+// jp == jump point
 type jp struct {
 	jp *tile   // jp
 	fn []*tile // forced neighbors from jp
@@ -29,6 +30,7 @@ var (  // TODO: define this a weak ago...
 	sw = Direction{1,-1}	
 )
 
+// checks if a certain tile is in a list of tiels
 func contains(tiles []*tile, t *tile) bool {
 	for _, ti := range tiles {
 		if ti == t {
@@ -38,6 +40,7 @@ func contains(tiles []*tile, t *tile) bool {
 	return false
 }
 
+// calculates the 'cost' for stepping a tile
 func stepCost(t tile) float32 {
 	cost := float32(1)
 	cost += float32(t.heat) / 5 //TODO how much cost for fire etc??
@@ -48,6 +51,8 @@ func stepCost(t tile) float32 {
 	return cost
 }
 
+// finds and returns the pruned neighbors a tile
+// prunes based on the given direction to minimize unnecessary calculations
 func getNeighborsPruned(current *tile, dir Direction) []*tile{
 	neighbors := []*tile{}
 
@@ -132,6 +137,7 @@ func getNeighborsPruned(current *tile, dir Direction) []*tile{
 	return neighbors
 }
 
+// finds and returns all neighbors of a given tile
 func getNeighbors(current *tile) []*tile {
 	neighbors := []*tile{}
 
@@ -158,7 +164,7 @@ func getNeighbors(current *tile) []*tile {
 	}
 	return neighbors
 }
-
+// checks if a tile is 'valid', aka can be walked on
 func validTile(t *tile) bool {
 	if t == nil {
 		return false
@@ -166,9 +172,12 @@ func validTile(t *tile) bool {
 	return !t.wall && !t.outOfBounds && t.heat < 1 //&& t.smoke < 100
 }
 
+// checks if a tile is valid and if a person is occupiyng it checks if that person is screwed
+// used to impact the behavior of people who are about to be screwed
 func canGo(t *tile) bool {
 	if validTile(t) {
-		if t.occupied != nil {return !t.occupied.screwed}
+		oc := t.occupied
+		if oc != nil {return !oc.screwed}
 		return true
 	}
 	return false
@@ -177,6 +186,7 @@ func canGo(t *tile) bool {
 	return !t.wall && !t.outOfBounds && t.heat < 2 */
 }
 
+// uses a map of tiles to create a path between 2 given tiles
 func compactPath(parentOf map[*tile]*tile, from *tile, to *tile) ([]*tile, bool) {
 	path := []*tile{to}
 
@@ -193,6 +203,7 @@ func compactPath(parentOf map[*tile]*tile, from *tile, to *tile) ([]*tile, bool)
 	return path, true
 }
 
+// finds the direction between 2 tiles
 func getDir(from *tile, to *tile) Direction{
 	if from == nil{ 
 		return Direction{1,1}}
@@ -205,6 +216,8 @@ func getDir(from *tile, to *tile) Direction{
 	return Direction {x,y} 
 }
 
+// finds the 'next' tile in a given direction
+// returns nil if the 'next' tile isn't reachable
 func (t *tile)followDir(dir Direction) *tile{  // diagonalt!
 	if dir.xDir == 1 {
 		if !validTile(t.neighborSouth) {return nil}
@@ -235,6 +248,7 @@ func (t *tile)followDir(dir Direction) *tile{  // diagonalt!
 	return nil
 }
 
+// finds the neighbors from t in a given direction
 func (t *tile) neighbor(dir Direction) *tile{
 	if dir == n {return t.neighborNorth}
 	if dir == e {return t.neighborEast}
@@ -249,7 +263,8 @@ func (t *tile) neighbor(dir Direction) *tile{
 	return nil
 }
 
-func Jp(current *tile, dir Direction) []jp {//[]*tile {
+// TODO: continue cleaning/commenting below...
+func Jp(current *tile, dir Direction) []jp {
 	jps := []jp{}
 	if (dir.xDir == 0 && dir.yDir != 0) ||(dir.yDir == 0 && dir.xDir != 0) {
 		tmpJP := getJumpPoint(current, dir)
@@ -273,7 +288,6 @@ func Jp(current *tile, dir Direction) []jp {//[]*tile {
 		}
 		tempJP := sneJP(current, dir)
 		if tempJP.jp != nil {
-		//	fmt.Println("temp?:", tempJP.jp)
 			jps = append(jps, tempJP)
 		}
 		current = current.followDir(dir)
@@ -506,7 +520,7 @@ func nextTile(t1 *tile, dir Direction) *tile{
 	return nil // default?
 }
 
-func getPath3(m *[][]tile, from []*tile) {    //INIT!
+func getPath(m *[][]tile, from []*tile) {    //INIT!
 	
 	// map över jp
 	var parentOf map[*tile]*tile
@@ -920,16 +934,7 @@ func (p *Person) redN() bool {
 	return false
 }
 
-func (t *tile) endOfLine(dir Direction) *tile {
-	next := t.followDir(dir)
-	for next != nil {
-		tmp := next.followDir(dir)
-		if tmp == nil {return next}
-		next = tmp
-	}
-	return nil
-}
-
+// returns a random direction
 func randomDirection() Direction {
 	xDir := rand.Intn(1) - rand.Intn(1)
 	yDir := rand.Intn(1) - rand.Intn(1)
