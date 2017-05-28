@@ -1,18 +1,8 @@
 package main
 
-import "fmt"
+//import "fmt"
 import "sync"
 import "math"
-
-
-import(
-	//  "os"
-	//"bufio"
-	"encoding/json"
-	//"time"
-	"io/ioutil"
-)
-//import "time"
 
 const MINHEAT = 10
 const MEDIUMHEAT = 20
@@ -25,6 +15,7 @@ type tile struct {
 	heat      int //how hot a tile is before fire
 	fireLevel int //strength of the fire
 	smoke     int
+	//smokeLevel int
 
 	wall bool
 	door bool
@@ -49,7 +40,10 @@ type tile struct {
 func SetFire(thisTile *tile) {
 	thisTile.heat = MINHEAT
 	thisTile.fireLevel = 1
-	thisTile.smoke = 1
+	thisTile.smoke = 1 //MINHEAT
+//	thisTile.smokeLevel = 1
+//	nbrs := getNeighbors(thisTile)
+//	for _, nbr := range nbrs {nbr.smoke = MINHEAT}
 }
 
 func FireSpread(tileMap [][]tile) {
@@ -57,7 +51,7 @@ func FireSpread(tileMap [][]tile) {
 		for y := 0; y < len(tileMap[0]); y++ {
 			tl := &(tileMap[x][y])
 			// tl.heat < 30 {fireSpreadTile(tl)}
-			fireSpreadTile(tl)
+			if tl.heat > 0 {fireSpreadTile(tl)}
 		}
 	}
 }
@@ -73,18 +67,18 @@ func fireSpreadTile(thisTile *tile) { //TODO: fixa tiles på riktigt!!
 		thisTile.fireLevel = 3
 	}
 	fire := thisTile.fireLevel
-	if fire > 10 {fire = 10}
+//	if fire > 10 {fire = 10} //dumdum.. gör ingentingen 
 
-	if thisTile.neighborNorth != nil && !thisTile.neighborNorth.wall && thisTile.fireLevel != 0 && !thisTile.neighborNorth.outOfBounds {
+	if thisTile.neighborNorth != nil && !thisTile.neighborNorth.wall && /*thisTile.fireLevel != 0 &&*/ !thisTile.neighborNorth.outOfBounds {
 		(thisTile.neighborNorth.heat) += fire//thisTile.fireLevel
 	}
-	if thisTile.neighborEast != nil && !thisTile.neighborEast.wall && thisTile.fireLevel != 0 && !thisTile.neighborEast.outOfBounds {
+	if thisTile.neighborEast != nil && !thisTile.neighborEast.wall && /*thisTile.fireLevel != 0 &&*/ !thisTile.neighborEast.outOfBounds {
 		(thisTile.neighborEast.heat) += fire//thisTile.fireLevel
 	}
-	if thisTile.neighborWest != nil && !thisTile.neighborWest.wall && thisTile.fireLevel != 0 && !thisTile.neighborWest.outOfBounds {
+	if thisTile.neighborWest != nil && !thisTile.neighborWest.wall && /*thisTile.fireLevel != 0 &&*/ !thisTile.neighborWest.outOfBounds {
 		(thisTile.neighborWest.heat) += fire//thisTile.fireLevel
 	}
-	if thisTile.neighborSouth != nil && !thisTile.neighborSouth.wall && thisTile.fireLevel != 0 && !thisTile.neighborSouth.outOfBounds {
+	if thisTile.neighborSouth != nil && !thisTile.neighborSouth.wall && /*thisTile.fireLevel != 0 &&*/ !thisTile.neighborSouth.outOfBounds {
 		(thisTile.neighborSouth.heat) += fire//thisTile.fireLevel
 	}
 }
@@ -124,7 +118,7 @@ func makeNewTile(thisPoint int, x int, y int) tile {
 
 	//makes a basic floor tile with no nothin on it
 	//and also no neighbors
-	newTile := tile{x, y, 0, 0, 0, false, false, nil, 0, false, nil, nil, nil, nil, nil, nil, nil, nil}
+	newTile := tile{x, y, 0, 0, 0, /*0,*/ false, false, nil, 0, false, nil, nil, nil, nil, nil, nil, nil, nil}
 
 	if thisPoint == 0 {
 		//make normal floor
@@ -227,12 +221,14 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 		FireSpread(*m)
 		if math.Mod(float64(step), 4) == 0 {
 			SmokeSpread(*m)
-			//InitPlans(m)
+		
 		}
-		if math.Mod(float64(step), 2) == 0 {InitPlans(m)}   // change it up?
-//		SmokeSpread(*m)
+		InitPlans(m)
+	//	if math.Mod(float64(step), 2) == 0 {InitPlans(m)}   // change it up?
+	//	SmokeSpread(*m)
 //		InitPlans(m)
-	} 	
+	}
+//	if math.Mod(float64(step), 3) == 0 {SmokeSpread(*m)}
 }
 
  func CheckFinish (peopleArray []*Person) bool {
@@ -243,70 +239,6 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	}
 	return true
  }
-
-func mainMap() {
-	matrix := [][]int {
-		{1,1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,0,0,0,0,0,1,0,0,0,0,0,1},
-		{1,0,0,0,0,0,1,0,0,1,0,0,1},
-		{1,0,0,0,0,0,1,1,1,1,0,0,1},
-		{1,1,1,0,0,0,1,0,0,0,0,0,1},
-		{2,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1,1}}
-
-//	list := [][]int{{3,2}, {5,5}}
-//	testmap := TileConvert(matrix)
-//	SetFire(&testmap[2][2])
-//	SmokeSpread(testmap)
-
-//	fmt.Println((&testmap[3][3]).safestTile())
-
-	ppl := [][]int{{1,1}, {1,2}, {2,1}, {1,3}}
-	tryThis(matrix, ppl, -1, -1)
-	
-	//debugging()
-}
-
-func tryThis(matrix [][]int, ppl [][]int, x, y int) {
-	testmap := TileConvert(matrix)
-	pplArray := PeopleInit(testmap, ppl)
-
-	InitPlans(&testmap)
-	fmt.Println("init")
-	if x >= 0 && y >= 0 {SetFire(&testmap[x][y])}
-	MovePeople(&testmap, pplArray)
-
-	for i, p := range pplArray {
-		fmt.Println("Person", i, "time:  ", p.time, "\n         health:", p.hp)
-	}
-}
-
-func debugging() {
-
-	if true {b, err3 := ioutil.ReadFile("../src/mapfile.txt")
-	if err3 != nil{
-		panic(err3)
-	}
-
-	var m = [][]int{}
-	err := json.Unmarshal(b, &m)
-	if err != nil{
-		panic(err)
-	}
-
-	c, err4 := ioutil.ReadFile("../src/playerfile.txt")
-	if err4 != nil{
-		panic(err4)
-	}
-
-	var mm = [][]int{}
-	err5 := json.Unmarshal(c, &mm)
-	if err5 != nil{
-		panic(err5)
-	}
-		tryThis(m, mm, 20, 20)// 31, 31)
-	}
-}
 
 //send heat
 func FireStats(m *[][]tile) ([][]int, [][]int){
@@ -338,19 +270,37 @@ func SmokeStats(m *[][]tile) [][]int{
 }
 
 func SmokeSpread(tileMap [][]tile) {
-	smokeTiles := []*tile{}
+//	smokeTiles := []*tile{}
 	for x := 0; x < len(tileMap); x++ {
 		for y := 0; y < len(tileMap[0]); y++ {
 			tl := &(tileMap[x][y])
-			if tl.smoke > 0 {smokeTiles = append(smokeTiles, tl)}
+			
+			if tl.smoke > 0 {
+				
+				 defer smokeSpreadTile(tl)}//{smokeTiles = append(smokeTiles, tl)}
 		}
 	}
-	for _, s := range smokeTiles {
-		if s.smoke > 0 {SmokeSpreadTile(s)}
-	}
+//	for _, s := range smokeTiles {
+//		SmokeSpreadTile(s)
+	//	s.smoke++
+//	}
 }
 
-func SmokeSpreadTile(thisTile *tile) {
+func smokeSpreadTile(thisTile *tile) {
+
+/*	if thisTile.smoke >= MINHEAT {
+		thisTile.smokeLevel = 1
+	}
+	if thisTile.smoke >= MEDIUMHEAT {
+		thisTile.smokeLevel = 2
+	}
+	if thisTile.smoke >= MAXHEAT {
+		thisTile.smokeLevel = 3
+	}
+
+	smoke := thisTile.smokeLevel */
+//	smoke := int(thisTile.smoke/10)
+	//	smoke = smoke - int(math.Mod(float64(thisTile.smoke), 10))
 	smoke := thisTile.smoke
 	if smoke >= 2 {smoke = 2}
 
@@ -366,8 +316,9 @@ func SmokeSpreadTile(thisTile *tile) {
 	if thisTile.neighborSouth != nil && !thisTile.neighborSouth.wall && !thisTile.neighborSouth.outOfBounds {
 		(thisTile.neighborSouth.smoke) += smoke //thisTile.smoke/30
 	}
-/*	
-	if thisTile.neighborNW != nil && !thisTile.neighborNW.wall {
+
+	/*
+	if thisTile.neighborNW != nil && !thisTile.neighborNW.wall && !thisTile.neighborNW.outOfBounds {
 		(thisTile.neighborNW.smoke) += 1//thisTile.smoke
 	}
 	if thisTile.neighborNE != nil && !thisTile.neighborNE.wall {
@@ -379,6 +330,7 @@ func SmokeSpreadTile(thisTile *tile) {
 	if thisTile.neighborSW != nil && !thisTile.neighborSW.wall {
 		(thisTile.neighborSW.smoke) += 1//thisTile.smoke
 	}*/
+//	thisTile.smoke++
 }
 
 // merging

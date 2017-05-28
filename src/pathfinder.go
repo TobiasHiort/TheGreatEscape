@@ -169,7 +169,7 @@ func validTile(t *tile) bool {
 	if t == nil {
 		return false
 	}
-	return !t.wall && !t.outOfBounds && t.heat < 1 //&& t.smoke < 100
+	return !t.wall && !t.outOfBounds && t.heat < 2 //&& t.smoke < 100
 }
 
 // checks if a tile is valid and if a person is occupiyng it checks if that person is screwed

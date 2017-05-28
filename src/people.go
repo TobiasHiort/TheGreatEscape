@@ -68,7 +68,7 @@ func (p *Person) updateStats() {
 // calculates and returns the amount of damage a tile deals
 func (t *tile) getDamage() int {
 	damage := int(0)
-	damage += 10*int(t.fireLevel) 
+	damage += 10*int(t.heat)//fireLevel)
 	if t.smoke > 10 {
 		damage += 1
 		t.occupied.smokedmg += 1
