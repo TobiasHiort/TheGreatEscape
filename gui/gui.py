@@ -87,6 +87,8 @@ dead = 0
 place_fire = False
 sk = True
 
+down = False
+
 
 #statistics_ready = False
 
@@ -271,7 +273,7 @@ while True:
                             paused = True
 
                         playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
-                        fireSurface = drawFire(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT)
+                        fireSurface = drawFire(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
                         smokeSurface = drawSmoke(smokeSurface, smoke_pos, tilesize, coord_x_square, coord_y_square, COLOR_SMOKE_GRADIENT)
                         
                         fire_percent = len(fire_pos) / (current_map_sqm * 4) # shady?
@@ -305,7 +307,7 @@ while True:
                             fire_pos = fire_movement[current_frame]
                             smoke_pos = smoke_movement[current_frame]
                             playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
-                            fireSurface = drawFire(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT)
+                            fireSurface = drawFire(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
                             smokeSurface = drawSmoke(smokeSurface, smoke_pos, tilesize, coord_x_square, coord_y_square, COLOR_SMOKE_GRADIENT)
 
                             fire_percent = len(fire_pos) / (current_map_sqm * 4) # shady?
@@ -321,7 +323,7 @@ while True:
 
                             fire_pos = fire_movement[current_frame]
                             playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
-                            fireSurface = drawFire(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT)
+                            fireSurface = drawFire(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
                             smoke_pos = smoke_movement[current_frame]
                             smokeSurface = drawSmoke(smokeSurface, smoke_pos, tilesize, coord_x_square, coord_y_square, COLOR_SMOKE_GRADIENT)
 
@@ -330,7 +332,15 @@ while True:
                 elif event.key == K_2 and paused:
                     current_frame = 0
                     current_time_float = 0.0
+                    for player in range(len(player_pos)):
+                            player_pos[player] = players_movement[player][current_frame]
                     playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
+                    fireSurface = drawFire(fireSurface, fire_movement[0], tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
+                    smokeSurface.fill((0, 0, 0, 0))
+                    displaySurface.blit(fireSurface, (0, 55))
+                    displaySurface.blit(playerSurface, (0, 55))
+                    displaySurface.blit(smokeSurface, (0, 55))
+                    
                 elif event.key == K_m and paused and current_frame == 0:
                     if not go_running:
                         _thread.start_new_thread(goThread, (mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, child_pid))
@@ -375,18 +385,27 @@ while True:
                     if current_frame == 0:
                         player_pos, player_count, fire_pos = populateMap(mapMatrix, pop_percent, init_fires)
                         playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
-                        fireSurface = drawWarnings(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square)
+                     ##   coord_x_square, coord_y_square = calcScalingSquare(PADDING_MAP, tilesize, mapheight, mapwidth, 907, 713)
+                        fireSurface = drawFire(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
+                        #drawWarnings(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square)
                         #fireSurface = drawFire(fireSurface, fire_pos, tilesize, mapheight, mapwidth, COLOR_FIRE_GRADIENT)
                     else:
                         print('Depop first')
                 elif event.key == K_z: # depopulate
                     _, current_frame, current_time_float, paused, player_pos, players_movement, player_count, fire_movement, fire_pos, survived, fire_percent, smoke_pos, smoke_movement, smoke_percent, dead = resetState()
                     playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
-                    fireSurface = drawFire(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT)
+                    fireSurface = drawFire(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
                     smokeSurface = drawSmoke(smokeSurface, smoke_pos, tilesize, coord_x_square, coord_y_square, COLOR_SMOKE_GRADIENT)
         # mouse motion events (hovers), only for tab buttons on displaySurface. Blit in render logic for others.
         elif event.type == MOUSEMOTION:
             mouse_x, mouse_y = event.pos
+
+##
+
+
+
+##
+            
             # simulation button
             if cursorBoxHit(mouse_x, mouse_y, 0, 202, 0, 45, not(active_tab_bools[0])):
                 displaySurface.blit(BUTTON_SIMULATION_HOVER, (0,0))
@@ -410,6 +429,21 @@ while True:
                 displaySurface.blit(BUTTON_STATISTICS_BLANK, (382, 0))
         # mouse button events (clicks)
         elif event.type == MOUSEBUTTONDOWN: # import as function?
+##
+#            down, _, _ = pygame.mouse.get_pressed()
+#            prevclick = (findMapCoord(mouse_x, mouse_y, 400, 40, 10, active_tab_bools[1]))
+#            print(prevclick)
+#            while active_tab_bools[1] and down:
+#                pygame.time.wait(100)
+#                print(down)
+#                mouse_x, mouse_y = pygame.mouse.get_pos() ## event.pos
+#                click = (findMapCoord(mouse_x, mouse_y, 400, 40, 10, active_tab_bools[1]))
+#                if prevclick != click:
+#                    print(click)
+#                    prevclick = click
+#                down, _, _ = pygame.mouse.get_pressed()
+##            
+
             # left click
             if event.button == 1:
                 mouse_x, mouse_y = event.pos
@@ -423,7 +457,8 @@ while True:
                     displaySurface.blit(BUTTON_SIMULATION_ACTIVE, (0, 0))
                     active_tab_bools = [True, False, False]
                     playerSurface, _, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
-                    fireSurface = drawWarnings(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square)
+                    fireSurface = drawFire(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
+                    # drawWarnings(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square)
                     
                 # settings button
                 elif cursorBoxHit(mouse_x, mouse_y, 202, 382, 0, 45, not(active_tab_bools[1])):
@@ -834,8 +869,17 @@ while True:
             minimapSurface, _, miniTilesize, miniMapwidth, miniMapheight = buildMiniMap(active_map_path, minimapSurface, result_matrix, COLOR_HEAT_GRADIENT, False)
             mini_coord_x_circle, mini_coord_y_circle, mini_radius_scale = calcScalingCircle(PADDING_MAP, miniTilesize, miniMapheight, miniMapwidth, 495, 344)
             mini_coord_x_square, mini_coord_y_square = calcScalingSquare(PADDING_MAP, miniTilesize, miniMapheight, miniMapwidth, 495, 344)
-            miniPlayerSurface, _, _ = drawPlayer(miniPlayerSurface, player_pos, miniTilesize, player_scale, mini_coord_x_circle, mini_coord_y_circle, mini_radius_scale, COLOR_PLAYER_GRADIENT)
-            miniFireSurface = drawWarnings(miniFireSurface, fire_pos, miniTilesize, mini_coord_x_square, mini_coord_y_square)
+            start_players = player_pos
+            start_fire = fire_pos
+            if current_frame > 0:
+                start_players = []
+                for i in range(len(player_pos)):
+               ## player_pos[player] = players_movement[player][current_frame]
+                    start_players.append(players_movement[i][0])
+                start_fire = fire_movement[0]
+            miniPlayerSurface, _, _ = drawPlayer(miniPlayerSurface, start_players, miniTilesize, player_scale, mini_coord_x_circle, mini_coord_y_circle, mini_radius_scale, COLOR_PLAYER_GRADIENT)
+            miniFireSurface = drawFire(miniFireSurface, start_fire, miniTilesize, mini_coord_x_square, mini_coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
+            #drawWarnings(miniFireSurface, fire_pos, miniTilesize, mini_coord_x_square, mini_coord_y_square)
       #      print("??")
        #     print(findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
 

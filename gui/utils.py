@@ -285,28 +285,32 @@ def calcScalingSquare(PADDING_MAP, tilesize, mapheight, mapwidth, width, height)
 
     return coord_x, coord_y
 
-def drawFire(fireSurface, fire_pos, tilesize, coord_x, coord_y, COLOR_FIRE_GRADIENT):
+def drawFire(fireSurface, fire_pos, tilesize, coord_x, coord_y, COLOR_FIRE_GRADIENT, frame):
     """Description.
 
     More...
     """
-    # fireSurface.fill(COLOR_KEY) # remove last frame. Not needed?
-    fireSurface.fill((0, 0, 0, 0))
 
-    # create the map with draw.rect on mapSurface
-    for idx in range(len(fire_pos)):
+    if frame == 0:
+        return drawWarnings(fireSurface, fire_pos, tilesize, coord_x, coord_y)
+    # fireSurface.fill(COLOR_KEY) # remove last frame. Not needed?
+    else:
+        fireSurface.fill((0, 0, 0, 0))
+        
+        # create the map with draw.rect on mapSurface
+        for idx in range(len(fire_pos)):
             if fire_pos[idx][2] < 100:
                 pygame.draw.rect(fireSurface, COLOR_FIRE_GRADIENT[fire_pos[idx][2]] + (180,),
                                  (math.floor(0.5 * (coord_x + 2 * tilesize * fire_pos[idx][0])),
-                                    math.floor(coord_y + tilesize * fire_pos[idx][1]),
-                                 tilesize, tilesize))
+                                  math.floor(coord_y + tilesize * fire_pos[idx][1]),
+                                  tilesize, tilesize))
             elif fire_pos[idx][2] >= 99:
                 #if fire_pos[idx][2] == 2:
                 pygame.draw.rect(fireSurface, COLOR_FIRE_GRADIENT[99] + (180,),
                                  (math.floor(0.5 * (coord_x + 2 * tilesize * fire_pos[idx][0])),
-                                    math.floor(coord_y + tilesize * fire_pos[idx][1]),
-                                 tilesize, tilesize))
-    return fireSurface
+                                  math.floor(coord_y + tilesize * fire_pos[idx][1]),
+                                  tilesize, tilesize))
+        return fireSurface
 
 def drawSmoke(smokeSurface, smoke_pos, tilesize, coord_x, coord_y, COLOR_SMOKE_GRADIENT):
     """Description.
