@@ -512,6 +512,7 @@ while True:
                                  
                          if mapMatrix[click[1]][click[0]] == 0 and not exists:
                              player_pos.append(click)
+                             player_count += 1
            
                         
      #       if player_pos != []:
@@ -676,6 +677,7 @@ while True:
                      for i in range(len(player_pos)):
                          if player_pos[i][0] == click[0] and player_pos[i][1] == click[1]:
                              del player_pos[i]
+                             player_count -= 1
                              break
 
     # render logic
