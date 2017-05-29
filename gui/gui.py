@@ -409,8 +409,8 @@ while True:
                     active_tab_bools = [False, False, True]
                 # upload button routine startup
                 if cursorBoxHit(mouse_x, mouse_y, 450, 574, 335, 459, active_tab_bools[0]) and active_map_path is None and not map_error:
-                    #active_map_path_tmp = fileDialogPath()
-                    active_map_path_tmp = "Map07.png"
+                    active_map_path_tmp = fileDialogPath() #<-------Comment out for mac
+                    #active_map_path_tmp = "Map07.png" #<------- Comment in for mac
                     if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path_error = active_map_path_tmp
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed
@@ -441,8 +441,8 @@ while True:
                             playerSurface, _, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
                             # upload button map error
                 if cursorBoxHit(mouse_x, mouse_y, 450, 574, 335+250, 459+250, active_tab_bools[0]) and map_error:
-                    #active_map_path_tmp = fileDialogPath()
-                    active_map_path_tmp = "Map07.png"
+                    active_map_path_tmp = fileDialogPath() #<-------Comment out for mac
+                    #active_map_path_tmp = "Map07.png" #<-------- Comment in for mac
                     if active_map_path_tmp != "": #and active_map_path != "/":
                         active_map_path_error = active_map_path_tmp
                         active_map_path = active_map_path_tmp # (2/2)fixed bug for exiting folder window, not sure why tmp is needed

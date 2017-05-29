@@ -201,7 +201,7 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
 	wg.Add(len(ppl))
-	//	*statsList = [][]int{}
+	*statsList = [][]int{}
 	for _, pers := range ppl {
 		//	p := pers
 		go func(p *Person) { //, ind int){
@@ -226,9 +226,10 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	wg.Wait()
 
 	if math.Mod(float64(step), 2) == 0 {
-		FireSpread(*m)
+		//		FireSpread(*m)
 		if math.Mod(float64(step), 4) == 0 {
 			SmokeSpread(*m)
+			FireSpread(*m)
 			//InitPlans(m)
 		}
 		if math.Mod(float64(step), 2) == 0 {
