@@ -1344,3 +1344,43 @@ def printShortKeys():
     print(Fore.WHITE + Back.YELLOW + Style.BRIGHT + ' '*9 + 'In Settings'+ ' '*9)
     printSK('q: switch place ppl/fire')
     print(Fore.WHITE + Back.BLUE + Style.BRIGHT + ' '*10 + '         ' + ' '*10)
+
+def respondToClick(click, fire_pos, player_pos, mapMatrix, remove, place_fire, player_count, init_fires):
+    if not remove:
+        exists = False
+        
+        if place_fire:
+            click[2] = 10                                       
+            for f in fire_pos:
+                if f[0] == click[0] and f[1] == click[1]:
+                    exists = True
+                    
+            if mapMatrix[click[1]][click[0]] == 0 and not exists:
+                #if mapMatrix[click[0]][click[1]] == 0 and not exists:
+                fire_pos.append(click)
+                init_fires += 1
+                
+        else:
+            click[2] = 100                                         
+            for player in player_pos:
+                if player == click:
+                    exists = True
+                    
+            if mapMatrix[click[1]][click[0]] == 0 and not exists:
+                #if mapMatrix[click[0]][click[1]] == 0 and not exists:
+                player_pos.append(click)
+                player_count += 1
+                
+    else:
+        for i in range(len(fire_pos)):
+            if fire_pos[i][0] == click[0] and fire_pos[i][1] == click[1]:
+                del fire_pos[i]
+                break
+            
+            for i in range(len(player_pos)):
+                if player_pos[i][0] == click[0] and player_pos[i][1] == click[1]:
+                    del player_pos[i]
+                    player_count -= 1
+                    break    
+
+    return player_count

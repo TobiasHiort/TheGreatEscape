@@ -408,51 +408,7 @@ while True:
                 if click[0] < 0 or click[1] < 0 or click[0] >= len(mapMatrix[0]) or click[1] >= len(mapMatrix):
                     break
 
-                if not remove:
-                    exists = False
-                    
-                    #click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
-                    if place_fire:
-                        click[2] = 10                                       
-                        for f in fire_pos:
-                            if f[0] == click[0] and f[1] == click[1]:
-                                exists = True
-                            
-                        if mapMatrix[click[1]][click[0]] == 0 and not exists:
-                        #if mapMatrix[click[0]][click[1]] == 0 and not exists:
-                            fire_pos.append(click)
-                            init_fires += 1
-                         
-                    else:
-                        click[2] = 100                                         
-                        for player in player_pos:
-                            if player == click:
-                                exists = True
-                            
-                        if mapMatrix[click[1]][click[0]] == 0 and not exists:
-                        #if mapMatrix[click[0]][click[1]] == 0 and not exists:
-                            player_pos.append(click)
-                            player_count += 1
-                        
-                else:
-                    for i in range(len(fire_pos)):
-                         if fire_pos[i][0] == click[0] and fire_pos[i][1] == click[1]:
-                             del fire_pos[i]
-                             break
-
-                    for i in range(len(player_pos)):
-                         if player_pos[i][0] == click[0] and player_pos[i][1] == click[1]:
-                             del player_pos[i]
-                             player_count -= 1
-                             break
-
-##
-           #     if active_tab_bools[1] and (cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, True) and (active_map_path is not None or active_map_path != "")): # if no active map (init), "" = cancel on choosing map                
-                 #    click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
-                    
-
-                       
-##
+                player_count = respondToClick(click, fire_pos, player_pos, mapMatrix, remove, place_fire, player_count, init_fires)
             
             # simulation button
             if cursorBoxHit(mouse_x, mouse_y, 0, 202, 0, 45, not(active_tab_bools[0])):
@@ -478,20 +434,14 @@ while True:
         # mouse button events (clicks)
         elif event.type == MOUSEBUTTONDOWN: # import as function?
 ##
-#            down, _, _ = pygame.mouse.get_pressed()
-#            prevclick = (findMapCoord(mouse_x, mouse_y, 400, 40, 10, active_tab_bools[1]))
-#            print(prevclick)
-#            while active_tab_bools[1] and down:
-#                pygame.time.wait(100)
-#                print(down)
-#                mouse_x, mouse_y = pygame.mouse.get_pos() ## event.pos
-#                click = (findMapCoord(mouse_x, mouse_y, 400, 40, 10, active_tab_bools[1]))
-#                if prevclick != click:
-#                    print(click)
-#                    prevclick = click
-#                down, _, _ = pygame.mouse.get_pressed()
-##            
+            if cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, active_tab_bools[1]):
+                click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
 
+                if click[0] < 0 or click[1] < 0 or click[0] >= len(mapMatrix[0]) or click[1] >= len(mapMatrix):
+                    break
+
+                player_count = respondToClick(click, fire_pos, player_pos, mapMatrix, remove, place_fire, player_count, init_fires)
+##                
             # left click
             if event.button == 1:
                 remove = False
