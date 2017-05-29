@@ -829,6 +829,9 @@ func northJPInit(current *tile) jp{
 }
 
 func (p *Person) redirect() bool {
+
+	//if p.screwed {return p.moveTo(p.currentTile().safestTile())}
+	
 	if p.dir == e {return p.redE()}
 	if p.dir == s {return p.redS()}
 	if p.dir == w {return p.redW()}

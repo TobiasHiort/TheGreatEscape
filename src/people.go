@@ -163,7 +163,7 @@ func (p *Person) save() {
 // modifies a persons direction, used if a new plan has been set
 // selects a 'safest tile' for a person if they are screwed
 func (p *Person) updatePlan(m *[][]tile) {  //OBS: Function has been reduced greatly, is more like 'updateDir' right now..,
-	if len(p.plan) == 0 || (len(p.plan) > 0 && !canGo(p.plan[0])) {
+	if len(p.plan) == 0 || (len(p.plan) > 0 && /*!validTile(p.plan[0])) {*/!canGo(p.plan[0])) {
 		p.screwed = true
 		sf := p.currentTile().safestTile()
 		if sf != nil {

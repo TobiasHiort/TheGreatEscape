@@ -41,9 +41,9 @@ func SetFire(thisTile *tile) {
 	thisTile.heat = MINHEAT
 	thisTile.fireLevel = 1
 	thisTile.smoke = 1 //MINHEAT
-//	thisTile.smokeLevel = 1
-//	nbrs := getNeighbors(thisTile)
-//	for _, nbr := range nbrs {nbr.smoke = MINHEAT}
+/*	thisTile.smokeLevel = 1
+	nbrs := getNeighbors(thisTile)
+	for _, nbr := range nbrs {nbr.smoke = MINHEAT}*/
 }
 
 func FireSpread(tileMap [][]tile) {
@@ -228,7 +228,7 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	//	SmokeSpread(*m)
 //		InitPlans(m)
 	}
-//	if math.Mod(float64(step), 3) == 0 {SmokeSpread(*m)}
+	//if math.Mod(float64(step), 3) == 0 {SmokeSpread(*m)}
 }
 
  func CheckFinish (peopleArray []*Person) bool {
@@ -287,18 +287,18 @@ func SmokeSpread(tileMap [][]tile) {
 }
 
 func smokeSpreadTile(thisTile *tile) {
-
-/*	if thisTile.smoke >= MINHEAT {
+/*
+	if thisTile.smoke >= MINHEAT - 5 {
 		thisTile.smokeLevel = 1
 	}
-	if thisTile.smoke >= MEDIUMHEAT {
+	if thisTile.smoke >= MEDIUMHEAT - 5 {
 		thisTile.smokeLevel = 2
-	}
-	if thisTile.smoke >= MAXHEAT {
-		thisTile.smokeLevel = 3
-	}
+	}*/
+//	if thisTile.smoke >= MAXHEAT  - 7 {
+//		thisTile.smokeLevel = 3
+//	}
 
-	smoke := thisTile.smokeLevel */
+//	smoke := thisTile.smokeLevel 
 //	smoke := int(thisTile.smoke/10)
 	//	smoke = smoke - int(math.Mod(float64(thisTile.smoke), 10))
 	smoke := thisTile.smoke
@@ -410,6 +410,7 @@ func (t *tile) safestTile() *tile {
 	//	tmp := safest(nbr, safest1)
 		safest1 = safest(nbr, safest1)
 	}
+//	if safest1 == nil {return randomDirection}
 	return safest1 
 	/*
 	tmp1 := safest(t.neighborNorth, t.neighborWest)
