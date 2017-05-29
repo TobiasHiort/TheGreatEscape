@@ -30,7 +30,7 @@ var (  // TODO: define this a weak ago...
 	sw = Direction{1,-1}	
 )
 
-// checks if a certain tile is in a list of tiels
+// checks if a certain tile is in a list of tiles
 func contains(tiles []*tile, t *tile) bool {
 	for _, ti := range tiles {
 		if ti == t {
@@ -662,14 +662,14 @@ func getPath(m *[][]tile, from []*tile) {    //INIT!
 		} else {currentDir = Direction{0,0}}
 		neighbors := /*getNeighbors(current.tile, cq)*/ getNeighborsPruned(current.tile, currentDir)
 
-	//	var wg sync.WaitGroup
-	//	wg.Add(len(neighbors))
+		var wg sync.WaitGroup
+		wg.Add(len(neighbors))
 		var mutex = &sync.Mutex{}
 		for _, neighbor := range neighbors {
 			
-		//	go func(n *tile) {
-		//		defer wg.Done()
-					n := neighbor
+			go func(n *tile) {
+				defer wg.Done()
+				//		n := neighbor
 				jps := JpInit(n, getDir(current.tile, n))
 				for _, jp := range jps {
 					if jp.jp != nil {	
@@ -689,7 +689,7 @@ func getPath(m *[][]tile, from []*tile) {    //INIT!
 						for _, n := range jp.fn {
 							fnCost := cost + smplCost(jp.jp, n) + 100*float32(n.smoke)//float32(math.Mod(float64(n.smoke), 50))
 							p, ok := parentOf[n]
-//							if jp.jp != n && (!ok || (n != nil && fnCost < cq.costOf(n) && p.smoke >= n.smoke)) {
+							//							if jp.jp != n && (!ok || (n != nil && fnCost < cq.costOf(n) && p.smoke >= n.smoke)) {
 							if jp.jp != n && (!ok || (n != nil && fnCost < costOf[n] && p.smoke >= n.smoke)) { //beta
 								parentOf[n] = jp.jp
 								cq.Update(n, fnCost)
@@ -702,10 +702,10 @@ func getPath(m *[][]tile, from []*tile) {    //INIT!
 						mutex.Unlock()
 					}
 				}
-		//	}(neighbor)						
+			}(neighbor)						
 		}
-			//wg.Wait()
-	//}		
+		wg.Wait()
+		//}		
 	}
 }
 
@@ -717,6 +717,7 @@ func setPlan(parentOf map[*tile]*tile, pers *tile) {
 
 	curDir := Direction{} 
 	lastDir := Direction{0,0}
+
 	for !current.door {
 		curDir = getDir(current, parentOf[current])
 		if curDir == lastDir {
@@ -724,7 +725,7 @@ func setPlan(parentOf map[*tile]*tile, pers *tile) {
 		}
 		path = append(path, parentOf[current])	
 		if parentOf[current].xCoord == 28 && parentOf[current].yCoord == 49 {}
-		
+
 		current, ok = parentOf[current]
 		lastDir = curDir
 		
@@ -1043,4 +1044,8 @@ func randomDirection() Direction {
 	xDir := rand.Intn(1) - rand.Intn(1)
 	yDir := rand.Intn(1) - rand.Intn(1)
 	return Direction{xDir, yDir}
+}
+
+func (t *tile)randomNeighbor() *tile{
+	return t.followDir(randomDirection())
 }

@@ -220,24 +220,22 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	}
 	step++
 	wg.Wait()
-
-
 	
 	if math.Mod(float64(step), fireSpeed) == 0 {FireSpread(*m)}
 
-		//	InitPlans(m)
-		//	if math.Mod(float64(step), 2) == 0 {InitPlans(m)}   // change it up?
-		//	SmokeSpread(*m)
-		//		InitPlans(m)
-//	}
-	if math.Mod(float64(step), smokeSpeed) == 0 {SmokeSpread(*m)
-		
-	}
-	if math.Mod(float64(step), pplSpeed) == 0 {InitPlans(m)}
+	//	InitPlans(m)
+	//	if math.Mod(float64(step), 2) == 0 {InitPlans(m)}   // change it up?
+	//	SmokeSpread(*m)
+	//		InitPlans(m)
+	//}
+
 	
+	if math.Mod(float64(step), smokeSpeed) == 0 {SmokeSpread(*m)}
+		
+	if math.Mod(float64(step), pplSpeed) == 0 {InitPlans(m)}
 	//if math.Mod(float64(step), 3) == 0 {SmokeSpread(*m)}
 }
-
+	
  func CheckFinish (peopleArray []*Person) bool {
 	for i := 0; i < len(peopleArray); i++ {
 		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {

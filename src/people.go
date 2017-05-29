@@ -128,7 +128,10 @@ func (p *Person) followPlan() {
 		p.save()
 	} else { // follow tha plan!
 		if p.followDir() {   // next step in plan is available -> move
-		} else if !p.redirect() {p.wait()}  // next step in plan is occupied -> redirect or w8
+		} else if !p.redirect() {
+			if !p.moveTo(p.currentTile().randomNeighbor()){
+			p.wait()}  // next step in plan is occupied -> redirect or w8
+		}
 	}
 	p.updateTime()	
 }

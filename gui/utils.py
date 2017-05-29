@@ -48,7 +48,7 @@ COLOR_BLUE = (0, 111, 162)
 COLOR_GREEN = (0, 166, 56)
 COLOR_RED = (162, 19, 24)
 COLOR_RED_PNG = (255, 0, 0)
-COLOR_RED_DEAD = (216, 0, 1)
+COLOR_RED_DEAD = (140, 0, 0)#(216, 0, 1)
 COLOR_YELLOW = (255, 238, 67)
 COLOR_BACKGROUND = (245, 245, 245)
 COLOR_KEY = (127, 127, 127)
@@ -325,13 +325,13 @@ def drawSmoke(smokeSurface, smoke_pos, tilesize, coord_x, coord_y, COLOR_SMOKE_G
     for idx in range(len(smoke_pos)):
         #if 20 < smoke_pos[idx][2] and smoke_pos[idx][2] <= 100:
         if smoke_pos[idx][2] <= 100:
-            pygame.draw.rect(smokeSurface, COLOR_SMOKE_GRADIENT[smoke_pos[idx][2]] + (100,),
+            pygame.draw.rect(smokeSurface, COLOR_SMOKE_GRADIENT[smoke_pos[idx][2]] + (130,),
                              (math.floor(0.5 * (coord_x + 2 * tilesize * smoke_pos[idx][0])),
                                 math.floor(coord_y + tilesize * smoke_pos[idx][1]),
                              tilesize, tilesize))
         elif smoke_pos[idx][2] >= 99:
             #if fire_pos[idx][2] == 2:
-            pygame.draw.rect(smokeSurface, COLOR_SMOKE_GRADIENT[99] + (100,),
+            pygame.draw.rect(smokeSurface, COLOR_SMOKE_GRADIENT[99] + (130,),
                              (math.floor(0.5 * (coord_x + 2 * tilesize * smoke_pos[idx][0])),
                                 math.floor(coord_y + tilesize * smoke_pos[idx][1]),
                              tilesize, tilesize))
