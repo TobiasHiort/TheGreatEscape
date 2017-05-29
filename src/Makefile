@@ -11,8 +11,11 @@ con: concurrency_test.go
 path: map.go queue.go pathfinder.go
 	go run map.go queue.go pathfinder.go
 
-test: queue.go queue_test.go map.go pathfinder.go pathfinder_test.go map_test.go print.go
+test_q: queue.go queue_test.go map.go pathfinder.go pathfinder_test.go map_test.go print.go
 	go test -v queue.go pathfinder.go map.go people.go print.go queue_test.go map_test.go pathfinder_test.go people_test.go
+
+test_c: concurrency_test.go map_test_speed.go people.go queue.go print.go pathfinder.go 
+	go test -v concurrency_test.go map_test_speed.go people.go queue.go print.go pathfinder.go  
 
 clear:
 	rm main
