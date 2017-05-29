@@ -8,7 +8,7 @@ const MINHEAT = 10
 const MEDIUMHEAT = 20
 const MAXHEAT = 30
 
-var fireSpeed = float64(2)
+var fireSpeed = float64(2) // OBS: 3 är 'standard'-värdet från py atm
 var pplSpeed  = float64(2)
 
 type tile struct {
@@ -221,18 +221,22 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	step++
 	wg.Wait()
 	
-	if math.Mod(float64(step), fireSpeed) == 0 {FireSpread(*m)}
+	if math.Mod(float64(step), fireSpeed) == 0 {
+		FireSpread(*m)
+		if math.Mod(float64(step), smokeSpeed) == 0 {SmokeSpread(*m)}
+		InitPlans(m)
+	}
 
 	//	InitPlans(m)
 	//	if math.Mod(float64(step), 2) == 0 {InitPlans(m)}   // change it up?
 	//	SmokeSpread(*m)
-	//		InitPlans(m)
+	//	
 	//}
 
 	
-	if math.Mod(float64(step), smokeSpeed) == 0 {SmokeSpread(*m)}
-		
-	if math.Mod(float64(step), pplSpeed) == 0 {InitPlans(m)}
+//	if math.Mod(float64(step), smokeSpeed) == 0 {SmokeSpread(*m)}
+//		
+//	if math.Mod(float64(step), pplSpeed) == 0 {InitPlans(m)}
 	//if math.Mod(float64(step), 3) == 0 {SmokeSpread(*m)}
 }
 	
@@ -285,10 +289,6 @@ func SmokeSpread(tileMap [][]tile) {
 				 defer smokeSpreadTile(tl)}//{smokeTiles = append(smokeTiles, tl)}
 		}
 	}
-//	for _, s := range smokeTiles {
-//		SmokeSpreadTile(s)
-	//	s.smoke++
-//	}
 }
 
 func smokeSpreadTile(thisTile *tile) {
@@ -417,17 +417,6 @@ func (t *tile) safestTile() *tile {
 	}
 //	if safest1 == nil {return randomDirection}
 	return safest1 
-	/*
-	tmp1 := safest(t.neighborNorth, t.neighborWest)
-	tmp2 := safest(t.neighborSouth, t.neighborEast)
-
-	tmp3 := safest(t.neighborNW, t.neighborNE)
-	tmp4 := safest(t.neighborSW, t.neighborSE)
-
-	tmp1 = safest(tmp1, tmp2)
-	tmp2 = safest(tmp3, tmp4)
-	
-	return safest(tmp1, tmp2)*/
 }
 
 func safest(t1, t2 *tile) *tile {

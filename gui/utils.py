@@ -1026,7 +1026,7 @@ def interpolateTuple(startcolor, goalcolor, steps):
 def pathToName(path):
     return path[path.rfind('/') + 1:-4]
 
-def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, child_pid):
+def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, fire_speed, child_pid):
     """Description.
 
     More...
@@ -1055,6 +1055,12 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     tofile3.write(fire_pos_str)
     tofile3.close()
     print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'firefile.txt' + ' '*7)
+
+    velocities_str = json.dumps([6 - fire_speed, 2]) 
+    tofile4 = open('../tmp/velocitiesfile.txt', 'w+')
+    tofile4.write(velocities_str)
+    tofile4.close()
+    print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'velocitiesfile.txt' + ' '*1)    
 
     # spawn Go subprocess
     child = Popen('../src/main', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
@@ -1123,7 +1129,9 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     print(Fore.WHITE + Back.RED + Style.DIM + 'removed ' + Back.RED + Style.BRIGHT + 'playerfile.txt' + ' '*3)
     os.remove('../tmp/firefile.txt')
     print(Fore.WHITE + Back.RED + Style.DIM + 'removed ' + Back.RED + Style.BRIGHT + 'firefile.txt' + ' '*5)
-
+    os.remove('../tmp/velocitiesfile.txt')
+    print(Fore.WHITE + Back.RED + Style.DIM + 'removed ' + Back.RED + Style.BRIGHT + 'velocitiesfile.tx') #t..
+    
     with open('../tmp/pid.txt', 'a') as out:
         out.write(json.dumps(0))
     print(Fore.WHITE + Back.RED + Style.DIM + 'reset ' + Back.RED + Style.BRIGHT + '  pid.txt' + ' '*10)
@@ -1329,7 +1337,7 @@ def printShortKeys():
     printSK('p: pause simulation')
     printSK('g: step simulation forwards')
     printSK('f: step simulation backwards')
-    printSK('2: reset simulation')
+    printSK('2: reset simulation') 
     print(Fore.WHITE + Back.YELLOW + Style.BRIGHT + ' '*9 + 'In Settings'+ ' '*9)
     printSK('q: switch place ppl/fire')
     print(Fore.WHITE + Back.BLUE + Style.BRIGHT + ' '*10 + '         ' + ' '*10)

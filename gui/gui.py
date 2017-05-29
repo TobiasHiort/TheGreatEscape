@@ -90,6 +90,8 @@ sk = True
 button_down = False
 remove = False
 
+fire_speed = 3
+
 #statistics_ready = False
 
 surface_toggle = [True, True, True]
@@ -358,7 +360,7 @@ while True:
                     
                 elif event.key == K_m and paused and current_frame == 0:
                     if not go_running:
-                        _thread.start_new_thread(goThread, (mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, child_pid))
+                        _thread.start_new_thread(goThread, (mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, fire_speed, child_pid))
                         go_running = True
                         pygame.time.wait(100)
                 elif event.key == K_s and paused and player_pos != []:                                  
@@ -377,6 +379,12 @@ while True:
                 elif event.key == K_MINUS:
                     if init_fires > 1:
                         init_fires -= 1
+                elif event.key == K_UP and fire_speed < 5:
+                    fire_speed += 1
+                  #  print(fire_speed)
+                elif event.key == K_DOWN and fire_speed > 1:
+                    fire_speed -= 1
+                   # print(fire_speed)
                 elif event.key == K_5: # for use with cursorHitBox
                     if surface_toggle[0]:
                         surface_toggle[0] = False
@@ -408,6 +416,7 @@ while True:
                         print('Depop first')
                 elif event.key == K_z: # depopulate
                     init_fires = 1
+                    fire_speed = 3
                     _, current_frame, current_time_float, paused, player_pos, players_movement, player_count, fire_movement, fire_pos, survived, fire_percent, smoke_pos, smoke_movement, smoke_percent, dead = resetState()
                     playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
                     fireSurface = drawFire(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
@@ -466,7 +475,7 @@ while True:
             # run - paused
             if cursorBoxHit(mouse_x, mouse_y, 900, 1024, 236, 270, active_tab_bools[0]) and paused and current_frame == 0:
                 if current_frame == 0 and not go_running:
-                    _thread.start_new_thread(goThread, (mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, child_pid))
+                    _thread.start_new_thread(goThread, (mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, fire_speed, child_pid))
                     go_running = True
                     pygame.time.wait(150)      
                 if player_pos != [] and players_movement != [] and current_frame < len(players_movement[0]) - 1:  
@@ -1050,13 +1059,6 @@ while True:
             displaySurface.blit(miniPlayerSurface, (173, 60))
             displaySurface.blit(miniFireSurface, (173, 60))
 
-            #drawWarnings(miniFireSurface, fire_pos, miniTilesize, mini_coord_x_square, mini_coord_y_square)
-      #      print("??")
-       #     print(findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
-    
-        
-        
-
 
     elif active_tab_bools[2]: # statistics tab
         # no chosen map
@@ -1106,61 +1108,5 @@ while True:
 
             result_matrix = heatMap(players_movement, mapMatrix)
 
-            
-            ##
-            
-           # statisticsSurface.fill(COLOR_BACKGROUND)
-            
-            #statisticsSurface.blit(BG_STATISTICS, (6, 1))
-            #placeCenterText(statisticsSurface, pathToName(active_map_path), FONT_ROBOTOREGULAR_26, COLOR_BLACK, 530, 30)
-
-            #raw_data, raw_data2, raw_data3, raw_data3b, raw_data3c
-           # if plot_rendered and not go_running:
-             #   _thread.start_new_thread(statisticsThread, (smoke_movement, fire_movement, current_map_sqm*4, json_stat_time_escaped_content, json_stat_people_content, json_stat_time_died_content))
-                #raw_data = rawPlotRender(rawPlot4(smoke_movement, fire_movement, current_map_sqm*4))
-                #raw_data2 = rawPlotRender(rawPlot2(json_stat_time_escaped_content, json_stat_time_died_content))
-                #raw_data3 = rawPlotRender(rawPlot3(json_stat_people_content[0]))
-                #raw_data3b = rawPlotRender(rawPlot3b(json_stat_people_content[3]))
-                #raw_data3c = rawPlotRender(tablePlot(json_stat_people_content))
-                
-                
-              #  if statistics_ready:
-                # quadrant 1
-                #surf = pygame.image.fromstring(raw_data, (plot_x, plot_y), "RGB")
-                #statisticsSurface.blit(surf, (10, 5))
-                
-                # quadrant 2
-             #       surf = pygame.image.fromstring(raw_data3c, (300, 320), "RGB")
-            #        statisticsSurface.blit(surf, (35, 20))
-                
-           #         surf = pygame.image.fromstring(raw_data3, (200, 120), "RGB")
-          #          statisticsSurface.blit(surf, (280, 60))
-                
-         #           if json_stat_people_content[3][0] != 0 or json_stat_people_content[3][1] != 0:
-        #                surf = pygame.image.fromstring(raw_data3b, (200, 120), "RGB")
-       #                 statisticsSurface.blit(surf, (280, 200))
-                    
-                    # quadrant 3
-      #              surf = pygame.image.fromstring(raw_data2, (plot_x, plot_y), "RGB")
-     #               statisticsSurface.blit(surf, (10, 361))
-                    
-                    # quadrant 4
-    #                surf = pygame.image.fromstring(raw_data, (plot_x, plot_y), "RGB")
-   #                 statisticsSurface.blit(surf, (517, 361))
-                    
-  #                  minimapSurface.fill(COLOR_WHITE)
- #                   minimapSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapSurface, result_matrix, COLOR_HEAT_GRADIENT, True)
-                    
-#                    plot_rendered = True
-                
-            #if player_pos != []:
-            #   placeText(statisticsSurface, "Populated sim, but paused, id05", FONT_ROBOTOREGULAR_14, COLOR_BLACK, 100, 200)
-      
-                    #placeText(statisticsSurface, "Placeholder statisticsSurface, id06", FONT_ROBOTOREGULAR_14, COLOR_BLACK, 100, 270)
-
-
-
-##
-            
     # update displaySurface
     pygame.display.flip() # .update(<surface_args>) instead?
