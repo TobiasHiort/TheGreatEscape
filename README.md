@@ -20,6 +20,7 @@ The application is written in [Python 3.x](https://www.python.org/downloads/) an
     * [termcolor](https://pypi.python.org/pypi/termcolor)
     * [SciPy](https://www.scipy.org/install.html)
 * [Go](https://golang.org/)
+    * [testify](https://github.com/stretchr/testify)
 ### 1.2. Installing
 #### 1.2.1.  Linux
 ##### Instructions for settings up a development/user environment:
@@ -83,7 +84,7 @@ As long as [Python 3.x](https://www.python.org/downloads/), [Go](https://golang.
 
 Windows users will need to look at [Unofficial Windows Binaries for Python Extension Packages](http://www.lfd.uci.edu/~gohlke/pythonlibs/#scipy) for [SciPy](https://www.scipy.org/install.html) and [Numpy+MKL](http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy).
 
-macOS users will need to install (!TODO):
+macOS users will need to install 
 ```
 pip3 install -U --pre -f https://wxpython.org/Phoenix/snapshot-builds/ wxPython_Phoenix
 ```
@@ -105,7 +106,7 @@ Run the program from `/TheGreatEscape` with:
 ```
 $ make run
 ```
-### 2.2. Run Tests
+### 2.3. Run Tests
 Run the backend tests from `/TheGreatEscape` with:
 ```
 $ make test
@@ -129,44 +130,39 @@ $ make test
 ## 6. License
 This project is licensed under the MIT License. See the [LICENSE.md](https://github.com/TobiasHiort/TheGreatEscape/blob/master/LICENSE.md) file for details.
 
-## 7. Repository Directory Tree (!TODO)
+## 7. Repository Directory Tree
 ```
 The Great Escape
-│   .gitignore
-|   thegreatescape.py (?)
+|   Makefile
 │   LICENSE.md
 |   README.md
 |
-└─── maps
-|   |   ...
-|
-└─── gui
+└─── gui/
+|   |   Makefile
 │   │   gui.py
 │   │   utils.py
 │   │
-│   └─── fonts
+│   └─── fonts/
 │   |   │   ...
 │   |
-│   └─── gui
-|   |   |   ...
+│   └─── gui/
+|   |   |   ... 
 |   |
-│   └─── unit_tests
+|   └─── maps/
 |       |   ...
 |
-└─── src
-|   │   fire.go
-|   |   gameMaster.go (camelcase?)
-|   |   gotest.go (replace?)
-|   |   main.go
-|   |   map.go
-|   |   pathfinder.go
-|   |   people.go
-|   |   print.go (needed later?)
-|   |   queue.go
-|   |
-|   └─── unit_tests
-|       |   ...
-|
-└─── tmp
-    |   ...
+└─── src/
+    |   Makefile
+    |   gameMaster.go 
+    |   main.go
+    |   map.go
+    |   map_test.go
+    |   pathfinder.go
+    |   pathfinder_test.go
+    |   people.go
+    |   people_test.go
+    |   print.go 
+    |   queue.go
+    |   queue_test.go
+    |   concurrency_test.go
 ```

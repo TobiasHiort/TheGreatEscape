@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 //	"math/rand"
-	"time"
+//	"time"
 	"sync"
 )
 
@@ -200,9 +200,9 @@ func MovePeople(m *[][]tile, ppl []*Person) {
 	for !CheckFinish(ppl) {
 		wg.Add(len(ppl))
 	//	print("\033[H\033[2J")
-		PrintTileMapP(*m)
+	//	PrintTileMapP(*m)
 		for _, pers := range ppl {
-			if pers.path[0].xCoord == 32 && pers.path[0].yCoord == 86 {fmt.Println("buggy's at: ", pers.currentTile())}
+		//	if pers.path[0].xCoord == 32 && pers.path[0].yCoord == 86 {fmt.Println("buggy's at: ", pers.currentTile())}
 			go func(p *Person){
 				defer wg.Done()				
 				p.MovePerson(m)
@@ -215,7 +215,7 @@ func MovePeople(m *[][]tile, ppl []*Person) {
 			SmokeSpread(*m)
 			InitPlans(m)
 		}
-		time.Sleep(700 * time.Millisecond)
+	//	time.Sleep(700 * time.Millisecond)
 	}	
 }
 

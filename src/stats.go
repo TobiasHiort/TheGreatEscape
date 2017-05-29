@@ -20,7 +20,7 @@ func readStats(peopleArray []*Person, inmap [][]tile) {
 //	toPpl := [][]float32{}
 	toPpl := [][]float32{PeopleStats(peopleArray)}
 //	smoke, fire := smokeVSFireDmg(peopleArray)
-	toPpl = append(toPpl, []float32{averageExitTime(peopleArray)}, []float32{averageExitHealth(peopleArray)}, smokeVSFireDmg(peopleArray))
+	toPpl = append(toPpl, []float32{averageExitTime(peopleArray)}, []float32{averageExitHealth(peopleArray)}, smokeVSFireDmg(peopleArray), []float32{averageDistanceMoved(peopleArray)})
 	// 
 /*	
   pplStats := PeopleStats(peopleArray)
@@ -194,6 +194,24 @@ func averageExitHealth(peopleArray []*Person) float32 {
   if alive != 0 {
 	  return (float32(totalHealth/alive))
   }else {return 0}
+}
+
+func averageDistanceMoved(peopleArray []*Person) float32{
+	dist := float32(0)
+	for _, p := range peopleArray {
+		if p.alive {dist += averageDistance(p)}
+	}
+	return dist/float32(len(peopleArray))
+}
+
+func averageDistance(p *Person) float32{
+	dist := float32(0)
+	current := p.path[0]
+	for _, t := range p.path {
+		if current != t {dist += smplDistance(current, t)}
+		current = t
+	}
+	return dist
 }
 
 func smokeVSFireDmg(peopleArray []*Person) []float32{

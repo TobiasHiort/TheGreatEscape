@@ -4,14 +4,14 @@ import "fmt"
 import "sync"
 import "math"
 
-
-import(
+import (
 	//  "os"
 	//"bufio"
 	"encoding/json"
 	//"time"
 	"io/ioutil"
 )
+
 //import "time"
 
 const MINHEAT = 10
@@ -73,19 +73,21 @@ func fireSpreadTile(thisTile *tile) { //TODO: fixa tiles på riktigt!!
 		thisTile.fireLevel = 3
 	}
 	fire := thisTile.fireLevel
-	if fire > 10 {fire = 10}
+	if fire > 10 {
+		fire = 10
+	}
 
 	if thisTile.neighborNorth != nil && !thisTile.neighborNorth.wall && thisTile.fireLevel != 0 {
-		(thisTile.neighborNorth.heat) += fire//thisTile.fireLevel
+		(thisTile.neighborNorth.heat) += fire //thisTile.fireLevel
 	}
 	if thisTile.neighborEast != nil && !thisTile.neighborEast.wall && thisTile.fireLevel != 0 {
-		(thisTile.neighborEast.heat) += fire//thisTile.fireLevel
+		(thisTile.neighborEast.heat) += fire //thisTile.fireLevel
 	}
 	if thisTile.neighborWest != nil && !thisTile.neighborWest.wall && thisTile.fireLevel != 0 {
-		(thisTile.neighborWest.heat) += fire//thisTile.fireLevel
+		(thisTile.neighborWest.heat) += fire //thisTile.fireLevel
 	}
 	if thisTile.neighborSouth != nil && !thisTile.neighborSouth.wall && thisTile.fireLevel != 0 {
-		(thisTile.neighborSouth.heat) += fire//thisTile.fireLevel
+		(thisTile.neighborSouth.heat) += fire //thisTile.fireLevel
 	}
 }
 
@@ -186,7 +188,7 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 	size := len(peopleList)
 	peopleArray := make([]*Person, size)
 	for i, person := range peopleList {
-	//	tile := GetTile(inMap, person[0], person[1])  // inverted!
+		//	tile := GetTile(inMap, person[0], person[1])  // inverted!
 		tile := GetTile(inMap, person[1], person[0])
 		peopleArray[i] = makePerson(tile)
 	}
@@ -199,26 +201,26 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
 	wg.Add(len(ppl))
-	*statsList = [][]int{}
+	//	*statsList = [][]int{}
 	for _, pers := range ppl {
 		//	p := pers
-		go func(p *Person){//, ind int){
+		go func(p *Person) { //, ind int){
 			defer wg.Done()
 			p.MovePerson(m)
 			mutex.Lock()
 			sList := &[]int{}
-			p.getStats((sList))//(statsList[ind])
-			
+			p.getStats((sList)) //(statsList[ind])
+
 			// Below: check if there's more then 1 person on the same tile
 			/*	for _, st := range *statsList {
-			if st[0] == (*sList)[0] && st[1] == (*sList)[1] && st[0] != 0 && st[1] != 0 {
-				panic(fmt.Sprintf("Multiple occupants at: %v", p.currentTile()))}
-				//panic(fmt.Println(p.safe))}
-		}*/
-			*statsList = append(*statsList, *sList) 
+				if st[0] == (*sList)[0] && st[1] == (*sList)[1] && st[0] != 0 && st[1] != 0 {
+					panic(fmt.Sprintf("Multiple occupants at: %v", p.currentTile()))}
+					//panic(fmt.Println(p.safe))}
+			}*/
+			*statsList = append(*statsList, *sList)
 			mutex.Unlock()
-			
-		}(pers)//, i)
+
+		}(pers) //, i)
 	}
 	step++
 	wg.Wait()
@@ -229,41 +231,43 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 			SmokeSpread(*m)
 			//InitPlans(m)
 		}
-		if math.Mod(float64(step), 2) == 0 {InitPlans(m)}   // change it up?
-//		SmokeSpread(*m)
-//		InitPlans(m)
-	} 	
+		if math.Mod(float64(step), 2) == 0 {
+			InitPlans(m)
+		} // change it up?
+		//		SmokeSpread(*m)
+		//		InitPlans(m)
+	}
 }
 
- func CheckFinish (peopleArray []*Person) bool {
+func CheckFinish(peopleArray []*Person) bool {
 	for i := 0; i < len(peopleArray); i++ {
-		if (peopleArray[i].safe == false && peopleArray[i].alive == true) {
+		if peopleArray[i].safe == false && peopleArray[i].alive == true {
 			return false
 		}
 	}
 	return true
- }
+}
 
 func mainMap() {
-	matrix := [][]int {
-		{1,1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,0,0,0,0,0,1,0,0,0,0,0,1},
-		{1,0,0,0,0,0,1,0,0,1,0,0,1},
-		{1,0,0,0,0,0,1,1,1,1,0,0,1},
-		{1,1,1,0,0,0,1,0,0,0,0,0,1},
-		{2,0,0,0,0,0,0,0,0,0,0,0,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1,1}}
+	matrix := [][]int{
+		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		{1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1},
+		{1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+		{2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}}
 
-//	list := [][]int{{3,2}, {5,5}}
-//	testmap := TileConvert(matrix)
-//	SetFire(&testmap[2][2])
-//	SmokeSpread(testmap)
+	//	list := [][]int{{3,2}, {5,5}}
+	//	testmap := TileConvert(matrix)
+	//	SetFire(&testmap[2][2])
+	//	SmokeSpread(testmap)
 
-//	fmt.Println((&testmap[3][3]).safestTile())
+	//	fmt.Println((&testmap[3][3]).safestTile())
 
-	ppl := [][]int{{1,1}, {1,2}, {2,1}, {1,3}}
-	tryThis(matrix, ppl, 4, 4)
-	
+	ppl := [][]int{{1, 1}, {1, 2}, {2, 1}, {1, 3}}
+	tryThis(matrix, ppl, -1, -1)
+
 	//debugging()
 }
 
@@ -273,7 +277,9 @@ func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 
 	InitPlans(&testmap)
 	fmt.Println("init")
-	if x >= 0 && y >= 0 {SetFire(&testmap[x][y])}
+	if x >= 0 && y >= 0 {
+		SetFire(&testmap[x][y])
+	}
 	MovePeople(&testmap, pplArray)
 
 	for i, p := range pplArray {
@@ -283,33 +289,34 @@ func tryThis(matrix [][]int, ppl [][]int, x, y int) {
 
 func debugging() {
 
-	if true {b, err3 := ioutil.ReadFile("../src/mapfile.txt")
-	if err3 != nil{
-		panic(err3)
-	}
+	if true {
+		b, err3 := ioutil.ReadFile("../src/mapfile.txt")
+		if err3 != nil {
+			panic(err3)
+		}
 
-	var m = [][]int{}
-	err := json.Unmarshal(b, &m)
-	if err != nil{
-		panic(err)
-	}
+		var m = [][]int{}
+		err := json.Unmarshal(b, &m)
+		if err != nil {
+			panic(err)
+		}
 
-	c, err4 := ioutil.ReadFile("../src/playerfile.txt")
-	if err4 != nil{
-		panic(err4)
-	}
+		c, err4 := ioutil.ReadFile("../src/playerfile.txt")
+		if err4 != nil {
+			panic(err4)
+		}
 
-	var mm = [][]int{}
-	err5 := json.Unmarshal(c, &mm)
-	if err5 != nil{
-		panic(err5)
-	}
-		tryThis(m, mm, 20, 20)// 31, 31)
+		var mm = [][]int{}
+		err5 := json.Unmarshal(c, &mm)
+		if err5 != nil {
+			panic(err5)
+		}
+		tryThis(m, mm, 20, 20) // 31, 31)
 	}
 }
 
 //send heat
-func FireStats(m *[][]tile) ([][]int, [][]int){
+func FireStats(m *[][]tile) ([][]int, [][]int) {
 	fire := [][]int{}
 	smoke := [][]int{}
 
@@ -317,21 +324,27 @@ func FireStats(m *[][]tile) ([][]int, [][]int){
 		for j, _ := range list {
 			//tl := GetTile(*m, i, j)
 			tl := &(*m)[i][j]
-			if tl.heat  > 0 {fire = append(fire, []int{tl.yCoord, tl.xCoord, tl.heat})}
-			if tl.smoke  > 0 {smoke = append(smoke, []int{tl.yCoord, tl.xCoord, tl.smoke})}
+			if tl.heat > 0 {
+				fire = append(fire, []int{tl.yCoord, tl.xCoord, tl.heat})
+			}
+			if tl.smoke > 0 {
+				smoke = append(smoke, []int{tl.yCoord, tl.xCoord, tl.smoke})
+			}
 		}
 	}
 	return fire, smoke
 }
 
 // send smoke
-func SmokeStats(m *[][]tile) [][]int{
+func SmokeStats(m *[][]tile) [][]int {
 	smoke := [][]int{}
 
 	for i, list := range *m {
 		for j, _ := range list {
 			tl := &(*m)[i][j]
-			if tl.smoke  > 0 {smoke = append(smoke, []int{tl.yCoord, tl.xCoord, tl.smoke})}
+			if tl.smoke > 0 {
+				smoke = append(smoke, []int{tl.yCoord, tl.xCoord, tl.smoke})
+			}
 		}
 	}
 	return smoke
@@ -342,17 +355,23 @@ func SmokeSpread(tileMap [][]tile) {
 	for x := 0; x < len(tileMap); x++ {
 		for y := 0; y < len(tileMap[0]); y++ {
 			tl := &(tileMap[x][y])
-			if tl.smoke > 0 {smokeTiles = append(smokeTiles, tl)}
+			if tl.smoke > 0 {
+				smokeTiles = append(smokeTiles, tl)
+			}
 		}
 	}
 	for _, s := range smokeTiles {
-		if s.smoke > 0 {SmokeSpreadTile(s)}
+		if s.smoke > 0 {
+			SmokeSpreadTile(s)
+		}
 	}
 }
 
 func SmokeSpreadTile(thisTile *tile) {
 	smoke := thisTile.smoke
-	if smoke >= 1 {smoke = 1}
+	if smoke >= 1 {
+		smoke = 1
+	}
 
 	if thisTile.neighborNorth != nil && !thisTile.neighborNorth.wall && !thisTile.neighborNorth.outOfBounds {
 		(thisTile.neighborNorth.smoke) += smoke //thisTile.smoke/30
@@ -366,19 +385,19 @@ func SmokeSpreadTile(thisTile *tile) {
 	if thisTile.neighborSouth != nil && !thisTile.neighborSouth.wall && !thisTile.neighborSouth.outOfBounds {
 		(thisTile.neighborSouth.smoke) += smoke //thisTile.smoke/30
 	}
-/*	
-	if thisTile.neighborNW != nil && !thisTile.neighborNW.wall {
-		(thisTile.neighborNW.smoke) += 1//thisTile.smoke
-	}
-	if thisTile.neighborNE != nil && !thisTile.neighborNE.wall {
-		(thisTile.neighborNE.smoke) += 1//thisTile.smoke
-	}
-	if thisTile.neighborSE != nil && !thisTile.neighborSE.wall {
-		(thisTile.neighborSE.smoke) += 1//thisTile.smoke
-	}
-	if thisTile.neighborSW != nil && !thisTile.neighborSW.wall {
-		(thisTile.neighborSW.smoke) += 1//thisTile.smoke
-	}*/
+	/*
+		if thisTile.neighborNW != nil && !thisTile.neighborNW.wall {
+			(thisTile.neighborNW.smoke) += 1//thisTile.smoke
+		}
+		if thisTile.neighborNE != nil && !thisTile.neighborNE.wall {
+			(thisTile.neighborNE.smoke) += 1//thisTile.smoke
+		}
+		if thisTile.neighborSE != nil && !thisTile.neighborSE.wall {
+			(thisTile.neighborSE.smoke) += 1//thisTile.smoke
+		}
+		if thisTile.neighborSW != nil && !thisTile.neighborSW.wall {
+			(thisTile.neighborSW.smoke) += 1//thisTile.smoke
+		}*/
 }
 
 // merging
@@ -412,7 +431,7 @@ func PeopleStats(peopleArray []*Person) []float32 {
 	for i := 0; i < len(peopleArray); i++ {
 		if ((peopleArray[i]).alive) && ((peopleArray[i]).hp < 70) {
 			injuredAmount++
-		} else if (peopleArray[i].alive) {
+		} else if peopleArray[i].alive {
 			aliveAmount++
 		} else {
 			deadAmount++
@@ -421,55 +440,78 @@ func PeopleStats(peopleArray []*Person) []float32 {
 	return []float32{float32(aliveAmount), float32(deadAmount), float32(injuredAmount)}
 }
 
-func MapStats(inMap [][]tile) []int{
+func MapStats(inMap [][]tile) []int {
 	fireTiles := 0
 	for i := range inMap {
 		for j := range inMap[i] {
 			if inMap[i][j].heat >= MINHEAT {
-					fireTiles ++
-				}
+				fireTiles++
 			}
 		}
+	}
 	return []int{fireTiles}
 }
 
 func DoorCoord(inMap [][]tile) [][]int {
 
-  var door [][]int
+	var door [][]int
 	for i := range inMap {
 		for j := range inMap[i] {
 			if inMap[i][j].door {
-					door = append(door, []int{i, j})
-				}
+				door = append(door, []int{i, j})
 			}
 		}
+	}
 	return door
 }
 
 func (t *tile) safestTile() *tile {
-	tmp1 := safest(t.neighborNorth, t.neighborWest)
-	tmp2 := safest(t.neighborSouth, t.neighborEast)
+	nbrs := getNeighbors(t)
 
-	tmp3 := safest(t.neighborNW, t.neighborNE)
-	tmp4 := safest(t.neighborSW, t.neighborSE)
+	if len(nbrs) == 0 {
+		return nil
+	}
 
-	tmp1 = safest(tmp1, tmp2)
-	tmp2 = safest(tmp3, tmp4)
-	
-	return safest(tmp1, tmp2)
+	safest := nbrs[0]
+
+	for _, nbr := range nbrs {
+		if nbr.smoke < safest.smoke {
+			safest = nbr
+		}
+	}
+	return safest
+	/*
+		tmp1 := safest(t.neighborNorth, t.neighborWest)
+		tmp2 := safest(t.neighborSouth, t.neighborEast)
+
+		tmp3 := safest(t.neighborNW, t.neighborNE)
+		tmp4 := safest(t.neighborSW, t.neighborSE)
+
+		tmp1 = safest(tmp1, tmp2)
+		tmp2 = safest(tmp3, tmp4)
+
+		return safest(tmp1, tmp2)*/
 }
 
 func safest(t1, t2 *tile) *tile {
-//	if !validTile(t1) {//|| t.occupied != nil {
-	if !canGo(t1) {//|| t.occupied != nil {
-//		if validTile(t2) {// && t.occupied == nil {
-		if canGo(t2) {// && t.occupied == nil {
-		return t2} else {return nil}}
-//	if !validTile(t2) /*&& t1.occupied == nil*/ {return t1}
-	if !canGo(t2) /*&& t1.occupied == nil*/ {return t1}	
+	//	if !validTile(t1) {//|| t.occupied != nil {
+	if !canGo(t1) { //|| t.occupied != nil {
+		//		if validTile(t2) {// && t.occupied == nil {
+		if canGo(t2) { // && t.occupied == nil {
+			return t2
+		} else {
+			return nil
+		}
+	}
+	//	if !validTile(t2) /*&& t1.occupied == nil*/ {return t1}
+	if !canGo(t2) /*&& t1.occupied == nil*/ {
+		return t1
+	}
 	cst1 := math.Min(float64(t1.smoke), float64(t2.smoke))
 	tmp1 := t1
-	if int(cst1) < tmp1.smoke {tmp1 = t2}
+	if int(cst1) < tmp1.smoke {
+		tmp1 = t2
+	}
 	//if !validTile(tmp1) {return nil}
 	return tmp1
 }

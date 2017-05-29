@@ -45,8 +45,8 @@ func mapToQueue(m [][]tile) queue{
 
 func TestGetNeighbors(t *testing.T) {
 	matrix := [][]int{
-		{0, 1, 0, 1, 0, 1, 0}, 
-		{1, 1, 1, 1, 1, 1, 1}, 
+		{0, 1, 0, 1, 0, 1, 0},
+		{1, 1, 1, 1, 1, 1, 1},
 		{0, 0, 0, 0, 0, 0, 0},
 		{0, 3, 3, 3, 3, 3, 0},
 		{0, 0, 0, 0, 0, 0, 0},
@@ -57,18 +57,18 @@ func TestGetNeighbors(t *testing.T) {
 	tileQ := mapToQueue(testmap)
 //	fmt.Println(len(tileQ))
 //	for _, tl := range tileQ {fmt.Println(tl.tile.xCoord, tl.tile.yCoord)}
-	
+
 	for i, list := range testmap {
 		for j, ti := range list {
-			neighbors := getNeighbors(&ti, tileQ)
+			neighbors := getNeighbors(&ti) //, tileQ)
 			if i == 0 && validTile(&ti) {
-				if len(neighbors) != 0 {					
+				if len(neighbors) != 0 {
 					t.Errorf("Expected 0 neigbors, but got %d neighbors", len(neighbors))
 				}
 			} else if i == 2 {
 				if len(neighbors) != 2 {
 					if len(neighbors) > 0 {
-						fmt.Println(tileQ.inQueue(&ti))					
+						fmt.Println(tileQ.inQueue(&ti))
 						fmt.Println(ti)
 						fmt.Println(neighbors[0])}
 					t.Errorf("Expected 2 neigbors, but got %d neighbors", len(neighbors))
