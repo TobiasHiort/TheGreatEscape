@@ -520,6 +520,107 @@ func nextTile(t1 *tile, dir Direction) *tile{
 	return nil // default?
 }
 
+func getPathcon(m *[][]tile, from []*tile) {    //INIT!
+	
+	// map över jp
+	var parentOf map[*tile]*tile
+	parentOf = make(map[*tile]*tile)
+
+	// map över costOf, in beta!
+	var costOf map[*tile]float32
+	costOf = make(map[*tile]float32)
+	//
+	
+	cq := queue{}
+
+	/*for i, list := range *m {
+		for j, _ := range list {
+			val := float32(math.Inf(1))
+			cq = append(cq, tileCost{&(*m)[i][j], &val})
+			costOf[&(*m)[i][j]] = val  //beta
+		}
+	}*/
+
+	for _, f := range from {
+		cq.Update(f, 0)
+		costOf[f] = 0  //beta
+	}
+	v := float32(0)
+	current := tileCost{&tile{}, &v}
+	currentDir := Direction{0,0}
+	
+	for len(cq) != 0 {
+		current = (&cq).Pop()
+		if *current.cost == float32(math.Inf(1)) {break}
+		_, ok := parentOf[current.tile]
+
+	//	if !ok || (ok && (current.tile.occupied == nil || (current.tile.occupied != nil && len(current.tile.occupied.plan) == 0))) {	
+		if ok {
+			currentDir = getDir(parentOf[current.tile], current.tile)
+		
+		} else {currentDir = Direction{0,0}}
+		neighbors := /*getNeighbors(current.tile, cq)*/ getNeighborsPruned(current.tile, currentDir)
+
+	//	var wg sync.WaitGroup
+	//	wg.Add(len(neighbors))
+		var mutex = &sync.Mutex{}
+		for _, neighbor := range neighbors {
+			
+		//	go func(n *tile) {
+		//		defer wg.Done()
+					n := neighbor
+			jps := JpInit(n, getDir(current.tile, n))
+
+			for _, jp := range jps {
+				if jp.jp != nil {	
+					mutex.Lock()
+					cost := *current.cost + smplCost(current.tile, jp.jp) + 100*float32(jp.jp.smoke)
+					p, ok := parentOf[jp.jp]
+					//if !ok || (ok && cost < cq.costOf(jp.jp) && p.smoke >= current.tile.smoke) {
+					if !ok || (ok && cost < costOf[jp.jp] && p.smoke >= current.tile.smoke) {  //beta
+						parentOf[jp.jp] = current.tile
+						cq.Update(jp.jp, cost)
+						costOf[jp.jp] = cost  //beta
+						
+						if jp.jp.occupied != nil {
+							setPlan(parentOf, jp.jp) 
+						}
+					}
+					//	var wg sync.WaitGroup
+					//	wg.Add(len(jp.fn))
+					for _, n := range jp.fn {
+						//		go func(n *tile) {
+						//	defer wg.Done()	
+								fnCost := cost + smplCost(jp.jp, n) + 100*float32(n.smoke)//float32(math.Mod(float64(n.smoke), 50))
+								p, ok := parentOf[n]
+								//							if jp.jp != n && (!ok || (n != nil && fnCost < cq.costOf(n) && p.smoke >= n.smoke)) {
+								if jp.jp != n && (!ok || (n != nil && fnCost < costOf[n] && p.smoke >= n.smoke)) { //beta
+									parentOf[n] = jp.jp
+									cq.Update(n, fnCost)
+									costOf[n] = fnCost  //beta
+									if n.occupied != nil {
+										setPlan(parentOf, n)
+									}
+								}
+					//		}(jpfn)
+							
+						}
+					//	wg.Wait()
+						mutex.Unlock()
+					}
+		//	}(jpn)
+			}
+		
+			//	}(neighbor)						
+		}
+		//wg.Wait()
+		//}		
+	}
+}
+
+
+
+
 func getPath(m *[][]tile, from []*tile) {    //INIT!
 	
 	// map över jp
@@ -561,14 +662,14 @@ func getPath(m *[][]tile, from []*tile) {    //INIT!
 		} else {currentDir = Direction{0,0}}
 		neighbors := /*getNeighbors(current.tile, cq)*/ getNeighborsPruned(current.tile, currentDir)
 
-		var wg sync.WaitGroup
-		wg.Add(len(neighbors))
+	//	var wg sync.WaitGroup
+	//	wg.Add(len(neighbors))
 		var mutex = &sync.Mutex{}
 		for _, neighbor := range neighbors {
 			
-			go func(n *tile) {
-				defer wg.Done()
-				//	n := neighbor
+		//	go func(n *tile) {
+		//		defer wg.Done()
+					n := neighbor
 				jps := JpInit(n, getDir(current.tile, n))
 				for _, jp := range jps {
 					if jp.jp != nil {	
@@ -601,9 +702,9 @@ func getPath(m *[][]tile, from []*tile) {    //INIT!
 						mutex.Unlock()
 					}
 				}
-			}(neighbor)						
+		//	}(neighbor)						
 		}
-			wg.Wait()
+			//wg.Wait()
 	//}		
 	}
 }

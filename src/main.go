@@ -87,7 +87,9 @@ func singleSimulation() {
 	//TODO: create function to copy list and send to python through pipe
 	//TODO: implenet sem lock + spinlock t ensure wait for all people to move
 	//TODO: implement that both gameloop and copy func tries to run concurrently, spinlock continously spins
-	GameLoop(mapList, peopleList, fireList)
+	fs := float64(2)
+	ps := float64(2)
+	GameLoop(mapList, peopleList, fireList, fs, ps)
 }
 
 func main() {

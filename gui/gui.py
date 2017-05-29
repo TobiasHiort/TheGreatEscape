@@ -103,12 +103,17 @@ plot_rendered = False
 plot_x = 495
 plot_y = 344
 
-
 raw_data = None
 raw_data2 = None
 raw_data3 = None
 raw_data3b = None
 raw_data3c = None
+
+coord_x_square = 0
+coord_y_square = 0
+coord_x_circle = 0
+coord_y_circle = 0
+radius_scale = 0
 
 # how much data is sent in each pipe
 byte_limit = 5
@@ -138,15 +143,19 @@ displaySurface.set_colorkey(COLOR_KEY, pygame.RLEACCEL) # RLEACCEL unstable?
 
 # create surfaces
 mapSurface = createSurface(907, 713-PADDING_MAP, False)
-minimapSurface = createSurface(495, 344, False)
-miniPlayerSurface = createSurface(495, 344, False)
-miniFireSurface = createSurface(495, 344, False)
+minimapSettingsSurface = createSurface(679, 400, False)
+minimapSettingsSurface.fill(COLOR_WHITE)
+#minimapStatisticsSurface = createSurface(495, 344, False)
+minimapStatisticsSurface = createSurface(495, 280, False)
+miniPlayerSurface = createSurface(679, 400, False)
+miniFireSurface = createSurface(679, 400, False)
 playerSurface = createSurface(907, 713-PADDING_MAP, False)
 fireSurface = createSurface(907, 713-PADDING_MAP, True)
 smokeSurface = createSurface(907, 713-PADDING_MAP, True)
 rmenuSurface = createSurface(115, 723, False)
 statisticsSurface = createSurface(1024, 713, False)
 settingsSurface = createSurface(1024, 713, False)
+#settingsSurface.fill(COLOR_BACKGROUND)
 throbberSurface = createSurface(29, 29, True)
 
 # load and blit menu components to main surface (possibly remove blit, blit then in the game loop?)
@@ -208,10 +217,16 @@ BUTTON_TIME_SPEED = loadImage('gui', 'time_speed.png')
 BUTTON_PEOPLE = loadImage('gui', 'people.png')
 BUTTON_FIRE = loadImage('gui', 'fire.png')
 BUTTON_SMOKE = loadImage('gui', 'smoke.png')
+BUTTON_PEOPLE_GRAY = loadImage('gui', 'people_gray.png')
+BUTTON_FIRE_GRAY = loadImage('gui', 'fire_gray.png')
+BUTTON_SMOKE_GRAY = loadImage('gui', 'smoke_gray.png')
+
 
 ERROR_BG = loadImage('gui', 'error_bg.png')
 
 THROBBER = loadImageAlpha('gui', 'throbber.png')
+
+HEATBAR = loadImage('gui', 'heatbar.png')
 
 # init fonts for performance
 FONT_DIGITAL7MONO_45 = pygame.font.Font('digital-7-mono.ttf', 45)
@@ -292,7 +307,7 @@ while True:
             if active_tab_bools[1] and active_map_path is not None: # do not add time/pos if no map
                 if event.key == K_q:
                     place_fire = not place_fire
-                    print("Placing fires: " + str(place_fire))
+                    #print("Placing fires: " + str(place_fire))
             
             # simulations shortkeys
             if active_tab_bools[0] and active_map_path is not None: # do not add time/pos if no map
@@ -402,8 +417,10 @@ while True:
             mouse_x, mouse_y = event.pos
 
             ##
-            if cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, active_tab_bools[1]) and button_down:
+            if cursorBoxHit(mouse_x, mouse_y, 173, 852, 60, 404, active_tab_bools[1]) and button_down:
                 click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
+                #print(click)
+                #print(mapMatrix)
 
                 if click[0] < 0 or click[1] < 0 or click[0] >= len(mapMatrix[0]) or click[1] >= len(mapMatrix):
                     break
@@ -419,7 +436,7 @@ while True:
                 displaySurface.blit(BUTTON_SIMULATION_BLANK, (0, 0))
             # settings button
             if cursorBoxHit(mouse_x, mouse_y, 202, 382, 0, 45, not(active_tab_bools[1])):
-                displaySurface.blit(BUTTON_SETTINGS_HOVER, (202,0))                
+                displaySurface.blit(BUTTON_SETTINGS_HOVER, (202,0))
             elif active_tab_bools[1]:
                 displaySurface.blit(BUTTON_SETTINGS_ACTIVE, (202,0))
             else:
@@ -433,10 +450,97 @@ while True:
                 displaySurface.blit(BUTTON_STATISTICS_BLANK, (382, 0))
         # mouse button events (clicks)
         elif event.type == MOUSEBUTTONDOWN: # import as function?
+
+            # display ppl
+            if cursorBoxHit(mouse_x, mouse_y, 923, 945, 160, 182, active_tab_bools[0]):
+                surface_toggle[0] = not surface_toggle[0]
+
+            # display fire
+            if cursorBoxHit(mouse_x, mouse_y, 956, 978, 160, 182, active_tab_bools[0]):
+                surface_toggle[1] = not surface_toggle[1]
+
+            # display smoke
+            if cursorBoxHit(mouse_x, mouse_y, 990, 1011, 160, 182, active_tab_bools[0]):
+                surface_toggle[2] = not surface_toggle[2]
+
+            # run - paused
+            if cursorBoxHit(mouse_x, mouse_y, 900, 1024, 236, 270, active_tab_bools[0]) and paused and current_frame == 0:
+                if current_frame == 0 and not go_running:
+                    _thread.start_new_thread(goThread, (mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, child_pid))
+                    go_running = True
+                    pygame.time.wait(150)      
+                if player_pos != [] and players_movement != [] and current_frame < len(players_movement[0]) - 1:  
+                    paused = False
+            # run - hit pause
+            elif cursorBoxHit(mouse_x, mouse_y, 957, 976, 236, 270, active_tab_bools[0]):             
+                paused = not paused
+            # run - hit backwards
+            elif cursorBoxHit(mouse_x, mouse_y, 900, 935, 236, 270, active_tab_bools[0]):
+                    current_frame = 1
+                    current_time_float = 0.1
+                    for player in range(len(player_pos)):
+                            player_pos[player] = players_movement[player][current_frame]
+                    playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
+                    fireSurface = drawFire(fireSurface, fire_movement[0], tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
+                    smokeSurface.fill((0, 0, 0, 0))
+                    displaySurface.blit(fireSurface, (0, 55))
+                    displaySurface.blit(playerSurface, (0, 55))
+                    displaySurface.blit(smokeSurface, (0, 55))
+                    paused = True
+
+            # run - hit forwards
+            elif cursorBoxHit(mouse_x, mouse_y, 989, 1024, 236, 270, active_tab_bools[0]) and not go_running:
+                    current_frame = len(fire_movement) - 1
+                    current_time_float = current_frame*0.1
+                    for player in range(len(player_pos)):
+                        test = players_movement[player][current_frame]
+                        player_pos[player] = test
+                    playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
+                    fireSurface = drawFire(fireSurface, fire_movement[current_frame], tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
+                    smokeSurface = drawSmoke(smokeSurface, smoke_movement[current_frame], tilesize, coord_x_square, coord_y_square, COLOR_SMOKE_GRADIENT)
+                    displaySurface.blit(fireSurface, (0, 55))
+                    displaySurface.blit(playerSurface, (0, 55))
+                    displaySurface.blit(smokeSurface, (0, 55))
+                    paused = True
+            # run - hit step back 'f'
+            elif cursorBoxHit(mouse_x, mouse_y, 935, 976, 236, 270, active_tab_bools[0]) and player_pos != [] and paused:
+                if current_frame > 0: # no (more) movement tuples
+                    current_frame -= 1
+                    current_time_float -= 0.1
+                    for player in range(len(player_pos)):
+                        player_pos[player] = players_movement[player][current_frame]
+                        
+                    fire_pos = fire_movement[current_frame]
+                    playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
+                    fireSurface = drawFire(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
+                    smoke_pos = smoke_movement[current_frame]
+                    smokeSurface = drawSmoke(smokeSurface, smoke_pos, tilesize, coord_x_square, coord_y_square, COLOR_SMOKE_GRADIENT)
+                    
+                    fire_percent = len(fire_pos) / (current_map_sqm * 4) # shady?
+                    smoke_percent = len(smoke_pos) / (current_map_sqm * 4) # shady?                
+            # run - hit step forwards 'g'
+            elif cursorBoxHit(mouse_x, mouse_y, 976, 989, 236, 270, active_tab_bools[0]) and players_movement != [] and paused:
+                if current_frame < len(players_movement[0]) - 1: # no (more) movement tuples
+                    current_frame += 1
+                    current_time_float += 0.1
+                    
+                    for player in range(len(player_pos)):
+                        player_pos[player] = players_movement[player][current_frame]
+                        
+                    fire_pos = fire_movement[current_frame]
+                    smoke_pos = smoke_movement[current_frame]
+                    playerSurface, survived, dead = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
+                    fireSurface = drawFire(fireSurface, fire_pos, tilesize, coord_x_square, coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
+                    smokeSurface = drawSmoke(smokeSurface, smoke_pos, tilesize, coord_x_square, coord_y_square, COLOR_SMOKE_GRADIENT)
+                    
+                    fire_percent = len(fire_pos) / (current_map_sqm * 4) # shady?
+                    smoke_percent = len(smoke_pos) / (current_map_sqm * 4) # shady?                
+                    
 ##
             if cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, active_tab_bools[1]):
                 click = (findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
 
+                
                 if click[0] < 0 or click[1] < 0 or click[0] >= len(mapMatrix[0]) or click[1] >= len(mapMatrix):
                     break
 
@@ -461,21 +565,27 @@ while True:
                     
                 # settings button
                 elif cursorBoxHit(mouse_x, mouse_y, 202, 382, 0, 45, not(active_tab_bools[1])):
+                    displaySurface.fill(COLOR_BACKGROUND)
+                    displaySurface.blit(MENU_FADE, (0, 45))
+                    displaySurface.blit(MENU_BACKGROUND, (0, 0))
                     displaySurface.blit(BUTTON_SIMULATION_BLANK, (0, 0))
                     displaySurface.blit(BUTTON_STATISTICS_BLANK, (382, 0))
                     displaySurface.blit(BUTTON_SETTINGS_ACTIVE, (202, 0))
+                    #minimapSettingsSurface.fill(COLOR_WHITE)
                     active_tab_bools = [False, True, False]
                     paused = True
+                    #displaySurface.blit(minimapSettingsSurface, (517, 60))
                 # statistics button
                 elif cursorBoxHit(mouse_x, mouse_y, 383, 575, 0, 45, not(active_tab_bools[2])):
                     displaySurface.blit(BUTTON_SIMULATION_BLANK, (0, 0))
                     displaySurface.blit(BUTTON_SETTINGS_BLANK, (202, 0))
                     displaySurface.blit(BUTTON_STATISTICS_ACTIVE, (382, 0))
+                    statisticsSurface.fill(COLOR_BACKGROUND)
                     active_tab_bools = [False, False, True]
                     paused = True
 
                     ##
-                    if not go_running:
+                    if not go_running and players_movement != []:
                         statisticsSurface.fill(COLOR_BACKGROUND)
             
                         statisticsSurface.blit(BG_STATISTICS, (6, 1))
@@ -499,12 +609,12 @@ while True:
                         surf = pygame.image.fromstring(raw_data3c, (300, 320), "RGB")
                         statisticsSurface.blit(surf, (35, 20))
                         
-                        surf = pygame.image.fromstring(raw_data3, (200, 120), "RGB")
-                        statisticsSurface.blit(surf, (280, 60))
+                        surf = pygame.image.fromstring(raw_data3, (230, 120), "RGB")
+                        statisticsSurface.blit(surf, (272, 60))
                         
                         if json_stat_people_content[3][0] != 0 or json_stat_people_content[3][1] != 0:
-                            surf = pygame.image.fromstring(raw_data3b, (200, 120), "RGB")
-                            statisticsSurface.blit(surf, (280, 200))
+                            surf = pygame.image.fromstring(raw_data3b, (230, 120), "RGB")
+                            statisticsSurface.blit(surf, (272, 200))
                             
                         # quadrant 3
                         surf = pygame.image.fromstring(raw_data2, (plot_x, plot_y), "RGB")
@@ -513,10 +623,19 @@ while True:
                         # quadrant 4
                         surf = pygame.image.fromstring(raw_data, (plot_x, plot_y), "RGB")
                         statisticsSurface.blit(surf, (517, 361))
+
+                        # headers and heatmap bar
+                        placeCenterText(statisticsSurface, "General Statistics", FONT_ROBOTOREGULAR_24, COLOR_BLACK, 512, 24)
+                        placeCenterText(statisticsSurface, "Path Heatmap", FONT_ROBOTOREGULAR_24, COLOR_BLACK, 1024+512, 24)
+                        placeCenterText(statisticsSurface, "Cumulative Escapes and Deaths", FONT_ROBOTOREGULAR_24, COLOR_BLACK, 512, 380)
+                        placeCenterText(statisticsSurface, "Cumulative Smoke and Fire Spread", FONT_ROBOTOREGULAR_24, COLOR_BLACK, 512+1024, 380)
+                        statisticsSurface.blit(HEATBAR, (517, 322))
+
+                        minimapStatisticsSurface.fill(COLOR_WHITE)
+                        minimapStatisticsSurface, _, miniTilesize, miniMapwidth, miniMapheight = buildMiniMap(active_map_path, minimapStatisticsSurface, result_matrix, COLOR_HEAT_GRADIENT, True, 495, 280)
                         
-                        minimapSurface.fill(COLOR_WHITE)
-                        minimapSurface, _, miniTilesize, miniMapwidth, miniMapheight = buildMiniMap(active_map_path, minimapSurface, result_matrix, COLOR_HEAT_GRADIENT, True)
-                        
+                        #displaySurface.blit(minimapStatisticsSurface, (400, 60))
+
                         plot_rendered = True
 
 
@@ -592,10 +711,12 @@ while True:
 
                             playerSurface, _, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
 
-                            minimapSurface, _, miniTilesize, miniMapwidth, miniMapheight = buildMiniMap(active_map_path, minimapSurface, result_matrix, COLOR_HEAT_GRADIENT, False)
-
+                            minimapSettingsSurface.fill(COLOR_WHITE)
+                            minimapSettingsSurface, _, miniTilesize, miniMapwidth, miniMapheight = buildMiniMap(active_map_path, minimapSettingsSurface, result_matrix, COLOR_HEAT_GRADIENT, False, 679, 400)
+                            minimapStatisticsSurface.fill(COLOR_WHITE)
+                            minimapStatisticsSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapStatisticsSurface, result_matrix, COLOR_HEAT_GRADIENT, False, 420, 280)
                             
-                            # upload button map error
+                # upload button map error
                 if cursorBoxHit(mouse_x, mouse_y, 450, 574, 335+250, 459+250, active_tab_bools[0]) and map_error:
                     active_map_path_tmp = fileDialogPath()
                     if active_map_path_tmp != "": #and active_map_path != "/":
@@ -625,6 +746,11 @@ while True:
                             players_movement = []
 
                             playerSurface, _, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
+
+                            minimapSettingsSurface.fill(COLOR_WHITE)
+                            minimapSettingsSurface, _, miniTilesize, miniMapwidth, miniMapheight = buildMiniMap(active_map_path, minimapSettingsSurface, result_matrix, COLOR_HEAT_GRADIENT, False, 679, 400)
+                            minimapStatisticsSurface.fill(COLOR_WHITE)
+                            minimapStatisticsSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapStatisticsSurface, result_matrix, COLOR_HEAT_GRADIENT, False, 420, 280)
                 # upload button routine rmenu
                 if cursorBoxHit(mouse_x, mouse_y, 937, 999, 685, 747, active_tab_bools[0]) and active_map_path is not None:
                     active_map_path_tmp = fileDialogPath()
@@ -656,6 +782,11 @@ while True:
                             players_movement = []
 
                             playerSurface, _, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
+
+                            minimapSettingsSurface.fill(COLOR_WHITE)
+                            minimapSettingsSurface, _, miniTilesize, miniMapwidth, miniMapheight = buildMiniMap(active_map_path, minimapSettingsSurface, result_matrix, COLOR_HEAT_GRADIENT, False, 679, 400)
+                            minimapStatisticsSurface.fill(COLOR_WHITE)
+                            minimapStatisticsSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapStatisticsSurface, result_matrix, COLOR_HEAT_GRADIENT, False, 420, 280)
                 # repair button
                 if cursorBoxHit(mouse_x, mouse_y, 602, 738, 477, 507, active_tab_bools[0]) and map_error:
                     repairMap(active_map_path_error)
@@ -687,6 +818,11 @@ while True:
                         players_movement = []
 
                         playerSurface, _, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
+
+                        minimapSettingsSurface.fill(COLOR_WHITE)
+                        minimapSettingsSurface, _, miniTilesize, miniMapwidth, miniMapheight = buildMiniMap(active_map_path, minimapSettingsSurface, result_matrix, COLOR_HEAT_GRADIENT, False, 679, 400)
+                        minimapStatisticsSurface.fill(COLOR_WHITE)
+                        minimapStatisticsSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapStatisticsSurface, result_matrix, COLOR_HEAT_GRADIENT, False, 420, 280)
                 # scale plus/minus
                 if cursorBoxHit(mouse_x, mouse_y, 918, 932, 364-23, 378-23, active_tab_bools[0]) and active_map_path is not None:
                     if player_scale > 0.5: # crashes if negative radius, keep it > zero
@@ -696,7 +832,7 @@ while True:
                     if player_scale < 5: # not to big?
                         player_scale *= 1.25
                         playerSurface, _, _ = drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x_circle, coord_y_circle, radius_scale, COLOR_PLAYER_GRADIENT)
-                elif cursorBoxHit(mouse_x, mouse_y, 517, 1024, 60, 404, active_tab_bools[1]):
+                elif cursorBoxHit(mouse_x, mouse_y, 173, 852, 60, 404, active_tab_bools[1]):
                     button_down = True
     
             # right click
@@ -783,9 +919,18 @@ while True:
             placeText(rmenuSurface, str(current_map_exits), FONT_ROBOTOREGULAR_17, COLOR_BLACK, 31, 77)
 
             # inf/people/fire/smoke. Move. Hover/click logic
-            rmenuSurface.blit(BUTTON_PEOPLE, (13-2, 111))
-            rmenuSurface.blit(BUTTON_FIRE, (44, 111))
-            rmenuSurface.blit(BUTTON_SMOKE, (75+2, 111))
+            if surface_toggle[0]:
+                rmenuSurface.blit(BUTTON_PEOPLE, (13-2, 111))
+            else:
+                rmenuSurface.blit(BUTTON_PEOPLE_GRAY, (13-2, 111))
+            if surface_toggle[1]:
+                rmenuSurface.blit(BUTTON_FIRE, (44, 111))
+            else:
+                rmenuSurface.blit(BUTTON_FIRE_GRAY, (44, 111))
+            if surface_toggle[2]:
+                rmenuSurface.blit(BUTTON_SMOKE, (75+2, 111))
+            else:
+                rmenuSurface.blit(BUTTON_SMOKE_GRAY, (75+2, 111))
 
             # run button hover/blank
             if current_frame == 0:
@@ -795,7 +940,10 @@ while True:
                     rmenuSurface.blit(BUTTON_RUN_BLANK, (2, 191))
 
             elif current_frame > 0:
-                rmenuSurface.blit(BUTTON_RUN2_GREEN, (2, 191))
+                if paused:
+                    rmenuSurface.blit(BUTTON_RUN2_RED, (2, 191))
+                else:
+                    rmenuSurface.blit(BUTTON_RUN2_GREEN, (2, 191))
                 rmenuSurface.blit(BUTTON_RUN2_FBW, (2+8, 191+8))
                 rmenuSurface.blit(BUTTON_RUN2_BW, (2+8+5+14*1, 191+8))
                 rmenuSurface.blit(BUTTON_RUN2_PAUSE, (51, 191+8))
@@ -852,29 +1000,41 @@ while True:
         # no chosen map
         if active_map_path == None or active_map_path == "": # if no active map (init), "" = cancel on choosing map
             settingsSurface.fill(COLOR_BACKGROUND)
-            placeText(settingsSurface, "Choose map first [Settings], id01", FONT_ROBOTOREGULAR_24, COLOR_BLACK, 200, 300)
-            minimapSurface.fill(COLOR_BACKGROUND) # wierd1
-            displaySurface.blit(minimapSurface, (517, 60)) # wierd2
+            placeText(settingsSurface, "hejj", FONT_ROBOTOREGULAR_24, COLOR_BLACK, 200, 300)
+
+            
+            #minimapSettingsSurface.fill((0,0,0,0))
+            #displaySurface.blit(minimapSettingsSurface, (517, 60)) # wierd2
+            
+
+            #minimapStatisticsSurface.fill((0,0,0,0))
+            #displaySurface.blit(minimapStatisticsSurface, (517, 60)) # wierd2
+            
+            #minimapSurface.fill(COLOR_BACKGROUND) # wierd1
         # map chosen
         else:
-            settingsSurface.fill(COLOR_BACKGROUND)
+            #settingsSurface.fill(COLOR_BACKGROUND)
             
+            displaySurface.blit(settingsSurface, (0, 55))
+            displaySurface.blit(MENU_FADE, (0, 45))
+
             #findMapCoord(mouse_x, mouse_y, coord_x_square, coord_y_square, active_tab_bools[1])
 
-            settingsSurface.blit(BG_SETTINGS, (6, 1))
-            placeCenterText(settingsSurface, pathToName(active_map_path), FONT_ROBOTOREGULAR_26, COLOR_BLACK, 530, 30)
+            settingsSurface.blit(BG_SETTINGS, (0, 0))
+            placeCenterText(settingsSurface, pathToName(active_map_path), FONT_ROBOTOREGULAR_26, COLOR_BLACK, 1024, 30)
 
             if player_pos != []:
                 placeText(settingsSurface, "Populated sim, but paused, id02", FONT_ROBOTOREGULAR_14, COLOR_BLACK, 100, 300)
             paused = True
             placeText(settingsSurface, "Placeholder settingsSurface, id03", FONT_ROBOTOREGULAR_14, COLOR_BLACK, 100, 200)
 
-            minimapSurface.fill(COLOR_WHITE)
-           # minimapSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapSurface, result_matrix, COLOR_HEAT_GRADIENT, False)
+            #minimapSettingsSurface.fill(COLOR_WHITE)
+            #minimapSettingsSurface, _, _, _, _ = buildMiniMap(active_map_path, minimapSettingsSurface, result_matrix, COLOR_HEAT_GRADIENT, False)
            
-            minimapSurface, _, miniTilesize, miniMapwidth, miniMapheight = buildMiniMap(active_map_path, minimapSurface, result_matrix, COLOR_HEAT_GRADIENT, False)
-            mini_coord_x_circle, mini_coord_y_circle, mini_radius_scale = calcScalingCircle(PADDING_MAP, miniTilesize, miniMapheight, miniMapwidth, 495, 344)
-            mini_coord_x_square, mini_coord_y_square = calcScalingSquare(PADDING_MAP, miniTilesize, miniMapheight, miniMapwidth, 495, 344)
+            #minimapSettingsSurface, _, miniTilesize, miniMapwidth, miniMapheight = buildMiniMap(active_map_path, minimapSettingsSurface, result_matrix, COLOR_HEAT_GRADIENT, False, 495, 344)
+            mini_coord_x_circle, mini_coord_y_circle, mini_radius_scale = calcScalingCircle(PADDING_MAP, miniTilesize, miniMapheight, miniMapwidth, 679, 400)
+            mini_coord_x_square, mini_coord_y_square = calcScalingSquare(PADDING_MAP, miniTilesize, miniMapheight, miniMapwidth, 679, 400)
+            
             start_players = player_pos
             start_fire = fire_pos
             if current_frame > 0:
@@ -884,19 +1044,19 @@ while True:
                     start_players.append(players_movement[i][0])
                 start_fire = fire_movement[0]
             miniPlayerSurface, _, _ = drawPlayer(miniPlayerSurface, start_players, miniTilesize, player_scale, mini_coord_x_circle, mini_coord_y_circle, mini_radius_scale, COLOR_PLAYER_GRADIENT)
-            miniFireSurface = drawFire(miniFireSurface, start_fire, miniTilesize, mini_coord_x_square, mini_coord_y_square, COLOR_FIRE_GRADIENT, 0)
+            miniFireSurface = drawFire(miniFireSurface, start_fire, miniTilesize, mini_coord_x_square, mini_coord_y_square, COLOR_FIRE_GRADIENT, current_frame)
+            
+            displaySurface.blit(minimapSettingsSurface, (173, 60))
+            displaySurface.blit(miniPlayerSurface, (173, 60))
+            displaySurface.blit(miniFireSurface, (173, 60))
+
             #drawWarnings(miniFireSurface, fire_pos, miniTilesize, mini_coord_x_square, mini_coord_y_square)
       #      print("??")
        #     print(findMapCoord(mouse_x, mouse_y, miniMapheight, miniMapwidth, miniTilesize, active_tab_bools[1]))
+    
+        
+        
 
-            
-            
-            
-        displaySurface.blit(settingsSurface, (0, 55))
-        displaySurface.blit(MENU_FADE, (0, 45))
-        displaySurface.blit(minimapSurface, (517, 60))
-        displaySurface.blit(miniPlayerSurface, (517, 60))
-        displaySurface.blit(miniFireSurface, (517, 60))
 
     elif active_tab_bools[2]: # statistics tab
         # no chosen map
@@ -904,13 +1064,15 @@ while True:
             statisticsSurface.fill(COLOR_BACKGROUND)
             placeText(statisticsSurface, "Choose map first [Stats], id04", FONT_ROBOTOREGULAR_24, COLOR_BLACK, 100, 300)
             displaySurface.blit(statisticsSurface, (0, 55))
-            minimapSurface.fill(COLOR_BACKGROUND) # wierd1
-            displaySurface.blit(minimapSurface, (517, 60)) # wierd2
+            #minimapSurface.fill(COLOR_BACKGROUND) # wierd1
+            #displaySurface.blit(minimapStatisticsSurface, (517, 60)) # wierd2
         # map chosen
         else:
             displaySurface.blit(statisticsSurface, (0, 55))
             displaySurface.blit(MENU_FADE, (0, 45))
-            displaySurface.blit(minimapSurface, (517, 60))
+            if plot_rendered:
+                #minimapStatisticsSurface.fill(COLOR_WHITE)
+                displaySurface.blit(minimapStatisticsSurface, (517, 97))
     else:
         raise NameError('No active tab')
 

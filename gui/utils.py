@@ -145,7 +145,7 @@ def buildMap(path, mapSurface):
                                  tilesize, tilesize))
     return mapSurface, mapMatrix, tilesize, mapwidth, mapheight, map_error
 
-def buildMiniMap(path, mapSurface, result_matrix, COLOR_HEAT_GRADIENT, heatMap_bool): # ~duplicate^
+def buildMiniMap(path, mapSurface, result_matrix, COLOR_HEAT_GRADIENT, heatMap_bool, width, height): # ~duplicate^
     """Returns mapSurface, mapMatrix, tilesize,
    mapwidth, mapheight after building map
    from png.
@@ -160,9 +160,9 @@ def buildMiniMap(path, mapSurface, result_matrix, COLOR_HEAT_GRADIENT, heatMap_b
 
     # game dimensions
     if mapImage.size[0] < mapImage.size[1]:
-        tilesize = math.floor((344)/mapImage.size[1])
+        tilesize = math.floor((height)/mapImage.size[1])
     else:
-        tilesize = math.floor((495)/mapImage.size[0])
+        tilesize = math.floor((width)/mapImage.size[0])
 
     mapwidth = mapImage.size[0] # number of columns in matrix
     mapheight = mapImage.size[1] # number of rows in matrix
@@ -183,8 +183,8 @@ def buildMiniMap(path, mapSurface, result_matrix, COLOR_HEAT_GRADIENT, heatMap_b
 
     # for formula
     t = tilesize
-    sh = 344 # map surface height
-    sw = 495 # map surface width
+    sh = height # map surface height
+    sw = width # map surface width
     p = PADDING_MAP
     h = mapheight
     w = mapwidth
@@ -202,8 +202,8 @@ def buildMiniMap(path, mapSurface, result_matrix, COLOR_HEAT_GRADIENT, heatMap_b
                     pygame.draw.rect(mapSurface, COLOR_HEAT_GRADIENT[result_matrix[row][column] - 1],
                                      (math.floor(0.5 * (sw - w * t + 2 * t * column)),
                                       math.floor((sh - p)/2 - (h * t)/2 + t * row),
-                                      tilesize, tilesize))            
-            
+                                      tilesize, tilesize))
+
     return mapSurface, mapMatrix, tilesize, mapwidth, mapheight
 
 def calcScalingCircle(PADDING_MAP, tilesize, mapheight, mapwidth, width, height):
@@ -223,7 +223,7 @@ def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord
     More...
     """
     playerSurface.fill((0, 0, 0, 0)) # remove last frame. Also black magic for AA gfxdraw blitting of players.
-    
+
     survived = 0 # reset for each draw
     dead = 0 # reset for each draw
 
@@ -241,7 +241,7 @@ def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord
                             coord_x,
                             coord_y,
                             math.floor(radius_scale*player_scale), COLOR_BLACK + (0,)) # round()?
-        else:           
+        else:
             if player_pos[player][2] < 1:
                 pygame.gfxdraw.aacircle(playerSurface,
                                 coord_x + tilesize * player_pos[player][0],
@@ -252,19 +252,19 @@ def drawPlayer(playerSurface, player_pos, tilesize, player_scale, coord_x, coord
                                 coord_x + tilesize * player_pos[player][0],
                                 coord_y + tilesize * player_pos[player][1],
                                 math.floor(radius_scale*player_scale), COLOR_RED_DEAD) # round()?
-                
+
             # black magic
             elif player_pos[player][2] > 0:
                 pygame.gfxdraw.aacircle(playerSurface,
                                         coord_x + tilesize * player_pos[player][0],
                                         coord_y + tilesize * player_pos[player][1],
                                         math.floor(radius_scale*player_scale), COLOR_PLAYER_GRADIENT[player_pos[player][2]]) # round()?
-                
+
                 pygame.gfxdraw.filled_circle(playerSurface,
                                              coord_x + tilesize * player_pos[player][0],
                                              coord_y + tilesize * player_pos[player][1],
                                              math.floor(radius_scale*player_scale), COLOR_PLAYER_GRADIENT[player_pos[player][2]]) # round()?
-        
+
     return playerSurface, survived, dead
 
 def calcScalingSquare(PADDING_MAP, tilesize, mapheight, mapwidth, width, height):
@@ -296,7 +296,7 @@ def drawFire(fireSurface, fire_pos, tilesize, coord_x, coord_y, COLOR_FIRE_GRADI
     # fireSurface.fill(COLOR_KEY) # remove last frame. Not needed?
     else:
         fireSurface.fill((0, 0, 0, 0))
-        
+
         # create the map with draw.rect on mapSurface
         for idx in range(len(fire_pos)):
             if fire_pos[idx][2] < 100:
@@ -339,7 +339,7 @@ def drawSmoke(smokeSurface, smoke_pos, tilesize, coord_x, coord_y, COLOR_SMOKE_G
 
 def drawWarnings(fireSurface, fire_pos, tilesize, coord_x, coord_y):
     fireSurface.fill((0, 0, 0, 0))
-    
+
     # JENNY
     #for fire in fire_pos:
     #    pygame.gfxdraw.filled_trigon(fireSurface,
@@ -349,7 +349,7 @@ def drawWarnings(fireSurface, fire_pos, tilesize, coord_x, coord_y):
     #                          coord_y + tilesize * (fire[1] + 1),
     #                          coord_x + tilesize * (fire[0]),
     #                          coord_y + tilesize * (fire[1] - 1),
-    #                                 COLOR_WARNING) # round()?        
+    #                                 COLOR_WARNING) # round()?
     #    pygame.gfxdraw.trigon(fireSurface,
     #                          coord_x + tilesize * (fire[0] - 1),
     #                          coord_y + tilesize * (fire[1] + 1),
@@ -370,7 +370,7 @@ def drawWarnings(fireSurface, fire_pos, tilesize, coord_x, coord_y):
     #                     (math.floor(0.5 * (coord_x + 2 * tilesize * fire_pos[idx][0])),
     #                        math.floor(coord_y + tilesize * fire_pos[idx][1]),
     #                     tilesize, tilesize))
-    
+
     for idx in range(len(fire_pos)):
         pygame.gfxdraw.filled_trigon(fireSurface,
                                      math.floor(0.5 * (coord_x + 2 * tilesize * fire_pos[idx][0])),
@@ -579,7 +579,7 @@ def populateMap(mapMatrix, pop_percent, init_fires):
         del floor_coords[rand_player] # delete player
         counter -= 1
         player_count = len(floor_coords)
-    
+
     for idx in range(player_count):
         floor_coords[idx].append(100,)
 
@@ -693,19 +693,19 @@ def rawPlot2(escaped, died):
         t += 0.1
         escaped_list.append(escaped_counter)
         time_list.append(t)
-        
+
     l1, = ax.plot(time_list, escaped_list, label = 'Escaped') #, linestyle = '--')
-       
+
     died_counter = 0
     died_list = []
     for d in died:
         died_counter += d
         died_list.append(died_counter)
-        
+
     l2, = ax.plot(time_list, died_list, label = 'Died')
     #
    # print(escaped_list)
-    
+
   #  l1, = ax.plot([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [1, 2, 4, 8, 15, 17, 18, 22, 23, 23, 24, 24, 25, 25], label = 'label1', linestyle = '--')
   #  l2, = ax.plot([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], [1, 2, 4, 8, 15, 17, 18, 22, 23, 23, 24, 24, 25, 25][::-1], label = 'label2')
     #l1, = ax.plot(numpy.sin(numpy.linspace(0, 2 * numpy.pi)), 'r-o')
@@ -728,7 +728,7 @@ def rawPlot2(escaped, died):
 #    plt.title("Title", fontname = "Roboto", fontweight = 'medium', fontsize = 16)
     plt.xlabel('Time [s]', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
     plt.ylabel('People', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
-    plt.title("Escapes and deaths over time", fontname = "Roboto", fontweight = 'medium', fontsize = 16)
+    #plt.title("Escapes and deaths over time", fontname = "Roboto", fontweight = 'medium', fontsize = 16)
 
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -745,7 +745,7 @@ def rawPlot3(stats):
     def f(t):
         return numpy.exp(-t) * numpy.cos(2*numpy.pi*-t)
 
-    plot_x = 200
+    plot_x = 230
     plot_y = 120
     fig = plt.figure(figsize=[plot_x * 0.01, plot_y * 0.01], # inches
                        dpi=100,        # 100 dots per inch, so the resulting buffer is 150x120 pixels
@@ -786,7 +786,7 @@ def rawPlot3(stats):
     #explode = [0.1, 0]
 
     # Plot
-   
+
    # lst = [stats[1], stats[0] - stats[2], stats[2]]
     lst = [stats[1], stats[2], stats[0] - stats[2]]
     patches, texts, autotexts = plt.pie(lst, labels=labels, colors=colors, autopct='%1.0f%%', shadow=True, startangle=45, labeldistance=1.25) # pctdistance=1.1
@@ -806,7 +806,7 @@ def rawPlot3b(stats):
     def f(t):
         return numpy.exp(-t) * numpy.cos(2*numpy.pi*-t)
 
-    plot_x = 200
+    plot_x = 230
     plot_y = 120
     fig = plt.figure(figsize=[plot_x * 0.01, plot_y * 0.01], # inches
                        dpi=100,        # 100 dots per inch, so the resulting buffer is 150x120 pixels
@@ -820,7 +820,7 @@ def rawPlot3b(stats):
     # Data to plot
     labels = 'Smoke', 'Fire'
    # sizes = [30, 70]
-    colors = [(124/255, 124/255, 124/255), (162/255, 19/255, 24/255)] 
+    colors = [(124/255, 124/255, 124/255), (162/255, 19/255, 24/255)]
     #explode = [0.1, 0]
 
     # Plot
@@ -861,15 +861,15 @@ def rawPlot4(smoke, fire, scale):  # movementlists
         t += 0.1
         smoke_list.append(98*(len(s)/scale))
         time_list.append(t)
- #       
+ #
     l1, = ax.plot(time_list, smoke_list, label = 'Smoke') #, linestyle = '--')
-       
+
     #fire_counter = 0
     fire_list = []
     for f in fire:
       #  fire_counter += d
         fire_list.append(98*(len(f)/scale))
-        
+
     l2, = ax.plot(time_list, fire_list, label = 'Fire')
 
     l1.set_color((120/255, 120/255, 120/255))
@@ -879,8 +879,8 @@ def rawPlot4(smoke, fire, scale):  # movementlists
 #    plt.ylabel('Y label', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
 #    plt.title("Title", fontname = "Roboto", fontweight = 'medium', fontsize = 16)
     plt.xlabel('Time [s]', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
-    plt.ylabel('% covered', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
-    plt.title("Area covered in smoke and fire", fontname = "Roboto", fontweight = 'medium', fontsize = 16)
+    plt.ylabel('Percent Covered', fontname = "Roboto", fontweight = 'medium', fontsize = 11)
+    #plt.title("Area covered in smoke and fire", fontname = "Roboto", fontweight = 'medium', fontsize = 16)
 
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -897,7 +897,7 @@ def tablePlot(stats):
     fig = plt.figure(figsize=[plot_x * 0.01, plot_y * 0.01], # inches
                      dpi = 100,        # 100 dots per inch, so the resulting buffer is 150x120 pixels
                      )
- 
+
 #    plt.figure()
     ax = fig.gca(frame_on = False)
 
@@ -908,7 +908,7 @@ def tablePlot(stats):
     # remove padding around graph
     # TODO
     size = [0.7] #[plot_x/100]
-    
+
    # y=[1,2,3,4,5,4,3,2,1,1,1,1,1,1,1,1]
     #plt.plot([10,10,14,14,10],[2,4,4,2,2],'r')
     col_labels = ['Av. escape values']
@@ -918,12 +918,12 @@ def tablePlot(stats):
   #  table_vals = [['1'], ['2'], ['hej3']]
     # the rectangle is where I want to place the table
     exit_table = plt.table(cellText = table_vals,
-                           colWidths = size,                         
+                           colWidths = size,
                            cellLoc = 'center',
                            rowLabels = row_labels,
                            colLabels = col_labels,
                            loc = 'center')
-    
+
     #plt.text(10,10,'Table Title',size = 70)
     col_labels = ['Exit values']
     row_labels = ['Alive','Dead','Injured']
@@ -935,10 +935,10 @@ def tablePlot(stats):
                           rowLabels = row_labels,
                           colLabels = col_labels,
                           loc = 'upper center')
-    
-    col_labels = ['# of deaths from']
+
+    col_labels = ['No. of deaths from']
     row_labels = ['Smoke','Fire']
-    table_vals=[[stats[3][0]], [stats[3][1]]] 
+    table_vals=[[stats[3][0]], [stats[3][1]]]
     # the rectangle is where I want to place the table
     the_table = plt.table(cellText = table_vals,
                           colWidths = size,
@@ -946,7 +946,7 @@ def tablePlot(stats):
                           rowLabels = row_labels,
                           colLabels = col_labels,
                           loc = 'lower center')
-    
+
     #plt.plot(y)
     #plt.show()
     return fig
@@ -1025,7 +1025,7 @@ def interpolateTuple(startcolor, goalcolor, steps):
 
 def pathToName(path):
     return path[path.rfind('/') + 1:-4]
-  
+
 def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, child_pid):
     """Description.
 
@@ -1034,7 +1034,7 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     """
     print('\n')
     print(Fore.WHITE + Back.BLUE + Style.BRIGHT + ' '*9 + 'NEW SIM' + ' '*9)
-    
+
     # export json map matrix
     map_matrixInt = copy.deepcopy(mapMatrix).astype(int)
     map_jsons = json.dumps(map_matrixInt.tolist())
@@ -1074,9 +1074,9 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     player_pos = json.loads(json_ppl_bytes)
     for pos in player_pos:
         players_movement.append([pos])
-        
+
     json_ppl = json.loads(json_ppl_bytes)
-    
+
     # first fire
     fromgo_json_fire = child.stdout.readline().rstrip('\n')
     fire_pos = json.loads(fromgo_json_fire)
@@ -1100,11 +1100,11 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
         json_ppl = json.loads(json_ppl_bytes)
         json_fire = json.loads(fromgo_json_fire)
         json_smoke = json.loads(fromgo_json_smoke)
-        
+
         json_ppl_bytes = child.stdout.readline().rstrip('\n')
         for i in range(len(json_ppl)):
             players_movement[i].append(json_ppl[i])
-            
+
         fromgo_json_fire = child.stdout.readline().rstrip('\n')
         fire_movement.append(json_fire)
 
@@ -1127,12 +1127,12 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     with open('../tmp/pid.txt', 'a') as out:
         out.write(json.dumps(0))
     print(Fore.WHITE + Back.RED + Style.DIM + 'reset ' + Back.RED + Style.BRIGHT + '  pid.txt' + ' '*10)
-    
+
     print(Fore.WHITE + Back.BLUE + Style.BRIGHT + ' '*11 + 'END' + ' '*11)
 
     child.stdout.flush()
     child.stdin.flush()
-    
+
 def colorSurface(surface, rgb):
     """Description.
 
@@ -1178,15 +1178,15 @@ def showErrorPage(mapSurface, ERROR_BG, FONT_ROBOTOLIGHT_18, FONT_ROBOTOLIGHT_22
     def showCoord(mapSurface, map_error, idx, error_text_x, error_text_y, error_text_spacing):
         _, _, text_y = placeCenterText(mapSurface, '(' + str(map_error[idx][0]) + ', ' + str(map_error[idx][1]) + ')', FONT_ROBOTOLIGHT_22, COLOR_BLACK, error_text_x, error_text_y + idx * error_text_spacing) # coord
         return text_y
-    
+
     def showRGB(mapSurface, map_error, idx, error_text_x, error_text_y, error_text_spacing):
         placeCenterText(mapSurface, str(map_error[idx][2][0:3]), FONT_ROBOTOLIGHT_22, COLOR_BLACK, error_text_x + 333-15, error_text_y + idx * error_text_spacing) # rgb
-    
+
     def showOpacity(mapSurface, map_error, idx, error_text_x, error_text_y, error_text_spacing):
         placeCenterText(mapSurface, str("{:.0%}".format(map_error[idx][2][3]/255)), FONT_ROBOTOLIGHT_22, COLOR_BLACK, error_text_x + 580-15, error_text_y + idx * error_text_spacing) # opacity
 
-    mapSurface.blit(ERROR_BG, (260, 120))
-    placeCenterText(mapSurface, pathToName(active_map_path_error) + '.png has ' + inflect.number_to_words(len(map_error)) + ' invalid pixels!', FONT_ROBOTOLIGHT_22, COLOR_BLACK, 1024, 158)
+    mapSurface.blit(ERROR_BG, (260, 40))
+    placeCenterText(mapSurface, pathToName(active_map_path_error) + '.png has ' + inflect.number_to_words(len(map_error)) + ' invalid pixels!', FONT_ROBOTOLIGHT_22, COLOR_BLACK, 1024, 73)
 
     map_error_length = 0
     for idx in range(map_error_visible):
@@ -1226,7 +1226,7 @@ def showDebugger(displaySurface, MENU_BACKGROUND, MENU_FADE, FONT_ROBOTOREGULAR_
     # check out of bounds.
     # crashes the fuck out if there are players outside mapMatrix's bounds,
     # as long as Go provides correct data this should not happen
-    
+
     #p_oob = None
     #p_oob_id = []
     #if player_pos != []:
@@ -1241,7 +1241,7 @@ def showDebugger(displaySurface, MENU_BACKGROUND, MENU_FADE, FONT_ROBOTOREGULAR_
     #placeText(displaySurface, "+p_pos: " + str(player_pos), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 810, 31)
     #placeText(displaySurface, "+p_oob: " + str(p_oob), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 31)
     #placeText(displaySurface, "+oob_id: " + str(p_oob_id), 'Roboto-Regular.ttf', 11, COLOR_BLACK, 710, 43)
-    
+
     placeText(displaySurface, "+pop_%: " + str(round(pop_percent, 2)), FONT_ROBOTOREGULAR_11, COLOR_BLACK, 710, 31)
     placeText(displaySurface, "+paused: " + str(paused), FONT_ROBOTOREGULAR_11, COLOR_BLACK, 710, 0)
     placeText(displaySurface, "+elapsed: " + str(counter_seconds), FONT_ROBOTOREGULAR_11, COLOR_BLACK, 710, 11)
@@ -1272,55 +1272,44 @@ def calcFPS(prev_time, target_fps, caption_bool):
 def heatMap(player_movement, mapMatrix):
 
     result_matrix = copy.deepcopy(mapMatrix).astype(int).tolist()
-   # map_matrix = map_matrixInt.tolist()
-    
-   # result_matrix = copy.deepcopy(map_matrix)
+
     for row in range(len(result_matrix)):
         for col in range(len(result_matrix[0])):
             result_matrix[row][col] = 0 #.append([0,])
-            
+
     for player in player_movement:
         for frame in player:
             result_matrix[frame[1]][frame[0]] += 1
 
     result_matrix[0][0] = 0
-    
+
     heat_max = 1 #max([sublist[-1] for sublist in result_matrix])
     for row in range(len(result_matrix)):
         for col in range(len(result_matrix[0])):
             if result_matrix[row][col] > heat_max:
                 heat_max = result_matrix[row][col]
 
-    
-    #max(map(lambda x: x[-1], result_matrix))
-
     for row in range(len(result_matrix)):
         for col in range(len(result_matrix[0])):
             result_matrix[row][col] =  round(100*(result_matrix[row][col]/heat_max))
-            
+
     return result_matrix
 
 def findMapCoord(mouse_x, mouse_y, mapheight, mapwidth, t, tab):
-    
-    sw = 495
-    sh = 344
+
+    sw = 679
+    sh = 400
 
     h = mapheight
     w = mapwidth
-    
+
     def findX(column):
         return math.floor(0.5 * (sw - w * t + 2 * t * column))
-    
+
     def findY(row):
         return  math.floor((sh - PADDING_MAP)/2 - (h * t)/2 + t * row)
-  #  print([math.floor(((mouse_x - 517) - findX(0))/t), math.floor(((mouse_y - 60) - findY(0))/t), 0])
-    return [math.floor(((mouse_x - 517) - findX(0))/t), math.floor(((mouse_y - 60) - findY(0))/t), 0]
+    return [math.floor(((mouse_x - 173) - findX(0))/t), math.floor(((mouse_y - 60) - findY(0))/t), 0]
 
-   # print(findX(0))
-    #print(findX(1))
-    #print(getTile(mouse_x, mouse_y))
-
-   
 def printShortKeys():
     def printSK(s):
         ln = 29 - len(s)

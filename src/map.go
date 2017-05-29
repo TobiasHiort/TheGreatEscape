@@ -8,6 +8,9 @@ const MINHEAT = 10
 const MEDIUMHEAT = 20
 const MAXHEAT = 30
 
+var fireSpeed = float64(2)
+var pplSpeed  = float64(2)
+
 type tile struct {
 	xCoord int
 	yCoord int
@@ -189,7 +192,8 @@ func PeopleInit(inMap [][]tile, peopleList [][]int) []*Person {
 
 func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	//sList := []Stats{}
-
+	smokeSpeed := 2*fireSpeed
+	
 	var wg sync.WaitGroup
 	var mutex = &sync.Mutex{}
 	wg.Add(len(ppl))
@@ -217,17 +221,20 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 	step++
 	wg.Wait()
 
-	if math.Mod(float64(step), 2) == 0 {
-		FireSpread(*m)
-		if math.Mod(float64(step), 4) == 0 {
-			SmokeSpread(*m)
+
+	
+	if math.Mod(float64(step), fireSpeed) == 0 {FireSpread(*m)}
+
+		//	InitPlans(m)
+		//	if math.Mod(float64(step), 2) == 0 {InitPlans(m)}   // change it up?
+		//	SmokeSpread(*m)
+		//		InitPlans(m)
+//	}
+	if math.Mod(float64(step), smokeSpeed) == 0 {SmokeSpread(*m)
 		
-		}
-		InitPlans(m)
-	//	if math.Mod(float64(step), 2) == 0 {InitPlans(m)}   // change it up?
-	//	SmokeSpread(*m)
-//		InitPlans(m)
 	}
+	if math.Mod(float64(step), pplSpeed) == 0 {InitPlans(m)}
+	
 	//if math.Mod(float64(step), 3) == 0 {SmokeSpread(*m)}
 }
 
