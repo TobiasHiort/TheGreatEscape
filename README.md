@@ -96,7 +96,7 @@ if this is unsuccessful, you are pretty much out of luck for choosing maps throu
 A few sample maps are included, but it is possible to add custom maps in `/gui/maps` and load them in the Python program. Maps must be in [PNG](https://en.wikipedia.org/wiki/Portable_Network_Graphics) format and only consist of the following pixels with 100% opacity.
 - ![#ffffff](https://placehold.it/15/ffffff/000000?text=+) `rgb(255, 255, 255)` &nbsp;&nbsp;- Floor and inner door.
 - ![#000000](https://placehold.it/15/000000/000000?text=+) `rgb(0, 0, 0)` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Wall.
-- ![#ff0000](https://placehold.it/15/00ff00/000000?text=+) `rgb(255, 0, 0)` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Exit door.
+- ![#ff0000](https://placehold.it/15/ff0000/000000?text=+) `rgb(255, 0, 0)` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Exit door.
 - ![#7f7f7f](https://placehold.it/15/7f7f7f/000000?text=+) `rgb(127, 127, 127)` &nbsp;&nbsp;- Out of bounds (outdoors).
 
 Each pixel represents an area of 0.5m × 0.5m. Make sure that every room has an inner door and that there exists a valid path from every room to at least one exit door.
