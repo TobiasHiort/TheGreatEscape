@@ -67,14 +67,7 @@ func fromPipe() ([][]int, [][]int, [][]int, []float64) {
 	if err7 != nil {
 		panic(err7)
 	}
-	//BonnBonn? or BonBon^^ mm fred fredburger ;)
-	if len(mmm) < 2 {
-		//We are gonna do something drastic here!
-	} else if len(mmm)%2 != 0 {
-		mmm = mmm[:len(mmm)-1]
-	}
 	
-//	mmmm := []float64{2,2}
 	e, err8 := ioutil.ReadFile("../tmp/velocitiesfile.txt")
 	if err8 != nil {
 		panic(err8)

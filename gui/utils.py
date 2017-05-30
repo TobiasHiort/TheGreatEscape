@@ -20,8 +20,8 @@ import pylab
 import matplotlib.pylab as plt
 import matplotlib
 matplotlib.use("Agg")
-plt.rcParams["font.family"] = "Roboto"
-plt.rcParams["font.weight"] = "medium"
+#plt.rcParams["font.family"] = "Roboto"
+#plt.rcParams["font.weight"] = "medium"
 
 from sys import getsizeof
 from pygame.locals import *
@@ -467,7 +467,7 @@ def mapSqm(mapMatrix):
     counter = 0.00
     for row in range(len(mapMatrix)):
         for column in range(len(mapMatrix[0])):
-            if mapMatrix[row][column] == 0 or mapMatrix[row][column] == 2:
+            if mapMatrix[row][column] == 0:
                 counter += 0.25 # 0.5m^2
     return counter
 
@@ -911,7 +911,7 @@ def tablePlot(stats):
 
    # y=[1,2,3,4,5,4,3,2,1,1,1,1,1,1,1,1]
     #plt.plot([10,10,14,14,10],[2,4,4,2,2],'r')
-    col_labels = ['Av. escape values']
+    col_labels = ['Av. Escape Values']
     row_labels = ['Time','Health', 'Moved']
 #    table_vals=[[11,12,13],[21,22,23],[31,32,33]]
     table_vals = [[str(round(stats[1][0], 2)) + ' [s]'], [str(stats[2][0]) + ' [%]'], [str(round(stats[4][0]/2, 2)) + ' [m]']]
@@ -925,7 +925,7 @@ def tablePlot(stats):
                            loc = 'center')
 
     #plt.text(10,10,'Table Title',size = 70)
-    col_labels = ['Exit values']
+    col_labels = ['Exit Values']
     row_labels = ['Alive','Dead','Injured']
     table_vals = [[stats[0][0]], [stats[0][1]], [stats[0][2]]]
     # the rectangle is where I want to place the table
@@ -936,7 +936,7 @@ def tablePlot(stats):
                           colLabels = col_labels,
                           loc = 'upper center')
 
-    col_labels = ['No. of deaths from']
+    col_labels = ['No. of Deaths From']
     row_labels = ['Smoke','Fire']
     table_vals=[[stats[3][0]], [stats[3][1]]]
     # the rectangle is where I want to place the table
@@ -1056,12 +1056,14 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     tofile3.close()
     print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'firefile.txt' + ' '*7)
 
-    velocities_str = json.dumps([6 - fire_speed, 2]) 
+
+    velocities_str = json.dumps([6 - fire_speed, 2])
+    #print(velocities_str)
     tofile4 = open('../tmp/velocitiesfile.txt', 'w+')
     tofile4.write(velocities_str)
     tofile4.close()
     print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'velocitiesfile.txt' + ' '*1)    
-
+    
     # spawn Go subprocess
     child = Popen('../src/main', stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
     pid_json = json.dumps(child.pid)
@@ -1130,8 +1132,8 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     os.remove('../tmp/firefile.txt')
     print(Fore.WHITE + Back.RED + Style.DIM + 'removed ' + Back.RED + Style.BRIGHT + 'firefile.txt' + ' '*5)
     os.remove('../tmp/velocitiesfile.txt')
-    print(Fore.WHITE + Back.RED + Style.DIM + 'removed ' + Back.RED + Style.BRIGHT + 'velocitiesfile.tx') #t..
-    
+    print(Fore.WHITE + Back.RED + Style.DIM + 'removed ' + Back.RED + Style.BRIGHT + 'velocitiesfile.tx') #t..    
+
     with open('../tmp/pid.txt', 'a') as out:
         out.write(json.dumps(0))
     print(Fore.WHITE + Back.RED + Style.DIM + 'reset ' + Back.RED + Style.BRIGHT + '  pid.txt' + ' '*10)
@@ -1337,7 +1339,7 @@ def printShortKeys():
     printSK('p: pause simulation')
     printSK('g: step simulation forwards')
     printSK('f: step simulation backwards')
-    printSK('2: reset simulation') 
+    printSK('2: reset simulation')
     print(Fore.WHITE + Back.YELLOW + Style.BRIGHT + ' '*9 + 'In Settings'+ ' '*9)
     printSK('q: switch place ppl/fire')
     print(Fore.WHITE + Back.BLUE + Style.BRIGHT + ' '*10 + '         ' + ' '*10)
