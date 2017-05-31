@@ -1026,7 +1026,7 @@ def interpolateTuple(startcolor, goalcolor, steps):
 def pathToName(path):
     return path[path.rfind('/') + 1:-4]
 
-def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, fire_speed, child_pid):
+def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, fire_speed, player_speed, child_pid):
     """Description.
 
     More...
@@ -1057,7 +1057,7 @@ def goThread(mapMatrix, player_pos, players_movement, fire_pos, fire_movement, s
     print(Fore.WHITE + Back.GREEN + Style.DIM + 'wrote ' + Back.GREEN + Style.BRIGHT + 'firefile.txt' + ' '*7)
 
 
-    velocities_str = json.dumps([6 - fire_speed, 2])
+    velocities_str = json.dumps([6 - fire_speed, player_speed])
     #print(velocities_str)
     tofile4 = open('../tmp/velocitiesfile.txt', 'w+')
     tofile4.write(velocities_str)

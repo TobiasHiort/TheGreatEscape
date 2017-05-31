@@ -91,6 +91,7 @@ button_down = False
 remove = False
 
 fire_speed = 3
+player_speed = 1
 #statistics_ready = False
 
 #
@@ -391,7 +392,7 @@ while True:
                     
                 elif event.key == K_m and paused and current_frame == 0:
                     if not go_running:
-                        _thread.start_new_thread(goThread, (mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, fire_speed, child_pid))
+                        _thread.start_new_thread(goThread, (mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, fire_speed, player_speed, child_pid))
                         go_running = True
                         pygame.time.wait(100)
                 elif event.key == K_s and paused and player_pos != []:                                  
@@ -523,7 +524,7 @@ while True:
             # run - paused
             if cursorBoxHit(mouse_x, mouse_y, 900, 1024, 236, 270, active_tab_bools[0]) and paused and current_frame == 0:
                 if current_frame == 0 and not go_running:
-                    _thread.start_new_thread(goThread, (mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, fire_speed, child_pid))
+                    _thread.start_new_thread(goThread, (mapMatrix, player_pos, players_movement, fire_pos, fire_movement, smoke_pos, smoke_movement, fire_speed, player_speed, child_pid))
                     go_running = True
                     pygame.time.wait(150)      
                 if player_pos != [] and players_movement != [] and current_frame < len(players_movement[0]) - 1:  
@@ -887,6 +888,16 @@ while True:
             else:
                 fire_speed = 5                    
             #print(fire_speed)
+            player_speed = (1 - slider_percent2)*2
+            if player_speed < 0.25:
+                player_speed = 0.25
+            elif player_speed < 1:
+                player_speed = 0.5
+            
+            if player_speed > 1:
+                 player_speed = player_speed*player_speed
+            #
+
     # render logic
     if active_tab_bools[0]: # simulation tab
         # no chosen map

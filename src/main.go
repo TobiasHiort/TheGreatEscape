@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	
+//	"runtime"
 	//"os"
 	//"runtime/trace"
 	//	"math"
@@ -108,5 +108,6 @@ func main() {
 	}
 	defer trace.Stop()*/
 	//	mainMap()
+//	runtime.GOMAXPROCS(runtime.NumCPU())
 	singleSimulation()
 }

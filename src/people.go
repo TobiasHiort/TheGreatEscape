@@ -10,7 +10,7 @@ import (
 
 // ariable to keep track of the current 'frame',
 // used to decide wether a person is allowed to moved yet or not
-var step = float32(0)
+var step = float32(0) 
 
 type Person struct {
 	alive bool
@@ -229,6 +229,17 @@ func (p *Person)currentTile() *tile{
 // time added depends on wether the step was straight/diagonal and if the tile has any smoke
 func (p *Person)updateTime() {
 	if p.wasDiag() {
+		p.time += float32(pplSpeed*math.Sqrt(2))	
+	} else {p.time += float32(pplSpeed*1)}
+
+	if p.currentTile() != nil && p.currentTile().smoke > 0 {
+		smoke := float32(p.currentTile().smoke/50)
+		p.time += smoke}
+}
+
+/*
+func (p *Person)updateTime() {
+	if p.wasDiag() {
 		p.time += float32(math.Sqrt(2))	
 	} else {p.time += 1}
 
@@ -236,6 +247,8 @@ func (p *Person)updateTime() {
 		smoke := float32(p.currentTile().smoke/50)
 		p.time += smoke}
 }
+
+*/
 
 // checks if the next step a diagonal one
 func (p *Person)DiagonalStep() bool{ 

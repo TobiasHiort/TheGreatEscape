@@ -9,7 +9,7 @@ const MEDIUMHEAT = 20
 const MAXHEAT = 30
 
 var fireSpeed = float64(2) // OBS: 3 är 'standard'-värdet från py atm
-var pplSpeed  = float64(2)
+var pplSpeed  = float64(1)
 
 type tile struct {
 	xCoord int
@@ -203,6 +203,8 @@ func Run(m *[][]tile, ppl []*Person, statsList *[][]int) {
 		go func(p *Person){//, ind int){
 			defer wg.Done()
 			p.MovePerson(m)
+			if pplSpeed < 1 {p.MovePerson(m)}
+			if pplSpeed < 0.5 {p.MovePerson(m)}
 			mutex.Lock()
 			sList := &[]int{}
 			p.getStats((sList))//(statsList[ind])
