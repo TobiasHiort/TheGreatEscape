@@ -3,7 +3,8 @@ package main
 import (
 	"math"
 	"sync"
-	//	"fmt"
+	"math/rand"
+//	"fmt"
 )
 
 type Direction struct {
@@ -11,6 +12,7 @@ type Direction struct {
 	yDir int //-1,0,1
 }
 
+// jp == jump point
 type jp struct {
 	jp *tile   // jp
 	fn []*tile // forced neighbors from jp
@@ -28,6 +30,7 @@ var ( // TODO: define this a weak ago...
 	sw = Direction{1, -1}
 )
 
+// checks if a certain tile is in a list of tiles
 func contains(tiles []*tile, t *tile) bool {
 	for _, ti := range tiles {
 		if ti == t {
@@ -37,6 +40,7 @@ func contains(tiles []*tile, t *tile) bool {
 	return false
 }
 
+// calculates the 'cost' for stepping a tile
 func stepCost(t tile) float32 {
 	cost := float32(1)
 	cost += float32(t.heat) / 5 //TODO how much cost for fire etc??
@@ -47,6 +51,8 @@ func stepCost(t tile) float32 {
 	return cost
 }
 
+// finds and returns the pruned neighbors a tile
+// prunes based on the given direction to minimize unnecessary calculations
 func getNeighborsPruned(current *tile, dir Direction) []*tile {
 	neighbors := []*tile{}
 
@@ -173,6 +179,7 @@ func getNeighborsPruned(current *tile, dir Direction) []*tile {
 	return neighbors
 }
 
+// finds and returns all neighbors of a given tile
 func getNeighbors(current *tile) []*tile {
 	neighbors := []*tile{}
 
@@ -207,19 +214,20 @@ func getNeighbors(current *tile) []*tile {
 	}
 	return neighbors
 }
-
+// checks if a tile is 'valid', aka can be walked on
 func validTile(t *tile) bool {
 	if t == nil {
 		return false
 	}
-	return !t.wall && !t.outOfBounds && t.heat < 1 //&& t.smoke < 100
+	return !t.wall && !t.outOfBounds && t.heat < 2 //&& t.smoke < 100
 }
 
+// checks if a tile is valid and if a person is occupiyng it checks if that person is screwed
+// used to impact the behavior of people who are about to be screwed
 func canGo(t *tile) bool {
 	if validTile(t) {
-		if t.occupied != nil {
-			return !t.occupied.screwed
-		}
+		oc := t.occupied
+		if oc != nil {return !oc.screwed}
 		return true
 	}
 	return false
@@ -228,6 +236,7 @@ func canGo(t *tile) bool {
 		return !t.wall && !t.outOfBounds && t.heat < 2 */
 }
 
+// uses a map of tiles to create a path between 2 given tiles
 func compactPath(parentOf map[*tile]*tile, from *tile, to *tile) ([]*tile, bool) {
 	path := []*tile{to}
 
@@ -246,14 +255,14 @@ func compactPath(parentOf map[*tile]*tile, from *tile, to *tile) ([]*tile, bool)
 	return path, true
 }
 
-func getDir(from *tile, to *tile) Direction {
-	if from == nil {
-		return Direction{1, 1}
-	}
-	//	if from == to {panic("same same")}
-
+// finds the direction between 2 tiles
+func getDir(from *tile, to *tile) Direction{
+	if from == nil{ 
+		return Direction{0, 0}} //1,1}}  //CHECK
+//	if from == to {panic("same same")}	
 	x := to.xCoord - from.xCoord
 	y := to.yCoord - from.yCoord
+	//if x == 0 && y == 0 {panic("shouldn't happen...")}
 	if x > 1 {
 		x = 1
 	} else if x < 0 {
@@ -267,7 +276,9 @@ func getDir(from *tile, to *tile) Direction {
 	return Direction{x, y}
 }
 
-func (t *tile) followDir(dir Direction) *tile { // diagonalt!
+// finds the 'next' tile in a given direction
+// returns nil if the 'next' tile isn't reachable
+func (t *tile)followDir(dir Direction) *tile{  // diagonalt!
 	if dir.xDir == 1 {
 		if !validTile(t.neighborSouth) {
 			return nil
@@ -317,37 +328,23 @@ func (t *tile) followDir(dir Direction) *tile { // diagonalt!
 	return nil
 }
 
-func (t *tile) neighbor(dir Direction) *tile {
-	if dir == n {
-		return t.neighborNorth
-	}
-	if dir == e {
-		return t.neighborEast
-	}
-	if dir == s {
-		return t.neighborSouth
-	}
-	if dir == w {
-		return t.neighborWest
-	}
+// finds the neighbors from t in a given direction
+func (t *tile) neighbor(dir Direction) *tile{
+	if dir == n {return t.neighborNorth}
+	if dir == e {return t.neighborEast}
+	if dir == s {return t.neighborSouth}
+	if dir == w {return t.neighborWest}
 
-	if dir == nw {
-		return t.neighborNW
-	}
-	if dir == ne {
-		return t.neighborNE
-	}
-	if dir == se {
-		return t.neighborSE
-	}
-	if dir == sw {
-		return t.neighborSW
-	}
+	if dir == nw {return t.neighborNW}
+	if dir == ne {return t.neighborNE}
+	if dir == se {return t.neighborSE}
+	if dir == sw {return t.neighborSW}
 
 	return nil
 }
 
-func Jp(current *tile, dir Direction) []jp { //[]*tile {
+// TODO: continue cleaning/commenting below...
+func Jp(current *tile, dir Direction) []jp {
 	jps := []jp{}
 	if (dir.xDir == 0 && dir.yDir != 0) || (dir.yDir == 0 && dir.xDir != 0) {
 		tmpJP := getJumpPoint(current, dir)
@@ -371,7 +368,6 @@ func Jp(current *tile, dir Direction) []jp { //[]*tile {
 		}
 		tempJP := sneJP(current, dir)
 		if tempJP.jp != nil {
-			//	fmt.Println("temp?:", tempJP.jp)
 			jps = append(jps, tempJP)
 		}
 		current = current.followDir(dir)
@@ -665,8 +661,8 @@ func nextTile(t1 *tile, dir Direction) *tile {
 	return nil // default?
 }
 
-func getPath3(m *[][]tile, from []*tile) { //INIT!
-
+func getPath(m *[][]tile, from []*tile) {    //INIT!
+	
 	// map över jp
 	var parentOf map[*tile]*tile
 	parentOf = make(map[*tile]*tile)
@@ -674,17 +670,8 @@ func getPath3(m *[][]tile, from []*tile) { //INIT!
 	// map över costOf, in beta!
 	var costOf map[*tile]float32
 	costOf = make(map[*tile]float32)
-	//
 
 	cq := queue{}
-
-	/*for i, list := range *m {
-		for j, _ := range list {
-			val := float32(math.Inf(1))
-			cq = append(cq, tileCost{&(*m)[i][j], &val})
-			costOf[&(*m)[i][j]] = val  //beta
-		}
-	}*/
 
 	for _, f := range from {
 		cq.Update(f, 0)
@@ -696,11 +683,9 @@ func getPath3(m *[][]tile, from []*tile) { //INIT!
 
 	for len(cq) != 0 {
 		current = (&cq).Pop()
-		if *current.cost == float32(math.Inf(1)) {
-			return
-		}
-		_, ok := parentOf[current.tile]
 
+		if *current.cost == float32(math.Inf(1)) {break} // lr return?
+		_, ok := parentOf[current.tile]
 		//	if !ok || (ok && (current.tile.occupied == nil || (current.tile.occupied != nil && len(current.tile.occupied.plan) == 0))) {
 		if ok {
 			currentDir = getDir(parentOf[current.tile], current.tile)
@@ -717,7 +702,7 @@ func getPath3(m *[][]tile, from []*tile) { //INIT!
 
 			go func(n *tile) {
 				defer wg.Done()
-				//n := neighbor
+				//		n := neighbor
 				jps := JpInit(n, getDir(current.tile, n))
 				for _, jp := range jps {
 					if jp.jp != nil {
@@ -753,7 +738,6 @@ func getPath3(m *[][]tile, from []*tile) { //INIT!
 			}(neighbor)
 		}
 		wg.Wait()
-		//}
 	}
 }
 
@@ -763,16 +747,16 @@ func setPlan(parentOf map[*tile]*tile, pers *tile) {
 	current := pers
 	ok := true
 
-	curDir := Direction{}
+	curDir := Direction{} 
 	lastDir := Direction{0, 0}
+
 	for !current.door {
 		curDir = getDir(current, parentOf[current])
 		if curDir == lastDir {
+		//	if current == parentOf[current] {panic("no good")}
 			path = path[:len(path)-1]
 		}
-		path = append(path, parentOf[current])
-		if parentOf[current].xCoord == 28 && parentOf[current].yCoord == 49 {
-		}
+		path = append(path, parentOf[current])	
 
 		current, ok = parentOf[current]
 		lastDir = curDir
@@ -1022,31 +1006,18 @@ func northJPInit(current *tile) jp {
 }
 
 func (p *Person) redirect() bool {
-	if p.dir == e {
-		return p.redE()
-	}
-	if p.dir == s {
-		return p.redS()
-	}
-	if p.dir == w {
-		return p.redW()
-	}
-	if p.dir == n {
-		return p.redN()
-	}
 
-	if p.dir == se {
-		return p.redSE()
-	}
-	if p.dir == sw {
-		return p.redSW()
-	}
-	if p.dir == nw {
-		return p.redNW()
-	}
-	if p.dir == ne {
-		return p.redNE()
-	}
+	//if p.screwed {return p.moveTo(p.currentTile().safestTile())}
+	
+	if p.dir == e {return p.redE()}
+	if p.dir == s {return p.redS()}
+	if p.dir == w {return p.redW()}
+	if p.dir == n {return p.redN()}
+
+	if p.dir == se {return p.redSE()}
+	if p.dir == sw {return p.redSW()}
+	if p.dir == nw {return p.redNW()}
+	if p.dir == ne {return p.redNE()}
 
 	return false
 }
@@ -1215,14 +1186,13 @@ func (p *Person) redN() bool {
 	return false
 }
 
-func (t *tile) endOfLine(dir Direction) *tile {
-	next := t.followDir(dir)
-	for next != nil {
-		tmp := next.followDir(dir)
-		if tmp == nil {
-			return next
-		}
-		next = tmp
-	}
-	return nil
+// returns a random direction
+func randomDirection() Direction {
+	xDir := rand.Intn(1) - rand.Intn(1)
+	yDir := rand.Intn(1) - rand.Intn(1)
+	return Direction{xDir, yDir}
+}
+
+func (t *tile)randomNeighbor() *tile {
+	return t.followDir(randomDirection())
 }

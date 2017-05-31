@@ -10,13 +10,15 @@ func MapInit(peopleList [][]int, newMap [][]int) [][]tile {
 	return currentMap
 }
 
-func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos [][]int) {
+func GameLoop(inMap [][]int, peopleList [][]int, fireStartPos [][]int, velocities []float64) {
+	fireSpeed = velocities[0]
+	pplSpeed = velocities[1]
 	//newMap := MapInit(foo, bar)
 	//do all the Inits
 	//statsList := StatsInit(len(peopleList))
 
 	//	toPipe(&[][]int{})
-
+	
 	for i, st := range peopleList {
 	//	if st[0] == peopleList[0] && st[1] == (*sList)[1] && st[0] != 0 && st[1] != 0 {
 		for j, st2 := range peopleList {

@@ -4,7 +4,8 @@ import (
 	"math"
 	"testing"
 	"fmt"
-//	"sync"
+	"encoding/json"
+	"io/ioutil"
 )
 
 
@@ -55,12 +56,12 @@ func TestGetNeighbors(t *testing.T) {
 		{0, 0, 0, 0, 0, 0, 0}}
 	testmap := TileConvert(matrix)
 	tileQ := mapToQueue(testmap)
-//	fmt.Println(len(tileQ))
-//	for _, tl := range tileQ {fmt.Println(tl.tile.xCoord, tl.tile.yCoord)}
+	//	fmt.Println(len(tileQ))
+	//	for _, tl := range tileQ {fmt.Println(tl.tile.xCoord, tl.tile.yCoord)}
 
 	for i, list := range testmap {
 		for j, ti := range list {
-			neighbors := getNeighbors(&ti) //, tileQ)
+			neighbors := getNeighbors(&ti)
 			if i == 0 && validTile(&ti) {
 				if len(neighbors) != 0 {
 					t.Errorf("Expected 0 neigbors, but got %d neighbors", len(neighbors))
@@ -142,27 +143,6 @@ func TestCompactPath(t *testing.T) {
 		}		
 	}
 }
-
-/*
-func TestTime(t *testing.T) {
-	q := queue{}
-
-	size := 10000
-
-	matrix := [][]int{
-		{0,0,0,0,0},
-		{0,0,0,0,0},
-		{0,0,0,0,0},
-		{0,0,0,0,0},
-		{0,0,0,0,0},
-		{0,0,0,0,2}}
-	testmap := TileConvert(matrix)
-
-	for i := 0; i < size; i++ {
-		q.Add()
-	}
-
-}*/
 
 func makeTestMap(xSize, ySize int) [][]tile{
 	testMatrix := [][]int{}
@@ -314,7 +294,7 @@ func TestManyPeople(t *testing.T) {
 */
 
 
-/*
+
 func TestGetNeighborsPruned(t *testing.T) {
 	matrix := [][]int{
 		{0,0,0,0,0},
@@ -325,35 +305,33 @@ func TestGetNeighborsPruned(t *testing.T) {
 		{0,0,0,0,2}}
 	testmap := TileConvert(matrix)
 
-
 	nbrs := []*tile{}
 	
 	nbrs  = getNeighborsPruned(&testmap[1][1], Direction{0,1})
-//	fmt.Println(nbrs[0])
-	if !inNbrs(nbrs, &testmap[0][1]) {t.Errorf("whoopsie")}
+	if !inNbrs(nbrs, &testmap[1][2]) {t.Errorf("Invalid neighbors")}
 
 	nbrs = getNeighborsPruned(&testmap[1][1], Direction{0,-1})
-//	fmt.Println(nbrs[0])
-	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
+	if !inNbrs(nbrs, &testmap[1][0]) {t.Errorf("Invalid neighbors")}
 
-	
 	nbrs = getNeighborsPruned(&testmap[1][1], Direction{1,0})
-//	fmt.Println(nbrs[0])
-	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
+	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("Invalid neighbors")}
 
 	nbrs = getNeighborsPruned(&testmap[1][1], Direction{-1,0})
-//	fmt.Println(nbrs[0])
-	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
+	if !inNbrs(nbrs, &testmap[0][1]) {t.Errorf("Invalid neighbors")}
 	
-	nbrs = getNeighborsPruned(&testmap[1][1], Direction{0,-1})
-	//fmt.Println(nbrs[0])
-	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
+	nbrs = getNeighborsPruned(&testmap[1][1], Direction{1,1})
+	if !inNbrs(nbrs, &testmap[2][2]) {t.Errorf("Invalid neighbors")}
 	
-	nbrs = getNeighborsPruned(&testmap[1][1], Direction{0,-1})
-	//fmt.Println(nbrs[0])
-	if !inNbrs(nbrs, &testmap[2][1]) {t.Errorf("whoopsie")}
+	nbrs = getNeighborsPruned(&testmap[1][1], Direction{1,-1})
+	if !inNbrs(nbrs, &testmap[2][0]) {t.Errorf("Invalid neighbors")}
+	
+	nbrs = getNeighborsPruned(&testmap[1][1], Direction{-1,1})
+	if !inNbrs(nbrs, &testmap[0][2]) {t.Errorf("Invalid neighbors")}
+	
+	nbrs = getNeighborsPruned(&testmap[1][1], Direction{-1,-1})
+	if !inNbrs(nbrs, &testmap[0][0]) {t.Errorf("Invalid neighbors")}	
 }
-*/
+
 
 
 func TestGetJumpPoint(t *testing.T) {
@@ -366,7 +344,6 @@ func TestGetJumpPoint(t *testing.T) {
 		{0,0,0,1,0,2}}
 	testmap := TileConvert(matrix)
 
-
 	// höger
 	jp1 := getJumpPoint(&testmap[3][1], Direction{0,1})
 	if jp1.jp == nil {t.Errorf("Expected a valid jp, but got an invalid one")}
@@ -377,7 +354,6 @@ func TestGetJumpPoint(t *testing.T) {
 	if jp2.jp == nil {t.Errorf("Expected a valid jp, but got an invalid one")}
 	if !(*jp2.jp == testmap[2][1]) {t.Errorf("Expected jp: 2 1, but got jp: %d %d", jp2.jp.xCoord, jp2.jp.yCoord)}
 	
-	
 	matrix2 := [][]int {
 		{0,0,0,1,0,0,0},
 		{0,0,0,1,0,0,0},
@@ -387,19 +363,15 @@ func TestGetJumpPoint(t *testing.T) {
 		{0,0,0,1,0,0,0}}
 	testmap = TileConvert(matrix2)
 	
-	
 	// höger
 	jp1 = getJumpPoint(&testmap[2][1], Direction{0,1})
 	if jp1.jp == nil {t.Errorf("Expected a valid jp, but got an invalid one")}
 	if !(*jp1.jp == testmap[2][4]) {t.Errorf("Expected jp: 2 4, but got jp: %d %d", jp1.jp.xCoord, jp1.jp.yCoord)}
-//	fmt.Println(jp1.fn[0])
-//	fmt.Println(jp1.fn[1])
 	
 	// vänster
 	jp2 = getJumpPoint(&testmap[2][5], Direction{0,-1})
 	if jp2.jp == nil {t.Errorf("Expected a valid jp, but got an invalid one")}
 	if !(*jp2.jp == testmap[2][2]) {t.Errorf("Expected jp: 2 2, but got jp: %d %d", jp2.jp.xCoord, jp2.jp.yCoord)}
-
 	
 	/*
 	jp := getJumpPoint(&testmap[1][1], Direction{1,1})
@@ -421,6 +393,64 @@ func TestDiagonallyJumpPoint(t *testing.T) {
 	jp1 := sneJP(&testmap[3][3], Direction{-1,-1})
 	if jp1.jp == nil {t.Errorf("Expected a valid jp, but got an invalid one")}
 	if !(*jp1.jp == testmap[3][3]) {t.Errorf("Expected jp: 2 2, but got jp: %d %d", jp1.jp.xCoord, jp1.jp.yCoord)}
-//	fmt.Println(jp1.fn[0])
+}
 
+
+// -- functions for manual debugging below --
+
+func mainMap() {
+	matrix := [][]int {
+		{1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,0,0,0,0,1,0,0,0,0,0,1},
+		{1,0,0,0,0,0,1,0,0,1,0,0,1},
+		{1,0,0,0,0,0,1,1,1,1,0,0,1},
+		{1,1,1,0,0,0,1,0,0,0,0,0,1},
+		{2,0,0,0,0,0,0,0,0,0,0,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1}}
+
+	ppl := [][]int{{1,1}, {1,2}, {2,1}, {1,3}}
+	tryThis(matrix, ppl, -1, -1)
+	
+	//debugging()
+}
+
+func tryThis(matrix [][]int, ppl [][]int, x, y int) {
+	testmap := TileConvert(matrix)
+	pplArray := PeopleInit(testmap, ppl)
+
+	InitPlans(&testmap)
+	fmt.Println("init")
+	if x >= 0 && y >= 0 {SetFire(&testmap[x][y])}
+	MovePeople(&testmap, pplArray)
+
+	for i, p := range pplArray {
+		fmt.Println("Person", i, "time:  ", p.time, "\n         health:", p.hp)
+	}
+}
+
+func debugging() {
+
+	if true {b, err3 := ioutil.ReadFile("../src/mapfile.txt")
+		if err3 != nil{
+			panic(err3)
+		}
+
+		var m = [][]int{}
+		err := json.Unmarshal(b, &m)
+		if err != nil{
+			panic(err)
+		}
+
+		c, err4 := ioutil.ReadFile("../src/playerfile.txt")
+		if err4 != nil{
+			panic(err4)
+		}
+
+		var mm = [][]int{}
+		err5 := json.Unmarshal(c, &mm)
+		if err5 != nil{
+			panic(err5)
+		}
+		tryThis(m, mm, 20, 20)// 31, 31)
+	}
 }
